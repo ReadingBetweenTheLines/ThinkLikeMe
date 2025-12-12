@@ -94,64 +94,67 @@
         }
         .timer { font-family: var(--font-tech); font-size: 1.5rem; font-weight: bold; color: #EF4444; }
 
-        /* ================= BOSS SPRITE (MASSIVE IMAGE SCALING) ================= */
+        /* ================= BOSS SPRITE (UPDATED FOR 619x337) ================= */
         .boss-frame {
-            width: 100px; /* Space reserved in HUD */
+            width: 100px;
             height: 100%;
             display: flex; justify-content: center; align-items: center;
             overflow: visible; 
             z-index: 10;
         }
 
-        /* This wrapper shrinks the 1536px giant down to ~120px */
         .boss-scaler {
-            width: 704px; 
-            height: 1536px;
-            transform: scale(0.08); /* Shrink to 8% of original size */
-            transform-origin: center top; /* Scale from top so he doesn't float away */
+            /* 1. MATH: 619px width / 4 frames = 154.75px per frame */
+            width: 155.75px; 
+            height: 337px;
+            
+            /* 2. SCALE: Increase this number to make him bigger */
+            /* 0.25 = Tiny */
+            /* 0.5  = Medium */
+            /* 0.8  = HUGE */
+            transform: scale(0.55); 
+            
+            transform-origin: center center;
+            
+            /* Optional: Move him down a bit if he hits the top edge */
+            margin-top: 20px; 
         }
         
         #bossEntity {
-            /* EXACT SIZE OF ONE FRAME */
-            border: 5px solid red;
-            width: 704px; 
-            height: 1536px;
+            width: 154.75px; 
+            height: 337px;
             
-            /* 1. IDLE ANIMATION */
+            /* PATH: Make sure this matches your folder structure */
             background-image: url("image/boss_idle.png"); 
             
-            /* Important: We define the TOTAL size of the strip here */
-            /* 2816px width (4 frames) x 1536px height */
-            background-size: 2816px 1536px; 
+            /* 3. SIZE: The total size of your new image file */
+            background-size: 610px 300px; 
             background-repeat: no-repeat;
             
-            /* ANIMATION: Move background from 0 to -2816px */
+            /* 4. ANIMATION: Steps(4) because you have 4 frames */
             animation: play-sprite 1s steps(4) infinite;
             
-            image-rendering: pixelated; /* Keeps lines sharp even when scaled */
+            image-rendering: pixelated; 
         }
 
-        /* --- THE MOVEMENT LOGIC --- */
+        /* --- MOVEMENT LOGIC --- */
         @keyframes play-sprite {
             from { background-position: 0px 0px; }
-            to { background-position: -2816px 0px; } /* Shifts entire strip length */
+            /* 5. STOP POINT: The total width of the new image */
+            to { background-position: -610px 0px; } 
         }
 
-        /* --- STATE 1: DAMAGED (Correct Answer) --- */
+        /* --- STATE 1: DAMAGED --- */
         #bossEntity.state-damaged {
             background-image: url("image/boss_shock.png") !important;
-            animation: play-sprite 0.5s steps(4) infinite; /* Fast shake */
-            
-            /* If you haven't made the shock image yet, this RED FILTER creates a fallback effect */
+            animation: play-sprite 0.5s steps(4) infinite;
             filter: sepia(100%) hue-rotate(-50deg) saturate(600%) brightness(0.8);
         }
 
-        /* --- STATE 2: ATTACKING (Wrong Answer) --- */
+        /* --- STATE 2: ATTACKING --- */
         #bossEntity.state-attack {
             background-image: url("image/boss_angry.png") !important;
             animation: play-sprite 0.8s steps(4) infinite;
-            
-            /* Fallback filter if image missing */
             filter: brightness(1.5) contrast(1.2);
         }
 
@@ -249,7 +252,6 @@
                 <div class="boss-hp-bar" id="bossHP"></div>
             </div>
         </div>
-
         <div class="boss-frame">
             <div class="boss-scaler">
                 <div id="bossEntity"></div>
