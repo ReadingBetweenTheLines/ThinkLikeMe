@@ -94,73 +94,81 @@
         }
         .timer { font-family: var(--font-tech); font-size: 1.5rem; font-weight: bold; color: #EF4444; }
 
-        /* ================= BOSS SPRITE (UPDATED FOR 619x337) ================= */
-        .boss-frame {
-            width: 100px;
+        /* ================= ARENA LAYOUT (3 COLUMNS) ================= */
+        .battle-arena {
+            display: grid;
+            /* 180px for Boss | Flexible Text | Fixed Quiz */
+            grid-template-columns: 180px 1fr 0.8fr; 
             height: 100%;
-            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        /* Mobile Layout: Hide boss sidebar to save space */
+        @media(max-width: 900px) {
+            .battle-arena { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+            .boss-sidebar { display: none; }
+        }
+
+        /* ================= BOSS SIDEBAR ================= */
+        .boss-sidebar {
+            background: #020617; /* Very Dark */
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-shadow: inset -10px 0 20px rgba(0,0,0,0.5); /* Shadow for depth */
+        }
+
+        /* ================= BOSS SPRITE (SIDEBAR MODE) ================= */
+        .boss-frame {
+            width: 100%;
+            height: 300px; /* Tall enough for him */
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
             overflow: visible; 
-            z-index: 10;
+            position: relative;
         }
 
         .boss-scaler {
-            /* 1. MATH: 619px width / 4 frames = 154.75px per frame */
-            width: 155.75px; 
+            /* 1. MATH: 619px / 4 = 154.75px */
+            width: 154.75px; 
             height: 337px;
             
-            /* 2. SCALE: Increase this number to make him bigger */
-            /* 0.25 = Tiny */
-            /* 0.5  = Medium */
-            /* 0.8  = HUGE */
-            transform: scale(0.55); 
-            
+            /* 2. SCALE: 0.6 fits perfectly in the 180px sidebar */
+            transform: scale(1.0); 
             transform-origin: center center;
-            
-            /* Optional: Move him down a bit if he hits the top edge */
-            margin-top: 20px; 
         }
         
         #bossEntity {
             width: 154.75px; 
             height: 337px;
-            
-            /* PATH: Make sure this matches your folder structure */
             background-image: url("image/boss_idle.png"); 
-            
-            /* 3. SIZE: The total size of your new image file */
-            background-size: 610px 300px; 
+            background-size: 619px 337px; 
             background-repeat: no-repeat;
-            
-            /* 4. ANIMATION: Steps(4) because you have 4 frames */
             animation: play-sprite 1s steps(4) infinite;
-            
             image-rendering: pixelated; 
         }
 
-        /* --- MOVEMENT LOGIC --- */
+        /* --- STATES (Same as before) --- */
         @keyframes play-sprite {
             from { background-position: 0px 0px; }
-            /* 5. STOP POINT: The total width of the new image */
-            to { background-position: -610px 0px; } 
+            to { background-position: -619px 0px; } 
         }
 
-        /* --- STATE 1: DAMAGED --- */
         #bossEntity.state-damaged {
             background-image: url("image/boss_shock.png") !important;
             animation: play-sprite 0.5s steps(4) infinite;
             filter: sepia(100%) hue-rotate(-50deg) saturate(600%) brightness(0.8);
         }
 
-        /* --- STATE 2: ATTACKING --- */
         #bossEntity.state-attack {
             background-image: url("image/boss_angry.png") !important;
             animation: play-sprite 0.8s steps(4) infinite;
             filter: brightness(1.5) contrast(1.2);
         }
-
-        /* ARENA */
-        .battle-arena { display: grid; grid-template-columns: 1.2fr 0.8fr; height: 100%; overflow: hidden; }
-        @media(max-width: 768px) { .battle-arena { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
 
         /* TEXT PANEL */
         .text-panel {
@@ -229,6 +237,53 @@
         }
         .shake-screen { animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(0,0); } 20% { transform: translate(-10px, 0); } 40% { transform: translate(10px, 0); } 100% { transform: translate(0,0); } }
+
+        /* 1. BOSS CRITICAL STATE (HP < 30%) */
+        #bossEntity.boss-critical {
+            /* REPLACE 'boss_tantrum.png' WITH YOUR ACTUAL FILENAME */
+            background-image: url("image/boss_tantrum.png") !important; 
+            
+            /* Make the animation FASTER (0.5s) to show panic/rage */
+            animation: play-sprite 0.5s steps(4) infinite !important;
+            
+            /* Optional: Add a red shake effect on top of the sprite */
+            animation-name: play-sprite, shake-constant !important;
+            
+            /* Remove the old color filters so we see your actual pixel art colors */
+            filter: none !important; 
+        }
+
+        /* ================= COMBO & ENDINGS ================= */
+        .combo-active { opacity: 1 !important; text-shadow: 0 0 10px var(--green); font-weight: 800; transform: scale(1.1); }
+        
+        /* Screen for Failing (Boss Alive) */
+        .screen-fail {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(50, 0, 0, 0.95); z-index: 200; flex-direction: column; justify-content: center; align-items: center;
+        }
+        
+        .fail-title { font-size: 4rem; color: var(--red); margin: 0; text-transform: uppercase; letter-spacing: 5px; }
+        .fail-desc { color: #FECACA; font-size: 1.2rem; max-width: 600px; text-align: center; margin-top: 20px; line-height: 1.6; }
+    
+        /* ================= FAIL SCREEN ================= */
+        .screen-fail {
+            display: none; /* Hidden by default */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 0, 0, 0.98); /* Dark Red Background */
+            z-index: 200; 
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        
+        .fail-title { 
+            font-size: 4rem; font-weight: 800; color: var(--red); 
+            margin: 0; text-transform: uppercase; letter-spacing: 5px; 
+            text-shadow: 0 0 20px var(--red);
+        }
+        
+        .fail-desc { 
+            color: #FECACA; font-size: 1.5rem; max-width: 600px; 
+            text-align: center; margin-top: 20px; line-height: 1.6; 
+        }
     </style>
 </head>
 <body>
@@ -247,14 +302,15 @@
     
     <div class="hud-top">
         <div>
-            <span style="font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold);">BOSS INTEGRITY</span>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                <span style="font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold);">BOSS INTEGRITY</span>
+                <span id="comboDisplay" style="font-family: var(--font-tech); font-size: 0.8rem; color: var(--green); opacity:0; transition:0.3s;">
+                    CHAIN x1
+                </span>
+            </div>
+            
             <div class="boss-hp-container">
                 <div class="boss-hp-bar" id="bossHP"></div>
-            </div>
-        </div>
-        <div class="boss-frame">
-            <div class="boss-scaler">
-                <div id="bossEntity"></div>
             </div>
         </div>
 
@@ -262,9 +318,24 @@
     </div>
 
     <div class="battle-arena">
-        <div class="text-panel" id="textPanel"></div>
+        
+        <div class="boss-sidebar">
+            <div class="boss-frame">
+                <div class="boss-scaler">
+                    <div id="bossEntity"></div>
+                </div>
+            </div>
+            <div style="text-align:center; color:var(--text-muted); font-size:0.7rem; margin-top:10px; font-family:var(--font-tech);">
+                PENGAWAS<br>AREA 04
+            </div>
+        </div>
+
+        <div class="text-panel" id="textPanel">
+            </div>
+
         <div class="control-panel">
-            <div id="quiz-container"></div>
+            <div id="quiz-container">
+                </div>
             <div class="feedback-modal" id="fbModal"></div>
         </div>
     </div>
@@ -281,6 +352,15 @@
     <h1 style="font-size:4rem; color:var(--gold); margin:0;">VICTORY</h1>
     <p style="color:#CBD5E1; font-size:1.5rem;">YOU SURVIVED 20 ROUNDS</p>
     <a href="index.html" class="start-btn" style="text-decoration:none; display:inline-block; margin-top:30px;">RETURN TO LOBBY</a>
+</div>
+
+<div class="screen-fail" id="failScreen">
+    <h1 class="fail-title">MISSION FAILED</h1>
+    <p class="fail-desc">
+        Target remains active. Logic sync failed.<br>
+        <span style="font-size:1rem; opacity:0.8;">You ran out of questions before defeating the boss.</span>
+    </p>
+    <button class="start-btn" style="background:var(--red); color:white; border:1px solid white;" onclick="location.reload()">RETRY SIMULATION</button>
 </div>
 
 <script>
@@ -355,7 +435,11 @@
     // --- GAME ENGINE ---
     let currentQIndex = 0;
     let currentHP = 100;
-    const damagePerHit = 100 / 20; 
+    
+    // NEW LOGIC: Base damage is lower (4%), but combos add up!
+    const baseDamage = 4; 
+    let comboStreak = 0; // Starts at 0
+    
     let timeLeft = 1200; 
     let timerInterval;
 
@@ -418,23 +502,63 @@
         const allBtns = document.querySelectorAll('.opt-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
         const bossEntity = document.getElementById('bossEntity');
+        const comboDisplay = document.getElementById('comboDisplay');
 
         if(isCorrect) {
-            currentHP -= damagePerHit;
-            document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
-            btn.classList.add('opt-correct');
-            playSound('win'); triggerVisualFX('win');
-            showFeedback(true, "TARGET HIT!");
+            // --- CORRECT: BUILD COMBO ---
+            comboStreak++; // Increase Streak
             
-            bossEntity.classList.add('state-damaged');
-            setTimeout(() => { bossEntity.classList.remove('state-damaged'); }, 1000);
+            // Calculate Damage: Base + (Streak * 1.5)
+            // Example: Streak 1 = 5.5 dmg. Streak 3 = 8.5 dmg. Streak 5 = 11.5 dmg!
+            let totalDmg = baseDamage + (comboStreak * 1.5);
+            
+            currentHP -= totalDmg;
+            document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
+            
+            // UI Updates
+            btn.classList.add('opt-correct');
+            comboDisplay.innerText = `CHAIN x${comboStreak} (+${totalDmg.toFixed(1)} DMG)`;
+            comboDisplay.classList.add('combo-active');
+            
+            playSound('win'); triggerVisualFX('win');
+            
+            // CRITICAL PHASE LOGIC (Same as before)
+            if (currentHP < 30) {
+                bossEntity.classList.remove('boss-aggressive');
+                bossEntity.classList.add('boss-critical');
+                document.body.classList.add('screen-critical');
+                showFeedback(true, `CRITICAL HIT! (Combo x${comboStreak})`);
+            } else if (currentHP < 60) {
+                bossEntity.classList.add('boss-aggressive');
+                showFeedback(true, `COMBO x${comboStreak}! Keep it up!`);
+            } else {
+                bossEntity.classList.add('state-damaged');
+                setTimeout(() => bossEntity.classList.remove('state-damaged'), 1000);
+                showFeedback(true, "TARGET HIT!");
+            }
+
+            // Check Win Condition Immediately
+            if(currentHP <= 0) {
+                setTimeout(winGame, 1000);
+                return;
+            }
 
             setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
+
         } else {
+            // --- WRONG: BREAK COMBO ---
+            comboStreak = 0; // Reset to zero
+            
             btn.classList.add('opt-wrong');
             allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); });
+            
+            // UI Updates
+            comboDisplay.innerText = "CHAIN BROKEN";
+            comboDisplay.classList.remove('combo-active');
+            
             playSound('lose'); triggerVisualFX('lose');
-            showFeedback(false, "ERROR!");
+            showFeedback(false, "ERROR! CHAIN RESET.");
+            
             document.body.classList.add('shake-screen');
             setTimeout(() => document.body.classList.remove('shake-screen'), 500);
             
@@ -444,6 +568,56 @@
             setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 2500);
         }
     }
+
+    // UPDATE LOADQUESTION TO CHECK FOR "BAD ENDING"
+    function loadQuestion(idx) {
+        // --- CHECK END GAME CONDITIONS ---
+        if(idx >= questions.length) { 
+            // We are out of questions. Is the boss dead?
+            if(currentHP > 0) {
+                // Boss has ANY health left -> YOU LOSE
+                failGame(); 
+            } else {
+                // Boss has 0 or less health -> YOU WIN
+                winGame(); 
+            }
+            return; 
+        }
+        
+        // ... (The rest of the loading logic remains the same) ...
+        
+        const qData = questions[idx];
+        const currentPassage = passages.find(p => p.id === qData.tId);
+        const textPanel = document.getElementById('textPanel');
+        
+        if (!textPanel.innerHTML.includes(currentPassage.title)) {
+            textPanel.style.opacity = '0';
+            setTimeout(() => {
+                textPanel.innerHTML = `<h3>${currentPassage.title}</h3>${currentPassage.content}`;
+                textPanel.style.opacity = '1';
+                document.querySelectorAll('.tool-active').forEach(btn => {
+                    if(btn.innerText.includes("SUFFIX")) textPanel.classList.add('mode-suffix');
+                    if(btn.innerText.includes("X-RAY")) textPanel.classList.add('mode-xray');
+                    if(btn.innerText.includes("LOGIC")) textPanel.classList.add('mode-logic');
+                });
+            }, 300);
+        }
+
+        const qContainer = document.getElementById('quiz-container');
+        let optsHTML = "";
+        qData.opts.forEach((opt, i) => {
+            optsHTML += `<button class="opt-btn" onclick="checkAnswer(this, ${i === qData.ans})">${opt}</button>`;
+        });
+
+        qContainer.innerHTML = `
+            <div class="q-card">
+                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION ${idx + 1} / 20</div>
+                <div class="q-text">${qData.q}</div>
+                ${optsHTML}
+            </div>
+        `;
+    }
+
 
     function toggleTool(btn, modeClass) {
         btn.classList.toggle('tool-active');
@@ -464,6 +638,12 @@
         confetti({ particleCount: 300, spread: 120 });
         document.getElementById('winScreen').style.display = 'flex';
         playSound('win');
+    }
+
+    function failGame() {
+        clearInterval(timerInterval);
+        document.getElementById('failScreen').style.display = 'flex';
+        playSound('lose'); // Play the evil laugh one last time
     }
 </script>
 
