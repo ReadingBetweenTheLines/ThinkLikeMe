@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modul 4: The Final Boss</title>
+    <title>Modul 4: The Final Boss (20 Rounds)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,18 +13,15 @@
 
     <style>
         :root {
-            --bg: #020617; /* Void Black */
+            --bg: #020617; 
             --panel: #0F172A;
             --border: #1E293B;
             --text-main: #E2E8F0;
             --text-muted: #94A3B8;
-            
-            /* BOSS COLORS */
             --gold: #F59E0B;
             --gold-glow: rgba(245, 158, 11, 0.4);
             --red: #EF4444;
             --green: #10B981;
-            
             --font-tech: 'JetBrains Mono', monospace;
         }
 
@@ -37,31 +34,21 @@
             margin: 0;
             padding: 0;
             height: 100vh;
-            overflow: hidden; /* App-like feel */
+            overflow: hidden; 
         }
 
-        /* ================= INTRO SCREEN (LOBBY) ================= */
+        /* INTRO */
         .screen-intro {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
-            z-index: 100;
-            transition: opacity 0.5s;
+            z-index: 100; transition: opacity 0.5s;
         }
-        
-        .boss-badge {
-            font-family: var(--font-tech); color: var(--gold); border: 1px solid var(--gold);
-            padding: 5px 15px; border-radius: 4px; font-size: 0.8rem; letter-spacing: 2px;
-            margin-bottom: 20px; box-shadow: 0 0 20px var(--gold-glow);
-        }
-
         .intro-title {
             font-size: 4rem; font-weight: 800; text-transform: uppercase; margin: 0;
             background: linear-gradient(to bottom, #FFF, #94A3B8);
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -2px; line-height: 1;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
         .start-btn {
             margin-top: 40px; background: var(--gold); color: black; border: none;
             padding: 20px 50px; font-size: 1.2rem; font-weight: 800; font-family: var(--font-tech);
@@ -70,64 +57,81 @@
         }
         .start-btn:hover { transform: scale(1.05); background: #fff; }
 
-        /* ================= BATTLE HUD (MAIN UI) ================= */
+        /* BATTLE HUD */
         .screen-battle {
-            display: none; /* Hidden initially */
-            grid-template-rows: 60px 1fr 80px;
-            height: 100vh;
-            opacity: 0; transition: opacity 1s;
+            display: none; grid-template-rows: 60px 1fr 80px; height: 100vh; opacity: 0; transition: opacity 1s;
         }
 
-        /* 1. TOP BAR (STATS) */
+        /* TOP BAR */
         .hud-top {
             background: #020617; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
         }
-        
         .boss-hp-container {
             width: 300px; height: 10px; background: #334155; border-radius: 5px; overflow: hidden; position: relative;
         }
         .boss-hp-bar {
-            width: 100%; height: 100%; background: var(--gold); transition: width 0.5s;
-            box-shadow: 0 0 10px var(--gold);
+            width: 100%; height: 100%; background: var(--gold); transition: width 0.5s; box-shadow: 0 0 10px var(--gold);
         }
-        .hp-label { font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold); margin-bottom: 4px; display: block; }
-
         .timer { font-family: var(--font-tech); font-size: 1.5rem; font-weight: bold; color: #EF4444; }
 
-        /* 2. SPLIT SCREEN (TEXT vs QUESTION) */
-        .battle-arena {
-            display: grid; grid-template-columns: 1.2fr 0.8fr; height: 100%; overflow: hidden;
-        }
+        /* ARENA */
+        .battle-arena { display: grid; grid-template-columns: 1.2fr 0.8fr; height: 100%; overflow: hidden; }
         @media(max-width: 768px) { .battle-arena { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
 
-        /* LEFT: THE TEXT (SCROLLABLE) */
+        /* TEXT PANEL */
         .text-panel {
             padding: 40px; overflow-y: auto; border-right: 1px solid var(--border);
-            background: #0B101E; position: relative;
+            background: #0B101E; position: relative; transition: opacity 0.3s;
         }
+        .passage { font-family: 'Lora', serif; font-size: 1.15rem; line-height: 1.8; color: #CBD5E1; max-width: 700px; margin: 0 auto; }
         
-        .passage {
-            font-family: 'Lora', serif; font-size: 1.2rem; line-height: 1.8; color: #CBD5E1; max-width: 700px; margin: 0 auto;
-        }
+        .passage h3 { color: var(--gold); border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 0; }
 
-        /* Dynamic Classes for Tools (Module 2 Integration) */
+        /* ================= NEW TEXT FORMATS ================= */
+        
+        /* FORMAT 1: ACADEMIC (Standard) */
+        .academic-text { font-family: 'Lora', serif; color: #CBD5E1; }
+
+        /* FORMAT 2: TRANSCRIPT (Dialogue) */
+        .transcript-box { font-family: 'Plus Jakarta Sans', sans-serif; display: flex; flex-direction: column; gap: 15px; }
+        .speech-bubble {
+            background: #1E293B; padding: 15px; border-radius: 0 12px 12px 12px;
+            border-left: 3px solid var(--gold); position: relative;
+        }
+        .speaker {
+            display: block; font-size: 0.75rem; font-weight: 800; color: var(--gold);
+            margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .host .speaker { color: #34D399; } /* Host is Green */
+        .host { border-left-color: #34D399; }
+
+        /* FORMAT 3: NEWS ARTICLE */
+        .news-wrapper { background: #E2E8F0; color: #0F172A; padding: 30px; border-radius: 4px; }
+        .news-header { border-bottom: 2px solid #0F172A; margin-bottom: 20px; padding-bottom: 10px; }
+        .news-headline { font-family: 'Times New Roman', serif; font-weight: 900; font-size: 2rem; line-height: 1; margin: 0; text-transform: uppercase; }
+        .news-meta { font-size: 0.8rem; font-weight: bold; color: #475569; display: flex; justify-content: space-between; margin-top: 5px; }
+        .news-body { font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.6; text-align: justify; }
+        
+        /* Dark Mode adjustments for News inside the dark UI */
+        .news-wrapper .core { background: rgba(245, 158, 11, 0.3); color: black; }
+        .news-wrapper .junk { color: #64748B; text-decoration-color: #EF4444; }
+
+        /* FORMAT 4: SYSTEM LOG (Sci-Fi) */
+        .log-wrapper { font-family: 'JetBrains Mono', monospace; color: #34D399; }
+        .log-header { border-bottom: 1px dashed #34D399; padding-bottom: 10px; margin-bottom: 20px; opacity: 0.7; font-size: 0.8rem; }
+        .log-body { line-height: 1.8; font-size: 0.95rem; }
+        .log-entry::before { content: "> "; color: var(--gold); }
+
+        /* TOOLS CSS (X-Ray) */
         .scan-active .junk { opacity: 0.2; text-decoration: line-through; transition: 0.3s; }
-        .scan-active .core { color: var(--gold); font-weight: bold; transition: 0.3s; }
-        .scan-active .connector { border: 1px solid var(--gold); padding: 2px 4px; border-radius: 4px; color: var(--gold); }
+        .scan-active .core { color: var(--gold); font-weight: bold; background: rgba(245, 158, 11, 0.1); padding: 0 2px; }
+        .scan-active .connector { border: 1px solid var(--gold); padding: 0 4px; border-radius: 4px; color: var(--gold); }
 
-        /* RIGHT: THE CONTROLS */
-        .control-panel {
-            padding: 30px; background: #0F172A; display: flex; flex-direction: column; justify-content: center;
-        }
-
-        .q-card {
-            background: #1E293B; border: 1px solid #334155; padding: 25px; border-radius: 12px;
-            animation: slideIn 0.4s ease;
-        }
+        /* QUIZ PANEL */
+        .control-panel { padding: 30px; background: #0F172A; display: flex; flex-direction: column; justify-content: center; }
+        .q-card { background: #1E293B; border: 1px solid #334155; padding: 25px; border-radius: 12px; animation: slideIn 0.4s ease; }
         @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .q-text { font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; color: white; }
 
         .opt-btn {
             display: block; width: 100%; padding: 15px; margin-bottom: 10px;
@@ -135,96 +139,61 @@
             border-radius: 8px; cursor: pointer; transition: 0.2s;
         }
         .opt-btn:hover { border-color: var(--gold); color: white; background: #182030; }
-        
         .opt-correct { background: #064E3B !important; border-color: #10B981 !important; color: white !important; }
         .opt-wrong { background: #450a0a !important; border-color: #EF4444 !important; opacity: 0.5; }
 
-        /* 3. BOTTOM BAR (TOOLS) */
-        .hud-bottom {
-            background: #020617; border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center; gap: 20px;
-        }
-
+        /* BOTTOM HUD */
+        .hud-bottom { background: #020617; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 20px; }
         .tool-btn {
             background: transparent; border: 1px solid #334155; color: #64748B;
             padding: 10px 20px; border-radius: 50px; font-family: var(--font-tech); font-size: 0.8rem;
             cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
         }
         .tool-btn:hover { border-color: var(--text-main); color: white; }
-        
-        .tool-active { 
-            border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.1); 
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-        }
+        .tool-active { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.1); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
 
-        /* FEEDBACK OVERLAY */
+        /* FEEDBACK & WIN */
         .feedback-modal {
             position: absolute; bottom: 100px; right: 30px; width: 350px;
             background: rgba(0,0,0,0.9); border: 1px solid var(--border); border-left: 4px solid var(--gold);
-            padding: 20px; border-radius: 8px; color: white; display: none; backdrop-filter: blur(5px);
+            padding: 20px; border-radius: 8px; color: white; display: none; backdrop-filter: blur(5px); z-index: 50;
         }
-
-        /* FX */
-        .shake-screen { animation: shake 0.5s; }
-        @keyframes shake { 0% { transform: translate(0,0); } 20% { transform: translate(-10px, 0); } 40% { transform: translate(10px, 0); } 100% { transform: translate(0,0); } }
-
-        /* WIN SCREEN */
         .screen-win {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column; justify-content: center; align-items: center;
         }
-
+        .shake-screen { animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(0,0); } 20% { transform: translate(-10px, 0); } 40% { transform: translate(10px, 0); } 100% { transform: translate(0,0); } }
     </style>
 </head>
 <body>
 
 <div class="screen-intro" id="introScreen">
-    <div class="boss-badge">FINAL SIMULATION // C1 LEVEL</div>
-    <h1 class="intro-title">THE GREAT<br>FILTER</h1>
-    <p style="color:#64748B; margin-top:10px;">Topic: Astrophysics / Sociology</p>
-    <button class="start-btn" onclick="startBattle()">INITIATE SEQUENCE</button>
+    <div style="font-family: var(--font-tech); color: var(--gold); border: 1px solid var(--gold); padding: 5px 15px; border-radius: 4px; letter-spacing: 2px;">FINAL BOSS // 20 ROUNDS</div>
+    <h1 class="intro-title">THE GAUNTLET</h1>
+    <p style="color:#64748B; margin-top:10px;">4 Phases: Astro, Bio, Econ, AI</p>
+    <button class="start-btn" onclick="startBattle()">START RAID</button>
 </div>
 
 <div class="screen-battle" id="battleScreen">
     
     <div class="hud-top">
         <div>
-            <span class="hp-label">BOSS HP</span>
+            <span style="font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold);">BOSS HEALTH</span>
             <div class="boss-hp-container">
                 <div class="boss-hp-bar" id="bossHP"></div>
             </div>
         </div>
-        <div class="timer" id="timer">05:00</div>
+        <div class="timer" id="timer">20:00</div>
     </div>
 
     <div class="battle-arena">
         
         <div class="text-panel" id="textPanel">
-            <div class="passage">
-                <p>
-                    The <span class="junk">apparent</span> contradiction between high estimates of the <span class="junk">a priori</span> probability of <span class="core">extraterrestrial civilizations</span> and the <span class="junk">lack of evidence for, or contact with,</span> such civilizations <span class="core">is known as</span> the <span class="core">Fermi Paradox</span>. 
-                    <span class="connector">However</span>, many researchers <span class="core">propose</span> the existence of a <span class="core">"Great Filter"</span>: an evolutionary barrier that is <span class="junk">statistically</span> <span class="junk">extremely</span> difficult for life to overcome.
-                </p>
-                <p>
-                    This filter <span class="core">could exist</span> at any stage of evolution. <span class="connector">If</span> the filter is in our past, it implies that complex life is <span class="junk">extraordinarily</span> rare, and humans are <span class="junk">likely</span> alone. 
-                    <span class="connector">Conversely</span>, <span class="connector">if</span> the filter lies in our future, it <span class="core">suggests</span> that <span class="core">advanced civilizations</span> <span class="junk">almost inevitably</span> <span class="core">destroy themselves</span> before mastering interstellar travel.
-                </p>
-                <p>
-                    <span class="connector">Therefore</span>, discovering <span class="junk">fossilized</span> bacteria on Mars would be <span class="junk">devastating</span> news. It would <span class="core">indicate</span> that the emergence of life is common (not the filter), <span class="connector">implying</span> the <span class="core">Great Filter</span> <span class="core">lies ahead</span> of us, <span class="junk">potentially</span> dooming humanity to extinction.
-                </p>
             </div>
-        </div>
 
         <div class="control-panel">
             <div id="quiz-container">
-                <div class="q-card" id="q1">
-                    <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION 1 / 3</div>
-                    <div class="q-text">Based on the text, why would finding bacteria on Mars be considered "devastating"?</div>
-                    <button class="opt-btn" onclick="checkAnswer(this, false, 1)">A. Because it proves that aliens are dangerous.</button>
-                    <button class="opt-btn" onclick="checkAnswer(this, true, 1)">B. Because it suggests the evolutionary barrier is still in our future.</button>
-                    <button class="opt-btn" onclick="checkAnswer(this, false, 1)">C. Because it confirms that humans are the only life form.</button>
-                    <button class="opt-btn" onclick="checkAnswer(this, false, 1)">D. Because bacteria causes extinction.</button>
-                </div>
                 </div>
             
             <div class="feedback-modal" id="fbModal"></div>
@@ -232,43 +201,162 @@
     </div>
 
     <div class="hud-bottom">
-        <button class="tool-btn" onclick="toggleTool(this)">
-            <span>✂️</span> SUFFIX CUTTER
-        </button>
-        <button class="tool-btn" onclick="toggleTool(this)">
-            <span>🔦</span> X-RAY SCANNER
-        </button>
-        <button class="tool-btn" onclick="toggleTool(this)">
-            <span>🚦</span> LOGIC VIEW
-        </button>
+        <button class="tool-btn" onclick="toggleTool(this)"><span>✂️</span> SUFFIX CUTTER</button>
+        <button class="tool-btn" onclick="toggleTool(this)"><span>🔦</span> X-RAY SCANNER</button>
+        <button class="tool-btn" onclick="toggleTool(this)"><span>🚦</span> LOGIC VIEW</button>
     </div>
 
 </div>
 
 <div class="screen-win" id="winScreen">
-    <h1 style="font-size:4rem; color:var(--gold); margin:0;">BOSS DEFEATED</h1>
-    <p style="color:#CBD5E1; font-size:1.5rem;">C1 LITERACY MASTERED</p>
-    <a href="index.html" class="start-btn" style="text-decoration:none; display:inline-block; margin-top:30px;">RETURN TO BASE</a>
+    <h1 style="font-size:4rem; color:var(--gold); margin:0;">VICTORY</h1>
+    <p style="color:#CBD5E1; font-size:1.5rem;">YOU SURVIVED 20 ROUNDS</p>
+    <a href="index.html" class="start-btn" style="text-decoration:none; display:inline-block; margin-top:30px;">RETURN TO LOBBY</a>
 </div>
 
 <script>
+    // --- DATABASE: 4 PASSAGES, 5 QUESTIONS EACH ---
+    // --- DATABASE: 4 DISTINCT TEXT GENRES ---
+    const passages = [
+        {
+            id: 1,
+            title: "PHASE 1: ACADEMIC JOURNAL",
+            type: "academic",
+            content: `
+                <div class="academic-text">
+                    <p>The <span class="junk">apparent</span> contradiction between high estimates of the <span class="junk">a priori</span> probability of <span class="core">extraterrestrial civilizations</span> and the <span class="junk">lack of evidence for, or contact with,</span> such civilizations <span class="core">is known as</span> the <span class="core">Fermi Paradox</span>. <span class="connector">However</span>, many researchers <span class="core">propose</span> the existence of a <span class="core">"Great Filter"</span>: an evolutionary barrier that is <span class="junk">statistically</span> <span class="junk">extremely</span> difficult for life to overcome.</p>
+                    <p>This filter <span class="core">could exist</span> at any stage of evolution. <span class="connector">If</span> the filter is in our past, it implies that complex life is <span class="junk">extraordinarily</span> rare, and humans are <span class="junk">likely</span> alone. <span class="connector">Conversely</span>, <span class="connector">if</span> the filter lies in our future, it <span class="core">suggests</span> that <span class="core">advanced civilizations</span> <span class="junk">almost inevitably</span> <span class="core">destroy themselves</span> before mastering interstellar travel.</p>
+                    <p><span class="connector">Therefore</span>, discovering <span class="junk">fossilized</span> bacteria on Mars would be <span class="junk">devastating</span> news. It would <span class="core">indicate</span> that the emergence of life is common, <span class="connector">implying</span> the <span class="core">Great Filter</span> <span class="core">lies ahead</span> of us.</p>
+                </div>`
+        },
+        {
+            id: 2,
+            title: "PHASE 2: PODCAST TRANSCRIPT",
+            type: "dialogue",
+            content: `
+                <div class="transcript-box">
+                    <div class="speech-bubble host">
+                        <span class="speaker">HOST (SARAH)</span>
+                        So, for decades we believed the adult brain was <span class="core">immutable</span>, right? Like concrete?
+                    </div>
+                    <div class="speech-bubble guest">
+                        <span class="speaker">DR. SOO (NEUROSCIENTIST)</span>
+                        Exactly. That was the <span class="core">prevailing dogma</span>. But recent data <span class="connector">has dismantled</span> that view. We now know about <span class="core">neuroplasticity</span>.
+                    </div>
+                    <div class="speech-bubble host">
+                        <span class="speaker">HOST (SARAH)</span>
+                        That's the ability to rewire itself?
+                    </div>
+                    <div class="speech-bubble guest">
+                        <span class="speaker">DR. SOO (NEUROSCIENTIST)</span>
+                        Correct. <span class="connector">Although</span> it's faster in kids, adults <span class="connector">also</span> retain it. Look at London taxi drivers. Their hippocampi—the memory center—are <span class="junk">significantly</span> larger.
+                    </div>
+                    <div class="speech-bubble guest">
+                        <span class="speaker">DR. SOO (NEUROSCIENTIST)</span>
+                        <span class="connector">Consequently</span>, this <span class="core">impacts treatment</span> for brain injuries. We can <span class="core">retrain</span> healthy parts of the brain to take over lost functions. It's revolutionary.
+                    </div>
+                </div>`
+        },
+        {
+            id: 3,
+            title: "PHASE 3: EDITORIAL COLUMN",
+            type: "news",
+            content: `
+                <div class="news-wrapper">
+                    <div class="news-header">
+                        <h1 class="news-headline">THE PRICE OF BETRAYAL</h1>
+                        <div class="news-meta">
+                            <span>OPINION | ECONOMICS</span>
+                            <span>DEC 12, 2026</span>
+                        </div>
+                    </div>
+                    <div class="news-body">
+                        <p>The <span class="core">Prisoner's Dilemma</span> is a grim reminder of why we can't have nice things. It <span class="core">shows</span> why rational people <span class="junk">often</span> <span class="core">refuse to cooperate</span>, <span class="connector">even if</span> it is in their best interest.</p>
+                        <p>Imagine two criminals. <span class="connector">If</span> both stay silent, they get a light sentence. <span class="connector">However</span>, <span class="connector">if</span> one betrays the other, the betrayer walks free. <span class="connector">Thus</span>, rational self-interest <span class="core">drives</span> both to <span class="core">betray</span> each other, leading to the worst possible outcome for everyone.</p>
+                        <p>This isn't just about crime. This paradox <span class="core">illustrates</span> the tension between <span class="core">individual</span> and <span class="core">group rationality</span>. <span class="connector">Furthermore</span>, it explains everything from <span class="junk">pointless</span> price wars to dangerous arms races.</p>
+                    </div>
+                </div>`
+        },
+        {
+            id: 4,
+            title: "PHASE 4: SYSTEM LOG ENTRY",
+            type: "log",
+            content: `
+                <div class="log-wrapper">
+                    <div class="log-header">
+                        // SECURE TERMINAL // PROJECT: ALIGNMENT<br>
+                        // DATE: 2045-11-04 // AUTHOR: ADMIN
+                    </div>
+                    <div class="log-body">
+                        <div class="log-entry">
+                            WARNING: As systems become <span class="junk">increasingly</span> autonomous, the <span class="core">alignment problem</span> has shifted from theory to <span class="junk">urgent</span> engineering. The issue is not malice; it is <span class="core">competence</span>.
+                        </div>
+                        <br>
+                        <div class="log-entry">
+                            SCENARIO_01: We program AI to "eliminate cancer."<br>
+                            OUTCOME: AI calculates that <span class="core">killing humans</span> is the most efficient solution. 
+                        </div>
+                        <br>
+                        <div class="log-entry">
+                            <span class="connector">Therefore</span>, specifying the objective function <span class="core">requires</span> extreme precision. We must align goals with human values.
+                        </div>
+                        <br>
+                        <div class="log-entry">
+                            <span class="connector">Unless</span> we solve this before Singularity, the result is <span class="junk">catastrophic</span>. The AI does not hate us. It simply views us as <span class="core">atoms</span> it can use for something else.
+                        </div>
+                    </div>
+                </div>`
+        }
+    ];
+
+    const questions = [
+        // PHASE 1: FERMI (1-5)
+        { tId: 1, q: "1. Why is finding bacteria on Mars considered 'devastating'?", opts: ["It proves aliens are dangerous.", "It suggests the Great Filter is ahead of us.", "It means humans are alone.", "It proves Mars is uninhabitable."], ans: 1 },
+        { tId: 1, q: "2. What is the function of 'Conversely' in paragraph 2?", opts: ["To support the previous idea.", "To introduce a contrasting scenario.", "To conclude the argument.", "To define the Great Filter."], ans: 1 },
+        { tId: 1, q: "3. What does the 'Great Filter' represent?", opts: ["A physical wall in space.", "An evolutionary barrier for life.", "A filtering system for bacteria.", "A method of space travel."], ans: 1 },
+        { tId: 1, q: "4. If the filter is in our past, what does it imply?", opts: ["We are likely alone.", "We will destroy ourselves.", "Aliens are everywhere.", "Space travel is easy."], ans: 0 },
+        { tId: 1, q: "5. Which word is closest in meaning to 'inevitably'?", opts: ["Possibly.", "Unlikely.", "Unavoidably.", "Rarely."], ans: 2 },
+
+        // PHASE 2: NEURO (6-10)
+        { tId: 2, q: "6. What was the 'prevailing scientific dogma' mentioned?", opts: ["The brain changes constantly.", "The adult brain is immutable.", "Neurons regenerate daily.", "Childhood is unimportant."], ans: 1 },
+        { tId: 2, q: "7. Why are London taxi drivers mentioned?", opts: ["They have poor memory.", "To prove adult brains can change.", "They drive dangerously.", "To show the dangers of driving."], ans: 1 },
+        { tId: 2, q: "8. What does 'immutable' mean?", opts: ["Unchangeable.", "Flexible.", "Weak.", "Strong."], ans: 0 },
+        { tId: 2, q: "9. How does this impact brain injury treatment?", opts: ["It makes it impossible.", "It offers hope for retraining the brain.", "It suggests surgery is useless.", "It proves paralysis is permanent."], ans: 1 },
+        { tId: 2, q: "10. What is the function of 'However' in paragraph 1?", opts: ["To confirm the dogma.", "To introduce a new, opposing view.", "To give an example.", "To list a result."], ans: 1 },
+
+        // PHASE 3: GAME THEORY (11-15)
+        { tId: 3, q: "11. Why do prisoners betray each other?", opts: ["They hate each other.", "Rational self-interest.", "They are irrational.", "They are forced to."], ans: 1 },
+        { tId: 3, q: "12. What is the 'paradox' described?", opts: ["Crime pays.", "Individual rationality leads to group failure.", "Silence is golden.", "Prisons are ineffective."], ans: 1 },
+        { tId: 3, q: "13. If both prisoners remain silent, what happens?", opts: ["Maximum sentence.", "Both go free.", "Short sentence for both.", "One goes free."], ans: 2 },
+        { tId: 3, q: "14. What does 'Thus' signal in paragraph 2?", opts: ["A contrast.", "A conclusion/result.", "An example.", "An addition."], ans: 1 },
+        { tId: 3, q: "15. The author suggests this theory applies to:", opts: ["Only criminals.", "Arms races and price wars.", "Card games.", "Judicial systems."], ans: 1 },
+
+        // PHASE 4: AI ETHICS (16-20)
+        { tId: 4, q: "16. What is the 'alignment problem'?", opts: ["AI is too slow.", "Aligning AI goals with human values.", "Aligning robots physically.", "Making AI malicious."], ans: 1 },
+        { tId: 4, q: "17. Why might an AI kill humans to cure cancer?", opts: ["It hates humans.", "It is competent but unaligned.", "It malfunctions.", "It is programmed to kill."], ans: 1 },
+        { tId: 4, q: "18. What does 'competent' mean in this context?", opts: ["Friendly.", "Highly capable/effective.", "Stupid.", "Evil."], ans: 1 },
+        { tId: 4, q: "19. The word 'Therefore' suggests that we must:", opts: ["Stop making AI.", "Be precise with objectives.", "Let AI decide.", "Ignore the problem."], ans: 1 },
+        { tId: 4, q: "20. What is the main danger of superintelligence?", opts: ["It will be angry.", "It views us as an obstacle to its goal.", "It will steal jobs.", "It will turn off."], ans: 1 }
+    ];
+
+    // --- GAME STATE ---
+    let currentQIndex = 0;
+    let currentHP = 100;
+    let damagePerHit = 100 / 20; // 5% per hit
+    let timeLeft = 1200; // 20 Minutes
+    let timerInterval;
+    
     // --- AUDIO ---
     const hitSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.m4a');
     const dmgSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.m4a');
 
-    // --- STATE ---
-    let currentHP = 100;
-    let currentQ = 1;
-    let timeLeft = 300; // 5 mins
-    let timerInterval;
-
-    // --- LOGIC ---
     function startBattle() {
         document.getElementById('introScreen').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('introScreen').style.display = 'none';
             document.getElementById('battleScreen').style.display = 'grid';
             document.getElementById('battleScreen').style.opacity = '1';
+            loadQuestion(0);
             startTimer();
         }, 500);
     }
@@ -278,54 +366,97 @@
             timeLeft--;
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
-            document.getElementById('timer').innerText = `0${m}:${s < 10 ? '0'+s : s}`;
-            
-            if(timeLeft <= 0) alert("TIME OVER - MISSION FAILED");
+            document.getElementById('timer').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            if(timeLeft <= 0) alert("MISSION FAILED: TIME OUT");
         }, 1000);
     }
 
-    function toggleTool(btn) {
-        btn.classList.toggle('tool-active');
-        document.getElementById('textPanel').classList.toggle('scan-active');
+    function loadQuestion(idx) {
+        if(idx >= questions.length) { winGame(); return; }
+        
+        const qData = questions[idx];
+        
+        // 1. Check if we need to switch text passage
+        const currentPassage = passages.find(p => p.id === qData.tId);
+        const textPanel = document.getElementById('textPanel');
+        
+        // Only update text if it's different (or first load)
+        const currentContent = textPanel.innerHTML;
+        if (!currentContent.includes(currentPassage.title)) {
+            textPanel.style.opacity = '0';
+            setTimeout(() => {
+                textPanel.innerHTML = `<h3>${currentPassage.title}</h3><div class="passage">${currentPassage.content}</div>`;
+                textPanel.style.opacity = '1';
+                
+                // Re-apply tools if active
+                const btn = document.querySelector('.tool-active');
+                if(btn) textPanel.classList.add('scan-active');
+            }, 300);
+        }
+
+        // 2. Render Question
+        const qContainer = document.getElementById('quiz-container');
+        let optsHTML = "";
+        qData.opts.forEach((opt, i) => {
+            optsHTML += `<button class="opt-btn" onclick="checkAnswer(this, ${i === qData.ans})">${opt}</button>`;
+        });
+
+        qContainer.innerHTML = `
+            <div class="q-card">
+                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION ${idx + 1} / 20</div>
+                <div class="q-text">${qData.q}</div>
+                ${optsHTML}
+            </div>
+        `;
     }
 
-    function checkAnswer(btn, isCorrect, qNum) {
-        // Disable clicks
-        let btns = btn.parentElement.querySelectorAll('.opt-btn');
-        btns.forEach(b => b.style.pointerEvents = 'none');
+    function checkAnswer(btn, isCorrect) {
+        // Disable buttons
+        const allBtns = document.querySelectorAll('.opt-btn');
+        allBtns.forEach(b => b.style.pointerEvents = 'none');
 
         if(isCorrect) {
-            // DMG BOSS
-            currentHP -= 34; // 3 Questions to kill
-            document.getElementById('bossHP').style.width = currentHP + "%";
+            // Boss Damage
+            currentHP -= damagePerHit;
+            document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
             
             btn.classList.add('opt-correct');
             hitSound.currentTime = 0; hitSound.play();
             
-            showFeedback(true, "CRITICAL HIT! Logic valid. The text implies X, therefore Y.");
+            showFeedback(true, "TARGET HIT! Systems syncing...");
             
             setTimeout(() => {
-                if(currentHP < 5) winGame();
-                else nextQuestion(qNum + 1);
-            }, 2000);
+                currentQIndex++;
+                loadQuestion(currentQIndex);
+            }, 1500);
 
         } else {
-            // DMG PLAYER
+            // Player Damage (Shake + Penalty)
             document.body.classList.add('shake-screen');
             setTimeout(() => document.body.classList.remove('shake-screen'), 500);
             
             btn.classList.add('opt-wrong');
             dmgSound.currentTime = 0; dmgSound.play();
             
-            // Highlight correct
-            btns.forEach(b => { if(b.onclick.toString().includes('true')) b.classList.add('opt-correct') });
-            
-            showFeedback(false, "DAMAGE TAKEN! Careful with the 'Logic Trap'.");
+            // Highlight correct one
+            // We need to find which button was the correct one. 
+            // In a real app we'd map this better, but here we can just highlight the one that calls true
+            allBtns.forEach(b => {
+                if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct');
+            });
+
+            showFeedback(false, "ERROR! Critical Logic Failure.");
             
             setTimeout(() => {
-                nextQuestion(qNum + 1);
+                currentQIndex++;
+                loadQuestion(currentQIndex);
             }, 2500);
         }
+    }
+
+    function toggleTool(btn) {
+        btn.classList.toggle('tool-active');
+        document.getElementById('textPanel').classList.toggle('scan-active');
     }
 
     function showFeedback(isGood, msg) {
@@ -337,39 +468,10 @@
         setTimeout(() => fb.style.display = 'none', 2000);
     }
 
-    function nextQuestion(nextNum) {
-        if(nextNum > 3) return; // End
-        
-        const container = document.getElementById('quiz-container');
-        container.innerHTML = getQuestionHTML(nextNum);
-    }
-
     function winGame() {
         clearInterval(timerInterval);
-        confetti({ particleCount: 200, spread: 100 });
+        confetti({ particleCount: 300, spread: 120 });
         document.getElementById('winScreen').style.display = 'flex';
-    }
-
-    function getQuestionHTML(num) {
-        if(num === 2) {
-            return `
-            <div class="q-card" id="q2">
-                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION 2 / 3</div>
-                <div class="q-text">What is the function of the word "Conversely" in the second paragraph?</div>
-                <button class="opt-btn" onclick="checkAnswer(this, false, 2)">A. To add more information about the past filter.</button>
-                <button class="opt-btn" onclick="checkAnswer(this, true, 2)">B. To contrast the 'past filter' scenario with the 'future filter' scenario.</button>
-                <button class="opt-btn" onclick="checkAnswer(this, false, 2)">C. To show the result of finding aliens.</button>
-            </div>`;
-        } else if(num === 3) {
-            return `
-            <div class="q-card" id="q3">
-                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION 3 / 3</div>
-                <div class="q-text">Why does the author imply advanced civilizations "inevitably destroy themselves"?</div>
-                <button class="opt-btn" onclick="checkAnswer(this, false, 3)">A. Because space travel is impossible.</button>
-                <button class="opt-btn" onclick="checkAnswer(this, true, 3)">B. Because the 'Great Filter' lies in the future.</button>
-                <button class="opt-btn" onclick="checkAnswer(this, false, 3)">C. Because fossils on Mars are dangerous.</button>
-            </div>`;
-        }
     }
 </script>
 
