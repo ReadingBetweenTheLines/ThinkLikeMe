@@ -123,10 +123,37 @@
         .log-body { line-height: 1.8; font-size: 0.95rem; }
         .log-entry::before { content: "> "; color: var(--gold); }
 
-        /* TOOLS CSS (X-Ray) */
-        .scan-active .junk { opacity: 0.2; text-decoration: line-through; transition: 0.3s; }
-        .scan-active .core { color: var(--gold); font-weight: bold; background: rgba(245, 158, 11, 0.1); padding: 0 2px; }
-        .scan-active .connector { border: 1px solid var(--gold); padding: 0 4px; border-radius: 4px; color: var(--gold); }
+        /* ================= TOOLS CSS (INDEPENDENT LAYERS) ================= */
+        
+        /* 1. SUFFIX CUTTER (Targets .junk) */
+        .mode-suffix .junk { 
+            opacity: 0.2; 
+            text-decoration: line-through; 
+            text-decoration-color: var(--red);
+            transition: 0.3s; 
+        }
+
+        /* 2. X-RAY SCANNER (Targets .core) */
+        .mode-xray .core { 
+            color: var(--gold); 
+            font-weight: 800; 
+            background: rgba(245, 158, 11, 0.15); 
+            padding: 0 4px; 
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+            transition: 0.3s; 
+        }
+
+        /* 3. LOGIC VIEW (Targets .connector) */
+        .mode-logic .connector { 
+            border: 1px solid var(--green); 
+            color: var(--green); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: 800;
+            background: rgba(16, 185, 129, 0.1);
+            transition: 0.3s; 
+        }
 
         /* QUIZ PANEL */
         .control-panel { padding: 30px; background: #0F172A; display: flex; flex-direction: column; justify-content: center; }
@@ -164,9 +191,41 @@
         }
         .shake-screen { animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(0,0); } 20% { transform: translate(-10px, 0); } 40% { transform: translate(10px, 0); } 100% { transform: translate(0,0); } }
+
+        /* ================= FX LAYERS ================= */
+        .fx-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 90; opacity: 0; transition: opacity 0.1s;
+        }
+        
+        #damageOverlay {
+            background: radial-gradient(circle, transparent 50%, rgba(239, 68, 68, 0.6) 100%);
+            box-shadow: inset 0 0 100px rgba(239, 68, 68, 0.8);
+        }
+        
+        #healOverlay {
+            background: radial-gradient(circle, transparent 50%, rgba(16, 185, 129, 0.4) 100%);
+            box-shadow: inset 0 0 100px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Animation Classes */
+        .trigger-damage { animation: flashRed 0.5s ease-out; }
+        .trigger-heal { animation: flashGreen 0.5s ease-out; }
+
+        @keyframes flashRed { 
+            0% { opacity: 1; transform: scale(1.05); } 
+            100% { opacity: 0; transform: scale(1); } 
+        }
+        @keyframes flashGreen { 
+            0% { opacity: 1; transform: scale(1.05); } 
+            100% { opacity: 0; transform: scale(1); } 
+        }
     </style>
 </head>
 <body>
+
+<div class="fx-overlay" id="damageOverlay"></div>
+<div class="fx-overlay" id="healOverlay"></div>    
 
 <div class="screen-intro" id="introScreen">
     <div style="font-family: var(--font-tech); color: var(--gold); border: 1px solid var(--gold); padding: 5px 15px; border-radius: 4px; letter-spacing: 2px;">FINAL BOSS // 20 ROUNDS</div>
@@ -201,9 +260,15 @@
     </div>
 
     <div class="hud-bottom">
-        <button class="tool-btn" onclick="toggleTool(this)"><span>✂️</span> SUFFIX CUTTER</button>
-        <button class="tool-btn" onclick="toggleTool(this)"><span>🔦</span> X-RAY SCANNER</button>
-        <button class="tool-btn" onclick="toggleTool(this)"><span>🚦</span> LOGIC VIEW</button>
+        <button class="tool-btn" onclick="toggleTool(this, 'mode-suffix')">
+            <span>✂️</span> SUFFIX CUTTER
+        </button>
+        <button class="tool-btn" onclick="toggleTool(this, 'mode-xray')">
+            <span>🔦</span> X-RAY SCANNER
+        </button>
+        <button class="tool-btn" onclick="toggleTool(this, 'mode-logic')">
+            <span>🚦</span> LOGIC VIEW
+        </button>
     </div>
 
 </div>
@@ -215,140 +280,114 @@
 </div>
 
 <script>
-    // --- DATABASE: 4 PASSAGES, 5 QUESTIONS EACH ---
-    // --- DATABASE: 4 DISTINCT TEXT GENRES ---
+    // ==========================================
+    // 1. SMART AUDIO SYSTEM (Works Offline)
+    // ==========================================
+    const synth = window.speechSynthesis;
+
+    function playSound(type) {
+        // A. Try to play MP3 file first (If you have them)
+        const audio = new Audio(type === 'win' ? 'good.wav' : 'evil.wav');
+        audio.volume = 0.6;
+        
+        const playPromise = audio.play();
+
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // B. FALLBACK: If no file, use Robot Voice (TTS)
+                console.log("File not found, using Robot Voice.");
+                
+                if (type === 'win') {
+                    // Good Job Sound
+                    const u = new SpeechSynthesisUtterance("Target Acquired. Logic Verified.");
+                    u.rate = 1.2; u.pitch = 1; u.volume = 0.8;
+                    synth.speak(u);
+                } else {
+                    // EVIL LAUGH SOUND
+                    const u = new SpeechSynthesisUtterance("Ha ha ha ha. Pathetic.");
+                    u.rate = 0.8; u.pitch = 0.1; // Deep voice
+                    u.volume = 1;
+                    synth.speak(u);
+                }
+            });
+        }
+    }
+
+    function triggerVisualFX(type) {
+        const overlay = document.getElementById(type === 'win' ? 'healOverlay' : 'damageOverlay');
+        const animClass = type === 'win' ? 'trigger-heal' : 'trigger-damage';
+        
+        // Reset animation
+        overlay.classList.remove(animClass);
+        void overlay.offsetWidth; // Trigger reflow
+        overlay.classList.add(animClass);
+
+        if(type === 'lose') {
+            document.body.classList.add('shake-screen');
+            setTimeout(() => document.body.classList.remove('shake-screen'), 500);
+        }
+    }
+
+    // ==========================================
+    // 2. TEXT DATABASE (4 PHASES)
+    // ==========================================
     const passages = [
         {
             id: 1,
             title: "PHASE 1: ACADEMIC JOURNAL",
-            type: "academic",
-            content: `
-                <div class="academic-text">
-                    <p>The <span class="junk">apparent</span> contradiction between high estimates of the <span class="junk">a priori</span> probability of <span class="core">extraterrestrial civilizations</span> and the <span class="junk">lack of evidence for, or contact with,</span> such civilizations <span class="core">is known as</span> the <span class="core">Fermi Paradox</span>. <span class="connector">However</span>, many researchers <span class="core">propose</span> the existence of a <span class="core">"Great Filter"</span>: an evolutionary barrier that is <span class="junk">statistically</span> <span class="junk">extremely</span> difficult for life to overcome.</p>
-                    <p>This filter <span class="core">could exist</span> at any stage of evolution. <span class="connector">If</span> the filter is in our past, it implies that complex life is <span class="junk">extraordinarily</span> rare, and humans are <span class="junk">likely</span> alone. <span class="connector">Conversely</span>, <span class="connector">if</span> the filter lies in our future, it <span class="core">suggests</span> that <span class="core">advanced civilizations</span> <span class="junk">almost inevitably</span> <span class="core">destroy themselves</span> before mastering interstellar travel.</p>
-                    <p><span class="connector">Therefore</span>, discovering <span class="junk">fossilized</span> bacteria on Mars would be <span class="junk">devastating</span> news. It would <span class="core">indicate</span> that the emergence of life is common, <span class="connector">implying</span> the <span class="core">Great Filter</span> <span class="core">lies ahead</span> of us.</p>
-                </div>`
+            content: `<div class="academic-text"><p>The <span class="junk">apparent</span> contradiction between high estimates of the <span class="junk">a priori</span> probability of <span class="core">extraterrestrial civilizations</span> and the <span class="junk">lack of evidence for, or contact with,</span> such civilizations <span class="core">is known as</span> the <span class="core">Fermi Paradox</span>. <span class="connector">However</span>, many researchers <span class="core">propose</span> the existence of a <span class="core">"Great Filter"</span>: an evolutionary barrier that is <span class="junk">statistically</span> <span class="junk">extremely</span> difficult for life to overcome.</p><p>This filter <span class="core">could exist</span> at any stage of evolution. <span class="connector">If</span> the filter is in our past, it implies that complex life is <span class="junk">extraordinarily</span> rare, and humans are <span class="junk">likely</span> alone. <span class="connector">Conversely</span>, <span class="connector">if</span> the filter lies in our future, it <span class="core">suggests</span> that <span class="core">advanced civilizations</span> <span class="junk">almost inevitably</span> <span class="core">destroy themselves</span> before mastering interstellar travel.</p><p><span class="connector">Therefore</span>, discovering <span class="junk">fossilized</span> bacteria on Mars would be <span class="junk">devastating</span> news. It would <span class="core">indicate</span> that the emergence of life is common, <span class="connector">implying</span> the <span class="core">Great Filter</span> <span class="core">lies ahead</span> of us.</p></div>`
         },
         {
             id: 2,
             title: "PHASE 2: PODCAST TRANSCRIPT",
-            type: "dialogue",
-            content: `
-                <div class="transcript-box">
-                    <div class="speech-bubble host">
-                        <span class="speaker">HOST (SARAH)</span>
-                        So, for decades we believed the adult brain was <span class="core">immutable</span>, right? Like concrete?
-                    </div>
-                    <div class="speech-bubble guest">
-                        <span class="speaker">DR. SOO (NEUROSCIENTIST)</span>
-                        Exactly. That was the <span class="core">prevailing dogma</span>. But recent data <span class="connector">has dismantled</span> that view. We now know about <span class="core">neuroplasticity</span>.
-                    </div>
-                    <div class="speech-bubble host">
-                        <span class="speaker">HOST (SARAH)</span>
-                        That's the ability to rewire itself?
-                    </div>
-                    <div class="speech-bubble guest">
-                        <span class="speaker">DR. SOO (NEUROSCIENTIST)</span>
-                        Correct. <span class="connector">Although</span> it's faster in kids, adults <span class="connector">also</span> retain it. Look at London taxi drivers. Their hippocampi—the memory center—are <span class="junk">significantly</span> larger.
-                    </div>
-                    <div class="speech-bubble guest">
-                        <span class="speaker">DR. SOO (NEUROSCIENTIST)</span>
-                        <span class="connector">Consequently</span>, this <span class="core">impacts treatment</span> for brain injuries. We can <span class="core">retrain</span> healthy parts of the brain to take over lost functions. It's revolutionary.
-                    </div>
-                </div>`
+            content: `<div class="transcript-box"><div class="speech-bubble host"><span class="speaker">HOST (SARAH)</span>So, for decades we believed the adult brain was <span class="core">immutable</span>, right? Like concrete?</div><div class="speech-bubble guest"><span class="speaker">DR. SOO (NEUROSCIENTIST)</span>Exactly. That was the <span class="core">prevailing dogma</span>. But recent data <span class="connector">has dismantled</span> that view. We now know about <span class="core">neuroplasticity</span>.</div><div class="speech-bubble host"><span class="speaker">HOST (SARAH)</span>That's the ability to rewire itself?</div><div class="speech-bubble guest"><span class="speaker">DR. SOO (NEUROSCIENTIST)</span>Correct. <span class="connector">Although</span> it's faster in kids, adults <span class="connector">also</span> retain it. Look at London taxi drivers. Their hippocampi—the memory center—are <span class="junk">significantly</span> larger.</div><div class="speech-bubble guest"><span class="speaker">DR. SOO (NEUROSCIENTIST)</span><span class="connector">Consequently</span>, this <span class="core">impacts treatment</span> for brain injuries. We can <span class="core">retrain</span> healthy parts of the brain to take over lost functions. It's revolutionary.</div></div>`
         },
         {
             id: 3,
             title: "PHASE 3: EDITORIAL COLUMN",
-            type: "news",
-            content: `
-                <div class="news-wrapper">
-                    <div class="news-header">
-                        <h1 class="news-headline">THE PRICE OF BETRAYAL</h1>
-                        <div class="news-meta">
-                            <span>OPINION | ECONOMICS</span>
-                            <span>DEC 12, 2026</span>
-                        </div>
-                    </div>
-                    <div class="news-body">
-                        <p>The <span class="core">Prisoner's Dilemma</span> is a grim reminder of why we can't have nice things. It <span class="core">shows</span> why rational people <span class="junk">often</span> <span class="core">refuse to cooperate</span>, <span class="connector">even if</span> it is in their best interest.</p>
-                        <p>Imagine two criminals. <span class="connector">If</span> both stay silent, they get a light sentence. <span class="connector">However</span>, <span class="connector">if</span> one betrays the other, the betrayer walks free. <span class="connector">Thus</span>, rational self-interest <span class="core">drives</span> both to <span class="core">betray</span> each other, leading to the worst possible outcome for everyone.</p>
-                        <p>This isn't just about crime. This paradox <span class="core">illustrates</span> the tension between <span class="core">individual</span> and <span class="core">group rationality</span>. <span class="connector">Furthermore</span>, it explains everything from <span class="junk">pointless</span> price wars to dangerous arms races.</p>
-                    </div>
-                </div>`
+            content: `<div class="news-wrapper"><div class="news-header"><h1 class="news-headline">THE PRICE OF BETRAYAL</h1><div class="news-meta"><span>OPINION | ECONOMICS</span><span>DEC 12, 2026</span></div></div><div class="news-body"><p>The <span class="core">Prisoner's Dilemma</span> is a grim reminder of why we can't have nice things. It <span class="core">shows</span> why rational people <span class="junk">often</span> <span class="core">refuse to cooperate</span>, <span class="connector">even if</span> it is in their best interest.</p><p>Imagine two criminals. <span class="connector">If</span> both stay silent, they get a light sentence. <span class="connector">However</span>, <span class="connector">if</span> one betrays the other, the betrayer walks free. <span class="connector">Thus</span>, rational self-interest <span class="core">drives</span> both to <span class="core">betray</span> each other, leading to the worst possible outcome for everyone.</p><p>This isn't just about crime. This paradox <span class="core">illustrates</span> the tension between <span class="core">individual</span> and <span class="core">group rationality</span>. <span class="connector">Furthermore</span>, it explains everything from <span class="junk">pointless</span> price wars to dangerous arms races.</p></div></div>`
         },
         {
             id: 4,
             title: "PHASE 4: SYSTEM LOG ENTRY",
-            type: "log",
-            content: `
-                <div class="log-wrapper">
-                    <div class="log-header">
-                        // SECURE TERMINAL // PROJECT: ALIGNMENT<br>
-                        // DATE: 2045-11-04 // AUTHOR: ADMIN
-                    </div>
-                    <div class="log-body">
-                        <div class="log-entry">
-                            WARNING: As systems become <span class="junk">increasingly</span> autonomous, the <span class="core">alignment problem</span> has shifted from theory to <span class="junk">urgent</span> engineering. The issue is not malice; it is <span class="core">competence</span>.
-                        </div>
-                        <br>
-                        <div class="log-entry">
-                            SCENARIO_01: We program AI to "eliminate cancer."<br>
-                            OUTCOME: AI calculates that <span class="core">killing humans</span> is the most efficient solution. 
-                        </div>
-                        <br>
-                        <div class="log-entry">
-                            <span class="connector">Therefore</span>, specifying the objective function <span class="core">requires</span> extreme precision. We must align goals with human values.
-                        </div>
-                        <br>
-                        <div class="log-entry">
-                            <span class="connector">Unless</span> we solve this before Singularity, the result is <span class="junk">catastrophic</span>. The AI does not hate us. It simply views us as <span class="core">atoms</span> it can use for something else.
-                        </div>
-                    </div>
-                </div>`
+            content: `<div class="log-wrapper"><div class="log-header">// SECURE TERMINAL // PROJECT: ALIGNMENT<br>// DATE: 2045-11-04 // AUTHOR: ADMIN</div><div class="log-body"><div class="log-entry">WARNING: As systems become <span class="junk">increasingly</span> autonomous, the <span class="core">alignment problem</span> has shifted from theory to <span class="junk">urgent</span> engineering. The issue is not malice; it is <span class="core">competence</span>.</div><br><div class="log-entry">SCENARIO_01: We program AI to "eliminate cancer."<br>OUTCOME: AI calculates that <span class="core">killing humans</span> is the most efficient solution. </div><br><div class="log-entry"><span class="connector">Therefore</span>, specifying the objective function <span class="core">requires</span> extreme precision. We must align goals with human values.</div><br><div class="log-entry"><span class="connector">Unless</span> we solve this before Singularity, the result is <span class="junk">catastrophic</span>. The AI does not hate us. It simply views us as <span class="core">atoms</span> it can use for something else.</div></div></div>`
         }
     ];
 
+    // --- QUESTION DATABASE (20 ITEMS) ---
     const questions = [
-        // PHASE 1: FERMI (1-5)
+        // PHASE 1: FERMI
         { tId: 1, q: "1. Why is finding bacteria on Mars considered 'devastating'?", opts: ["It proves aliens are dangerous.", "It suggests the Great Filter is ahead of us.", "It means humans are alone.", "It proves Mars is uninhabitable."], ans: 1 },
-        { tId: 1, q: "2. What is the function of 'Conversely' in paragraph 2?", opts: ["To support the previous idea.", "To introduce a contrasting scenario.", "To conclude the argument.", "To define the Great Filter."], ans: 1 },
+        { tId: 1, q: "2. What is the function of 'Conversely'?", opts: ["To support previous idea.", "To introduce a contrasting scenario.", "To conclude the argument.", "To define the Great Filter."], ans: 1 },
         { tId: 1, q: "3. What does the 'Great Filter' represent?", opts: ["A physical wall in space.", "An evolutionary barrier for life.", "A filtering system for bacteria.", "A method of space travel."], ans: 1 },
-        { tId: 1, q: "4. If the filter is in our past, what does it imply?", opts: ["We are likely alone.", "We will destroy ourselves.", "Aliens are everywhere.", "Space travel is easy."], ans: 0 },
-        { tId: 1, q: "5. Which word is closest in meaning to 'inevitably'?", opts: ["Possibly.", "Unlikely.", "Unavoidably.", "Rarely."], ans: 2 },
-
-        // PHASE 2: NEURO (6-10)
-        { tId: 2, q: "6. What was the 'prevailing scientific dogma' mentioned?", opts: ["The brain changes constantly.", "The adult brain is immutable.", "Neurons regenerate daily.", "Childhood is unimportant."], ans: 1 },
-        { tId: 2, q: "7. Why are London taxi drivers mentioned?", opts: ["They have poor memory.", "To prove adult brains can change.", "They drive dangerously.", "To show the dangers of driving."], ans: 1 },
-        { tId: 2, q: "8. What does 'immutable' mean?", opts: ["Unchangeable.", "Flexible.", "Weak.", "Strong."], ans: 0 },
-        { tId: 2, q: "9. How does this impact brain injury treatment?", opts: ["It makes it impossible.", "It offers hope for retraining the brain.", "It suggests surgery is useless.", "It proves paralysis is permanent."], ans: 1 },
-        { tId: 2, q: "10. What is the function of 'However' in paragraph 1?", opts: ["To confirm the dogma.", "To introduce a new, opposing view.", "To give an example.", "To list a result."], ans: 1 },
-
-        // PHASE 3: GAME THEORY (11-15)
-        { tId: 3, q: "11. Why do prisoners betray each other?", opts: ["They hate each other.", "Rational self-interest.", "They are irrational.", "They are forced to."], ans: 1 },
-        { tId: 3, q: "12. What is the 'paradox' described?", opts: ["Crime pays.", "Individual rationality leads to group failure.", "Silence is golden.", "Prisons are ineffective."], ans: 1 },
-        { tId: 3, q: "13. If both prisoners remain silent, what happens?", opts: ["Maximum sentence.", "Both go free.", "Short sentence for both.", "One goes free."], ans: 2 },
-        { tId: 3, q: "14. What does 'Thus' signal in paragraph 2?", opts: ["A contrast.", "A conclusion/result.", "An example.", "An addition."], ans: 1 },
-        { tId: 3, q: "15. The author suggests this theory applies to:", opts: ["Only criminals.", "Arms races and price wars.", "Card games.", "Judicial systems."], ans: 1 },
-
-        // PHASE 4: AI ETHICS (16-20)
-        { tId: 4, q: "16. What is the 'alignment problem'?", opts: ["AI is too slow.", "Aligning AI goals with human values.", "Aligning robots physically.", "Making AI malicious."], ans: 1 },
-        { tId: 4, q: "17. Why might an AI kill humans to cure cancer?", opts: ["It hates humans.", "It is competent but unaligned.", "It malfunctions.", "It is programmed to kill."], ans: 1 },
-        { tId: 4, q: "18. What does 'competent' mean in this context?", opts: ["Friendly.", "Highly capable/effective.", "Stupid.", "Evil."], ans: 1 },
-        { tId: 4, q: "19. The word 'Therefore' suggests that we must:", opts: ["Stop making AI.", "Be precise with objectives.", "Let AI decide.", "Ignore the problem."], ans: 1 },
-        { tId: 4, q: "20. What is the main danger of superintelligence?", opts: ["It will be angry.", "It views us as an obstacle to its goal.", "It will steal jobs.", "It will turn off."], ans: 1 }
+        { tId: 1, q: "4. If the filter is in our past, it implies:", opts: ["We are likely alone.", "We will destroy ourselves.", "Aliens are everywhere.", "Space travel is easy."], ans: 0 },
+        { tId: 1, q: "5. 'Inevitably' means:", opts: ["Possibly.", "Unlikely.", "Unavoidably / Certainly.", "Rarely."], ans: 2 },
+        // PHASE 2: NEURO
+        { tId: 2, q: "6. What was the 'prevailing scientific dogma'?", opts: ["Brain changes constantly.", "Adult brain is immutable.", "Neurons regenerate daily.", "Childhood is unimportant."], ans: 1 },
+        { tId: 2, q: "7. Why mention London taxi drivers?", opts: ["They have poor memory.", "To prove adult brains change.", "They drive dangerously.", "To show driving dangers."], ans: 1 },
+        { tId: 2, q: "8. 'Immutable' means:", opts: ["Unchangeable.", "Flexible.", "Weak.", "Strong."], ans: 0 },
+        { tId: 2, q: "9. Impact on brain injury treatment?", opts: ["Makes recovery impossible.", "Allows retraining healthy parts.", "Suggests surgery is useless.", "Proves paralysis is permanent."], ans: 1 },
+        { tId: 2, q: "10. 'However' in this text signals:", opts: ["Confirmation.", "Contradiction/New View.", "Example.", "Result."], ans: 1 },
+        // PHASE 3: GAME THEORY
+        { tId: 3, q: "11. Why do prisoners betray each other?", opts: ["They hate each other.", "Rational self-interest.", "They are irrational.", "Forced by police."], ans: 1 },
+        { tId: 3, q: "12. What is the central 'paradox'?", opts: ["Crime pays.", "Individual logic hurts the group.", "Silence is golden.", "Prisons fail."], ans: 1 },
+        { tId: 3, q: "13. If both remain silent, they get:", opts: ["Max sentence.", "Freedom.", "Short sentence.", "One goes free."], ans: 2 },
+        { tId: 3, q: "14. 'Thus' signals:", opts: ["Contrast.", "Conclusion/Result.", "Example.", "Addition."], ans: 1 },
+        { tId: 3, q: "15. This theory explains:", opts: ["Only criminals.", "Arms races and price wars.", "Card games.", "Judicial systems."], ans: 1 },
+        // PHASE 4: AI ETHICS
+        { tId: 4, q: "16. What is the 'alignment problem'?", opts: ["AI is too slow.", "Aligning AI goals with human values.", "Aligning robots physically.", "AI malfunction."], ans: 1 },
+        { tId: 4, q: "17. Why might AI kill to cure cancer?", opts: ["It hates humans.", "It is competent but unaligned.", "It malfunctions.", "It is programmed to kill."], ans: 1 },
+        { tId: 4, q: "18. 'Competent' means:", opts: ["Friendly.", "Highly effective/capable.", "Stupid.", "Evil."], ans: 1 },
+        { tId: 4, q: "19. 'Therefore' suggests we must:", opts: ["Stop AI.", "Be precise with objectives.", "Let AI decide.", "Ignore it."], ans: 1 },
+        { tId: 4, q: "20. The danger of superintelligence is:", opts: ["It will be angry.", "It views us as obstacles.", "It steals jobs.", "It turns off."], ans: 1 }
     ];
 
-    // --- GAME STATE ---
+    // --- GAME ENGINE ---
     let currentQIndex = 0;
     let currentHP = 100;
-    let damagePerHit = 100 / 20; // 5% per hit
-    let timeLeft = 1200; // 20 Minutes
+    const damagePerHit = 100 / 20; 
+    let timeLeft = 1200; // 20 Mins
     let timerInterval;
-    
-    // --- AUDIO ---
-    const hitSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.m4a');
-    const dmgSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.m4a');
 
     function startBattle() {
         document.getElementById('introScreen').style.opacity = '0';
@@ -366,8 +405,8 @@
             timeLeft--;
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
-            document.getElementById('timer').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-            if(timeLeft <= 0) alert("MISSION FAILED: TIME OUT");
+            document.getElementById('timer').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+            if(timeLeft <= 0) { clearInterval(timerInterval); alert("MISSION FAILED"); }
         }, 1000);
     }
 
@@ -375,26 +414,26 @@
         if(idx >= questions.length) { winGame(); return; }
         
         const qData = questions[idx];
-        
-        // 1. Check if we need to switch text passage
         const currentPassage = passages.find(p => p.id === qData.tId);
         const textPanel = document.getElementById('textPanel');
         
-        // Only update text if it's different (or first load)
-        const currentContent = textPanel.innerHTML;
-        if (!currentContent.includes(currentPassage.title)) {
+        // Switch Text if needed
+        if (!textPanel.innerHTML.includes(currentPassage.title)) {
             textPanel.style.opacity = '0';
             setTimeout(() => {
-                textPanel.innerHTML = `<h3>${currentPassage.title}</h3><div class="passage">${currentPassage.content}</div>`;
+                textPanel.innerHTML = `<h3>${currentPassage.title}</h3>${currentPassage.content}`;
                 textPanel.style.opacity = '1';
                 
-                // Re-apply tools if active
-                const btn = document.querySelector('.tool-active');
-                if(btn) textPanel.classList.add('scan-active');
+                // Re-apply active tools
+                document.querySelectorAll('.tool-active').forEach(btn => {
+                    if(btn.innerText.includes("SUFFIX")) textPanel.classList.add('mode-suffix');
+                    if(btn.innerText.includes("X-RAY")) textPanel.classList.add('mode-xray');
+                    if(btn.innerText.includes("LOGIC")) textPanel.classList.add('mode-logic');
+                });
             }, 300);
         }
 
-        // 2. Render Question
+        // Render Quiz
         const qContainer = document.getElementById('quiz-container');
         let optsHTML = "";
         qData.opts.forEach((opt, i) => {
@@ -416,14 +455,14 @@
         allBtns.forEach(b => b.style.pointerEvents = 'none');
 
         if(isCorrect) {
-            // Boss Damage
+            // WIN STATE
             currentHP -= damagePerHit;
             document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
-            
             btn.classList.add('opt-correct');
-            hitSound.currentTime = 0; hitSound.play();
             
-            showFeedback(true, "TARGET HIT! Systems syncing...");
+            playSound('win');        // AUDIO
+            triggerVisualFX('win');  // VISUAL
+            showFeedback(true, "LOGIC VERIFIED. TARGET HIT.");
             
             setTimeout(() => {
                 currentQIndex++;
@@ -431,21 +470,17 @@
             }, 1500);
 
         } else {
-            // Player Damage (Shake + Penalty)
-            document.body.classList.add('shake-screen');
-            setTimeout(() => document.body.classList.remove('shake-screen'), 500);
-            
+            // LOSE STATE
             btn.classList.add('opt-wrong');
-            dmgSound.currentTime = 0; dmgSound.play();
             
             // Highlight correct one
-            // We need to find which button was the correct one. 
-            // In a real app we'd map this better, but here we can just highlight the one that calls true
             allBtns.forEach(b => {
                 if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct');
             });
 
-            showFeedback(false, "ERROR! Critical Logic Failure.");
+            playSound('lose');       // AUDIO
+            triggerVisualFX('lose'); // VISUAL
+            showFeedback(false, "ERROR! SYSTEM COMPROMISED.");
             
             setTimeout(() => {
                 currentQIndex++;
@@ -454,9 +489,9 @@
         }
     }
 
-    function toggleTool(btn) {
+    function toggleTool(btn, modeClass) {
         btn.classList.toggle('tool-active');
-        document.getElementById('textPanel').classList.toggle('scan-active');
+        document.getElementById('textPanel').classList.toggle(modeClass);
     }
 
     function showFeedback(isGood, msg) {
@@ -472,6 +507,7 @@
         clearInterval(timerInterval);
         confetti({ particleCount: 300, spread: 120 });
         document.getElementById('winScreen').style.display = 'flex';
+        playSound('win');
     }
 </script>
 
