@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 4: The Final Boss</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Plus+Jakarta+Sans:wght@400;600;800&family=Lora:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #020617; /* Void Black */
+            --panel: #0F172A;
+            --border: #1E293B;
+            --text-main: #E2E8F0;
+            --text-muted: #94A3B8;
+            
+            /* BOSS COLORS */
+            --gold: #F59E0B;
+            --gold-glow: rgba(245, 158, 11, 0.4);
+            --red: #EF4444;
+            --green: #10B981;
+            
+            --font-tech: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden; /* App-like feel */
+        }
+
+        /* ================= INTRO SCREEN (LOBBY) ================= */
+        .screen-intro {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+        
+        .boss-badge {
+            font-family: var(--font-tech); color: var(--gold); border: 1px solid var(--gold);
+            padding: 5px 15px; border-radius: 4px; font-size: 0.8rem; letter-spacing: 2px;
+            margin-bottom: 20px; box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .intro-title {
+            font-size: 4rem; font-weight: 800; text-transform: uppercase; margin: 0;
+            background: linear-gradient(to bottom, #FFF, #94A3B8);
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -2px; line-height: 1;
+        }
+
+        .start-btn {
+            margin-top: 40px; background: var(--gold); color: black; border: none;
+            padding: 20px 50px; font-size: 1.2rem; font-weight: 800; font-family: var(--font-tech);
+            cursor: pointer; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: 0.2s; box-shadow: 0 0 30px var(--gold-glow);
+        }
+        .start-btn:hover { transform: scale(1.05); background: #fff; }
+
+        /* ================= BATTLE HUD (MAIN UI) ================= */
+        .screen-battle {
+            display: none; /* Hidden initially */
+            grid-template-rows: 60px 1fr 80px;
+            height: 100vh;
+            opacity: 0; transition: opacity 1s;
+        }
+
+        /* 1. TOP BAR (STATS) */
+        .hud-top {
+            background: #020617; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        
+        .boss-hp-container {
+            width: 300px; height: 10px; background: #334155; border-radius: 5px; overflow: hidden; position: relative;
+        }
+        .boss-hp-bar {
+            width: 100%; height: 100%; background: var(--gold); transition: width 0.5s;
+            box-shadow: 0 0 10px var(--gold);
+        }
+        .hp-label { font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold); margin-bottom: 4px; display: block; }
+
+        .timer { font-family: var(--font-tech); font-size: 1.5rem; font-weight: bold; color: #EF4444; }
+
+        /* 2. SPLIT SCREEN (TEXT vs QUESTION) */
+        .battle-arena {
+            display: grid; grid-template-columns: 1.2fr 0.8fr; height: 100%; overflow: hidden;
+        }
+        @media(max-width: 768px) { .battle-arena { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
+
+        /* LEFT: THE TEXT (SCROLLABLE) */
+        .text-panel {
+            padding: 40px; overflow-y: auto; border-right: 1px solid var(--border);
+            background: #0B101E; position: relative;
+        }
+        
+        .passage {
+            font-family: 'Lora', serif; font-size: 1.2rem; line-height: 1.8; color: #CBD5E1; max-width: 700px; margin: 0 auto;
+        }
+
+        /* Dynamic Classes for Tools (Module 2 Integration) */
+        .scan-active .junk { opacity: 0.2; text-decoration: line-through; transition: 0.3s; }
+        .scan-active .core { color: var(--gold); font-weight: bold; transition: 0.3s; }
+        .scan-active .connector { border: 1px solid var(--gold); padding: 2px 4px; border-radius: 4px; color: var(--gold); }
+
+        /* RIGHT: THE CONTROLS */
+        .control-panel {
+            padding: 30px; background: #0F172A; display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .q-card {
+            background: #1E293B; border: 1px solid #334155; padding: 25px; border-radius: 12px;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .q-text { font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; color: white; }
+
+        .opt-btn {
+            display: block; width: 100%; padding: 15px; margin-bottom: 10px;
+            background: #0F172A; border: 1px solid #334155; color: #CBD5E1; text-align: left;
+            border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .opt-btn:hover { border-color: var(--gold); color: white; background: #182030; }
+        
+        .opt-correct { background: #064E3B !important; border-color: #10B981 !important; color: white !important; }
+        .opt-wrong { background: #450a0a !important; border-color: #EF4444 !important; opacity: 0.5; }
+
+        /* 3. BOTTOM BAR (TOOLS) */
+        .hud-bottom {
+            background: #020617; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+        }
+
+        .tool-btn {
+            background: transparent; border: 1px solid #334155; color: #64748B;
+            padding: 10px 20px; border-radius: 50px; font-family: var(--font-tech); font-size: 0.8rem;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .tool-btn:hover { border-color: var(--text-main); color: white; }
+        
+        .tool-active { 
+            border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.1); 
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        /* FEEDBACK OVERLAY */
+        .feedback-modal {
+            position: absolute; bottom: 100px; right: 30px; width: 350px;
+            background: rgba(0,0,0,0.9); border: 1px solid var(--border); border-left: 4px solid var(--gold);
+            padding: 20px; border-radius: 8px; color: white; display: none; backdrop-filter: blur(5px);
+        }
+
+        /* FX */
+        .shake-screen { animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(0,0); } 20% { transform: translate(-10px, 0); } 40% { transform: translate(10px, 0); } 100% { transform: translate(0,0); } }
+
+        /* WIN SCREEN */
+        .screen-win {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="screen-intro" id="introScreen">
+    <div class="boss-badge">FINAL SIMULATION // C1 LEVEL</div>
+    <h1 class="intro-title">THE GREAT<br>FILTER</h1>
+    <p style="color:#64748B; margin-top:10px;">Topic: Astrophysics / Sociology</p>
+    <button class="start-btn" onclick="startBattle()">INITIATE SEQUENCE</button>
+</div>
+
+<div class="screen-battle" id="battleScreen">
+    
+    <div class="hud-top">
+        <div>
+            <span class="hp-label">BOSS HP</span>
+            <div class="boss-hp-container">
+                <div class="boss-hp-bar" id="bossHP"></div>
+            </div>
+        </div>
+        <div class="timer" id="timer">05:00</div>
+    </div>
+
+    <div class="battle-arena">
+        
+        <div class="text-panel" id="textPanel">
+            <div class="passage">
+                <p>
+                    The <span class="junk">apparent</span> contradiction between high estimates of the <span class="junk">a priori</span> probability of <span class="core">extraterrestrial civilizations</span> and the <span class="junk">lack of evidence for, or contact with,</span> such civilizations <span class="core">is known as</span> the <span class="core">Fermi Paradox</span>. 
+                    <span class="connector">However</span>, many researchers <span class="core">propose</span> the existence of a <span class="core">"Great Filter"</span>: an evolutionary barrier that is <span class="junk">statistically</span> <span class="junk">extremely</span> difficult for life to overcome.
+                </p>
+                <p>
+                    This filter <span class="core">could exist</span> at any stage of evolution. <span class="connector">If</span> the filter is in our past, it implies that complex life is <span class="junk">extraordinarily</span> rare, and humans are <span class="junk">likely</span> alone. 
+                    <span class="connector">Conversely</span>, <span class="connector">if</span> the filter lies in our future, it <span class="core">suggests</span> that <span class="core">advanced civilizations</span> <span class="junk">almost inevitably</span> <span class="core">destroy themselves</span> before mastering interstellar travel.
+                </p>
+                <p>
+                    <span class="connector">Therefore</span>, discovering <span class="junk">fossilized</span> bacteria on Mars would be <span class="junk">devastating</span> news. It would <span class="core">indicate</span> that the emergence of life is common (not the filter), <span class="connector">implying</span> the <span class="core">Great Filter</span> <span class="core">lies ahead</span> of us, <span class="junk">potentially</span> dooming humanity to extinction.
+                </p>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div id="quiz-container">
+                <div class="q-card" id="q1">
+                    <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION 1 / 3</div>
+                    <div class="q-text">Based on the text, why would finding bacteria on Mars be considered "devastating"?</div>
+                    <button class="opt-btn" onclick="checkAnswer(this, false, 1)">A. Because it proves that aliens are dangerous.</button>
+                    <button class="opt-btn" onclick="checkAnswer(this, true, 1)">B. Because it suggests the evolutionary barrier is still in our future.</button>
+                    <button class="opt-btn" onclick="checkAnswer(this, false, 1)">C. Because it confirms that humans are the only life form.</button>
+                    <button class="opt-btn" onclick="checkAnswer(this, false, 1)">D. Because bacteria causes extinction.</button>
+                </div>
+                </div>
+            
+            <div class="feedback-modal" id="fbModal"></div>
+        </div>
+    </div>
+
+    <div class="hud-bottom">
+        <button class="tool-btn" onclick="toggleTool(this)">
+            <span>✂️</span> SUFFIX CUTTER
+        </button>
+        <button class="tool-btn" onclick="toggleTool(this)">
+            <span>🔦</span> X-RAY SCANNER
+        </button>
+        <button class="tool-btn" onclick="toggleTool(this)">
+            <span>🚦</span> LOGIC VIEW
+        </button>
+    </div>
+
+</div>
+
+<div class="screen-win" id="winScreen">
+    <h1 style="font-size:4rem; color:var(--gold); margin:0;">BOSS DEFEATED</h1>
+    <p style="color:#CBD5E1; font-size:1.5rem;">C1 LITERACY MASTERED</p>
+    <a href="index.html" class="start-btn" style="text-decoration:none; display:inline-block; margin-top:30px;">RETURN TO BASE</a>
+</div>
+
+<script>
+    // --- AUDIO ---
+    const hitSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.m4a');
+    const dmgSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.m4a');
+
+    // --- STATE ---
+    let currentHP = 100;
+    let currentQ = 1;
+    let timeLeft = 300; // 5 mins
+    let timerInterval;
+
+    // --- LOGIC ---
+    function startBattle() {
+        document.getElementById('introScreen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('battleScreen').style.display = 'grid';
+            document.getElementById('battleScreen').style.opacity = '1';
+            startTimer();
+        }, 500);
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('timer').innerText = `0${m}:${s < 10 ? '0'+s : s}`;
+            
+            if(timeLeft <= 0) alert("TIME OVER - MISSION FAILED");
+        }, 1000);
+    }
+
+    function toggleTool(btn) {
+        btn.classList.toggle('tool-active');
+        document.getElementById('textPanel').classList.toggle('scan-active');
+    }
+
+    function checkAnswer(btn, isCorrect, qNum) {
+        // Disable clicks
+        let btns = btn.parentElement.querySelectorAll('.opt-btn');
+        btns.forEach(b => b.style.pointerEvents = 'none');
+
+        if(isCorrect) {
+            // DMG BOSS
+            currentHP -= 34; // 3 Questions to kill
+            document.getElementById('bossHP').style.width = currentHP + "%";
+            
+            btn.classList.add('opt-correct');
+            hitSound.currentTime = 0; hitSound.play();
+            
+            showFeedback(true, "CRITICAL HIT! Logic valid. The text implies X, therefore Y.");
+            
+            setTimeout(() => {
+                if(currentHP < 5) winGame();
+                else nextQuestion(qNum + 1);
+            }, 2000);
+
+        } else {
+            // DMG PLAYER
+            document.body.classList.add('shake-screen');
+            setTimeout(() => document.body.classList.remove('shake-screen'), 500);
+            
+            btn.classList.add('opt-wrong');
+            dmgSound.currentTime = 0; dmgSound.play();
+            
+            // Highlight correct
+            btns.forEach(b => { if(b.onclick.toString().includes('true')) b.classList.add('opt-correct') });
+            
+            showFeedback(false, "DAMAGE TAKEN! Careful with the 'Logic Trap'.");
+            
+            setTimeout(() => {
+                nextQuestion(qNum + 1);
+            }, 2500);
+        }
+    }
+
+    function showFeedback(isGood, msg) {
+        const fb = document.getElementById('fbModal');
+        fb.style.display = 'block';
+        fb.style.borderColor = isGood ? 'var(--green)' : 'var(--red)';
+        fb.style.color = isGood ? 'var(--green)' : 'var(--red)';
+        fb.innerText = msg;
+        setTimeout(() => fb.style.display = 'none', 2000);
+    }
+
+    function nextQuestion(nextNum) {
+        if(nextNum > 3) return; // End
+        
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = getQuestionHTML(nextNum);
+    }
+
+    function winGame() {
+        clearInterval(timerInterval);
+        confetti({ particleCount: 200, spread: 100 });
+        document.getElementById('winScreen').style.display = 'flex';
+    }
+
+    function getQuestionHTML(num) {
+        if(num === 2) {
+            return `
+            <div class="q-card" id="q2">
+                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION 2 / 3</div>
+                <div class="q-text">What is the function of the word "Conversely" in the second paragraph?</div>
+                <button class="opt-btn" onclick="checkAnswer(this, false, 2)">A. To add more information about the past filter.</button>
+                <button class="opt-btn" onclick="checkAnswer(this, true, 2)">B. To contrast the 'past filter' scenario with the 'future filter' scenario.</button>
+                <button class="opt-btn" onclick="checkAnswer(this, false, 2)">C. To show the result of finding aliens.</button>
+            </div>`;
+        } else if(num === 3) {
+            return `
+            <div class="q-card" id="q3">
+                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION 3 / 3</div>
+                <div class="q-text">Why does the author imply advanced civilizations "inevitably destroy themselves"?</div>
+                <button class="opt-btn" onclick="checkAnswer(this, false, 3)">A. Because space travel is impossible.</button>
+                <button class="opt-btn" onclick="checkAnswer(this, true, 3)">B. Because the 'Great Filter' lies in the future.</button>
+                <button class="opt-btn" onclick="checkAnswer(this, false, 3)">C. Because fossils on Mars are dangerous.</button>
+            </div>`;
+        }
+    }
+</script>
+
+</body>
+</html>

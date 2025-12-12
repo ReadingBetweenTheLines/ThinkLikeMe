@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 3: Logic Drill</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #FDFBF7; 
+            --surface: #FFFFFF;
+            --text-main: #2D2A26;
+            --text-muted: #635F59;
+            --border: #E5E5E5;
+            
+            /* Theme: The Logic Dojo (Purple/Indigo) */
+            --brand: #7C3AED; /* Violet 600 */
+            --brand-dark: #4C1D95; /* Violet 900 */
+            --brand-soft: #EDE9FE;
+            
+            /* Dark Mode Hover */
+            --dark-bg: #4C1D95; 
+            
+            /* Accents */
+            --accent-red: #E11D48;
+            --accent-green: #059669;
+            --accent-yellow: #D97706;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* FX: SHAKE */
+        @keyframes shake-hard {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            20% { transform: translate(-10px, 2px) rotate(-2deg); }
+            40% { transform: translate(10px, -2px) rotate(2deg); }
+            60% { transform: translate(-10px, 2px) rotate(0deg); }
+            80% { transform: translate(10px, -2px) rotate(-1deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        .apply-shake { animation: shake-hard 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        
+        .damage-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(220, 38, 38, 0.3); z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.1s;
+        }
+        .apply-damage .damage-overlay { opacity: 1; }
+
+        .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+
+        /* HEADER */
+        .nav-header { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; 
+            background: white; padding: 10px 20px; border-radius: 50px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border);
+        }
+        .back-link { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.9rem; }
+        
+        header { text-align: center; margin-bottom: 60px; }
+        .super-title {
+            font-family: 'Lora', serif; font-size: 3rem; font-weight: 800; margin: 0; line-height: 1.1;
+            color: var(--brand-dark); letter-spacing: -0.02em;
+        }
+        .subtitle { font-size: 1.2rem; color: var(--text-muted); margin-top: 15px; font-weight: 500; }
+
+        /* =========================================
+           1. JABBERWOCKY (Alien Decoder)
+           ========================================= */
+        .alien-card {
+            background: #1E1B4B; /* Deep Indigo */
+            color: #C7D2FE;
+            border-radius: 20px; padding: 30px; margin-bottom: 60px;
+            box-shadow: 0 20px 50px -10px rgba(76, 29, 149, 0.4);
+            border: 1px solid #4338CA; position: relative; overflow: hidden;
+        }
+        .alien-card::before {
+            content: "LOGIC_CORE_V3"; position: absolute; top: 15px; right: 20px; 
+            font-family: monospace; color: #6366F1; font-size: 0.8rem;
+        }
+
+        .alien-text {
+            font-family: 'Georgia', serif; font-size: 1.3rem; line-height: 1.8; margin: 20px 0;
+            background: rgba(0,0,0,0.3); padding: 20px; border-left: 4px solid #818CF8; border-radius: 8px;
+        }
+        .alien-word { color: #F472B6; font-weight: bold; font-style: italic; }
+
+        .quiz-opts { display: grid; gap: 10px; margin-top: 20px; }
+        .q-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;
+            padding: 15px; border-radius: 10px; text-align: left; cursor: pointer; transition: 0.2s;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem;
+        }
+        .q-btn:hover { background: rgba(255,255,255,0.1); border-color: #A5B4FC; }
+        
+        .q-correct { background: #10B981 !important; border-color: #10B981 !important; color: white !important; }
+        .q-wrong { background: #EF4444 !important; border-color: #EF4444 !important; color: white !important; opacity: 0.5; }
+
+        /* =========================================
+           2. TRAFFIC LIGHTS (Connectors)
+           ========================================= */
+        .traffic-section { margin-bottom: 60px; }
+        
+        .light-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 30px; }
+        
+        .light-card {
+            background: white; border: 1px solid #E5E5E5; border-radius: 16px; padding: 20px; text-align: center;
+            transition: 0.3s; cursor: default;
+        }
+        .light-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        
+        .bulb { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px auto; transition: 0.3s; opacity: 0.2; }
+        
+        /* Specific Colors */
+        .lc-red { border-top: 4px solid #EF4444; }
+        .lc-red .bulb { background: #EF4444; box-shadow: 0 0 20px #EF4444; }
+        .lc-red:hover .bulb { opacity: 1; }
+        
+        .lc-green { border-top: 4px solid #10B981; }
+        .lc-green .bulb { background: #10B981; box-shadow: 0 0 20px #10B981; }
+        .lc-green:hover .bulb { opacity: 1; }
+        
+        .lc-yellow { border-top: 4px solid #F59E0B; }
+        .lc-yellow .bulb { background: #F59E0B; box-shadow: 0 0 20px #F59E0B; }
+        .lc-yellow:hover .bulb { opacity: 1; }
+
+        .conn-list { list-style: none; padding: 0; font-size: 0.9rem; color: #4B5563; }
+        .conn-list li { margin-bottom: 5px; font-weight: 600; }
+
+        /* =========================================
+           3. CHEAT SHEET (Logic Formula)
+           ========================================= */
+        .formula-card {
+            background: #FAF5FF; border: 1px dashed #A78BFA; border-radius: 20px; padding: 30px;
+            margin-bottom: 40px; position: relative;
+        }
+        .formula-card h3 { color: #6D28D9; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        
+        .formula-row {
+            display: flex; align-items: center; justify-content: space-between; 
+            background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .f-math { font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #4C1D95; }
+        .f-desc { font-size: 0.9rem; color: #6B7280; }
+
+        /* NEXT BTN */
+        .next-container { margin-top: 60px; text-align: center; }
+        .next-btn {
+            background: #1C1917; color: white; text-decoration: none; padding: 18px 40px; border-radius: 50px; font-weight: 700; 
+            display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+        }
+        .next-btn:hover { background: var(--brand); transform: scale(1.05); }
+
+        /* =========================================
+           2. TRAFFIC LIGHTS (INTERACTIVE)
+           ========================================= */
+        .traffic-section { margin-bottom: 60px; }
+        
+        .light-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 30px; }
+        @media(max-width: 650px) { .light-grid { grid-template-columns: 1fr; } }
+        
+        /* CARD BASE STYLE */
+        .light-card {
+            background: white; border: 1px solid #E5E5E5; border-radius: 20px; padding: 30px 20px; text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: default;
+            position: relative; overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        /* --- HOVER STATE (DARK MODE) --- */
+        .light-card:hover {
+            background: #0F172A; /* Dark Slate */
+            border-color: #0F172A;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.4);
+        }
+
+        /* Typography Transition */
+        .light-card h3 { 
+            margin: 10px 0 5px 0; font-family: 'Lora', serif; font-size: 1.4rem; color: var(--text-main); transition: 0.3s; 
+        }
+        .light-card:hover h3 { color: white; }
+        
+        .light-subtitle { 
+            font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; color: #94A3B8; display: block; margin-bottom: 15px; 
+        }
+
+        .card-desc {
+            font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.6; transition: 0.3s;
+        }
+        .light-card:hover .card-desc { color: #CBD5E1; }
+
+        /* THE BULB */
+        .bulb-container { position: relative; width: 60px; height: 60px; margin: 0 auto; }
+        .bulb {
+            width: 100%; height: 100%; border-radius: 50%; opacity: 0.3; transition: 0.4s;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+        .glow {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; border-radius: 50%; opacity: 0; transition: 0.4s; filter: blur(15px);
+        }
+
+        /* Card Specific Colors */
+        .lc-red .bulb { background: #EF4444; border: 2px solid #EF4444; }
+        .lc-red .glow { background: #EF4444; }
+        .lc-green .bulb { background: #10B981; border: 2px solid #10B981; }
+        .lc-green .glow { background: #10B981; }
+        .lc-yellow .bulb { background: #F59E0B; border: 2px solid #F59E0B; }
+        .lc-yellow .glow { background: #F59E0B; }
+
+        /* Bulb Activation on Card Hover */
+        .light-card:hover .bulb { opacity: 1; box-shadow: 0 0 0 transparent; }
+        .light-card:hover .glow { opacity: 0.6; width: 140%; height: 140%; }
+
+        /* --- INTERACTIVE WORD PILLS --- */
+        .word-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .word-btn {
+            background: #F8FAFC; border: 1px solid #E2E8F0; padding: 12px; border-radius: 8px;
+            font-weight: 700; color: #334155; cursor: help; position: relative; overflow: hidden;
+            transition: 0.3s; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Word Button Hover Logic (The Slide) */
+        .word-btn::before {
+            content: attr(data-hover); /* Gets the text from HTML */
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            transform: translateY(100%); /* Hidden below */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.9rem;
+        }
+        
+        .word-btn:hover {
+            color: transparent; /* Hide English text */
+            border-color: transparent;
+        }
+        .word-btn:hover::before {
+            transform: translateY(0); /* Show Indo text */
+            color: white; /* Text color on hover */
+        }
+
+        /* Specific Button Colors on Hover */
+        .red-btn:hover { background: #EF4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .green-btn:hover { background: #10B981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .yellow-btn:hover { background: #F59E0B; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+
+        /* ... Keep existing Light Card CSS ... */
+
+        /* EXAMPLE DISPLAY SCREEN */
+        .ex-screen {
+            background: #111827; /* Black screen */
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.1);
+            min-height: 80px;
+            transition: 0.3s;
+        }
+        
+        .light-card:hover .ex-screen {
+            background: rgba(0,0,0,0.3); /* Slightly transparent on dark bg */
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .ex-label {
+            display: block; font-family: monospace; font-size: 0.7rem; color: #6B7280; letter-spacing: 1px; margin-bottom: 5px;
+        }
+        
+        .ex-text {
+            font-family: 'Georgia', serif; font-size: 0.95rem; color: #E5E7EB; margin: 0; line-height: 1.5; font-style: italic;
+        }
+        .ex-text strong { color: white; text-decoration: underline; text-decoration-color: var(--brand); }
+
+        /* BUTTON TEXT SWAP (Hover = Meaning) */
+        .word-btn::before {
+            content: attr(data-mean); /* Show Meaning */
+            /* ... (keep existing transition logic) ... */
+        }
+
+        /* SCROLLABLE AREA */
+        .scroll-area {
+            height: 240px; /* Fixed height showing ~4 buttons */
+            overflow-y: auto; /* Allow vertical scrolling */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 5px; /* Space for scrollbar */
+            margin-bottom: 20px;
+            
+            /* Custom Scrollbar Styling */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+
+        /* Webkit Scrollbar (Chrome/Edge/Safari) */
+        .scroll-area::-webkit-scrollbar { width: 6px; }
+        .scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .scroll-area::-webkit-scrollbar-thumb { 
+            background-color: rgba(0,0,0,0.1); 
+            border-radius: 10px; 
+        }
+        
+        /* Dark Mode Scrollbar (On Hover) */
+        .light-card:hover .scroll-area::-webkit-scrollbar-thumb { 
+            background-color: rgba(255,255,255,0.2); 
+        }
+
+        /* ================= SCROLLABLE LIST (1 COLUMN RESTRICTED) ================= */
+        .scroll-area {
+            /* Height for exactly ~5 items (60px per item * 5 = 300px) */
+            height: 300px; 
+            overflow-y: auto; /* Enable Vertical Scroll */
+            
+            /* Single Column Layout */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            
+            padding-right: 10px; /* Space for scrollbar */
+            margin-bottom: 20px;
+            
+            /* Smooth Scroll */
+            scroll-behavior: smooth;
+            
+            /* Custom Scrollbar Styling */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+
+        /* Webkit Scrollbar (Chrome/Edge/Safari) */
+        .scroll-area::-webkit-scrollbar { width: 6px; }
+        .scroll-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+        .scroll-area::-webkit-scrollbar-thumb { 
+            background-color: #CBD5E1; 
+            border-radius: 10px; 
+        }
+        
+        /* Dark Mode Scrollbar (On Hover) */
+        .light-card:hover .scroll-area::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .light-card:hover .scroll-area::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.3); }
+
+        /* BUTTON STYLING (List View) */
+        .word-btn {
+            background: #F8FAFC; 
+            border: 1px solid #E2E8F0; 
+            padding: 15px 20px; /* Wider padding for list look */
+            border-radius: 10px;
+            font-weight: 700; 
+            color: #334155; 
+            cursor: pointer; 
+            position: relative; 
+            overflow: hidden;
+            transition: 0.2s; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            
+            /* Text Alignment */
+            text-align: left; 
+            display: block; /* Ensures it fills the width */
+            
+            flex-shrink: 0; /* Important: Prevents button from squishing */
+        }
+
+        /* ================= REFERENCE HUNTER (RADAR) ================= */
+        .radar-card {
+            background: #064E3B; /* Deep Jungle Green */
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 50px -10px rgba(6, 78, 59, 0.5);
+            border: 1px solid #059669;
+            min-height: 300px;
+        }
+
+        /* Radar Scan Animation */
+        .radar-scan {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(52, 211, 153, 0.1) 51%, transparent 52%);
+            background-size: 100% 200%;
+            animation: radar-move 3s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes radar-move { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
+
+        .radar-interface { position: relative; z-index: 1; padding: 30px; }
+
+        .target-display {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+            background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 50px; display: inline-flex;
+            border: 1px solid rgba(252, 211, 77, 0.3);
+        }
+        .crosshair { font-size: 1.5rem; color: #FCD34D; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .radar-text {
+            font-family: 'Georgia', serif; font-size: 1.25rem; color: #ECFDF5; line-height: 1.8; margin-bottom: 25px;
+        }
+        .highlight-ref { background: rgba(252, 211, 77, 0.2); color: #FCD34D; padding: 2px 6px; border-radius: 4px; font-weight: bold; border-bottom: 2px dashed #FCD34D; }
+
+        .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .ref-btn {
+            background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; color: #A7F3D0;
+            padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.2s;
+            text-align: center;
+        }
+        .ref-btn:hover { background: #10B981; color: #064E3B; }
+
+        /* ================= SYNTAX LIBRARY (FORMULAS) ================= */
+        .syntax-card {
+            background: #0F172A; /* Midnight Blue */
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.5);
+            border: 1px solid #334155;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Editor Window Header */
+        .syntax-header {
+            background: #1E293B;
+            padding: 12px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .file-name { font-family: monospace; color: #94A3B8; font-size: 0.85rem; }
+        .win-controls { display: flex; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: block; }
+        .red { background: #EF4444; } .yellow { background: #F59E0B; } .green { background: #10B981; }
+
+        .syntax-body { padding: 30px; }
+
+        /* Grid Layout */
+        .syntax-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px;
+        }
+        @media(max-width: 650px) { .syntax-grid { grid-template-columns: 1fr; } }
+
+        /* Formula Groups */
+        .syntax-group {
+            background: rgba(255,255,255,0.03);
+            border: 1px dashed #334155;
+            padding: 15px; border-radius: 10px;
+        }
+        .group-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; display: block; margin-bottom: 15px; }
+        .text-yellow { color: #FCD34D; } .text-red { color: #FCA5A5; } .text-green { color: #6EE7B7; }
+
+        /* Interactive Code Lines */
+        .code-line {
+            padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+            margin-bottom: 8px; position: relative;
+        }
+        .code-line:hover { background: rgba(255,255,255,0.1); }
+        
+        .f-code {
+            font-family: monospace; color: white; font-size: 0.95rem; display: block; font-weight: bold;
+        }
+        
+        /* Hint (Translation) - Hidden by default or subtle */
+        .f-hint {
+            font-size: 0.8rem; color: #94A3B8; margin-top: 5px; 
+            display: none; /* Hidden until clicked */
+            padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.3s ease;
+        }
+        .code-line.active .f-code { color: #A78BFA; } /* Highlight active formula */
+        .code-line.active .f-hint { display: block; color: #C7D2FE; }
+
+        /* FATAL ERROR BOX */
+        .fatal-error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #991B1B;
+            border-left: 5px solid #DC2626;
+            padding: 20px; border-radius: 8px;
+        }
+        .error-title { color: #FCA5A5; font-family: monospace; display: block; margin-bottom: 10px; font-size: 0.9rem; }
+        .error-msg { color: #FECACA; font-size: 0.9rem; margin: 0; line-height: 1.6; }
+
+    </style>
+</head>
+<body>
+
+<div class="damage-overlay"></div>
+
+<div class="container">
+    
+    <div class="nav-header">
+        <a href="index.html" class="back-link">← Dashboard</a>
+        <span style="font-weight:800; font-size:0.8rem; color:#94A3B8;">MODUL 03</span>
+    </div>
+
+    <header>
+        <div style="font-size:3rem; margin-bottom:10px;">🧩</div>
+        <h1 class="super-title">Logic Dojo</h1>
+        <p class="subtitle">Bahasa Inggris itu cuma Matematika yang pakai kata-kata.</p>
+    </header>
+
+    <div class="alien-section" style="margin-bottom:60px;">
+        <h2 style="text-align:center;">Test 1: The Alien Decoder</h2>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:30px;">
+            Buktikan bahwa kamu TIDAK butuh arti kata untuk menjawab benar. Gunakan logika struktur (Subjek - Predikat - Objek).
+        </p>
+
+        <div class="alien-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #4338CA; padding-bottom:15px;">
+                <span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; letter-spacing:1px; color:#818CF8;">LOGIC_CORE_V3</span>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span id="case-counter" style="color:#C7D2FE; font-family:monospace; font-size:0.9rem;">CASE 01 / 03</span>
+                    <button onclick="nextCase()" style="background:rgba(255,255,255,0.1); border:1px solid #6366F1; color:white; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.75rem; transition:0.2s;">NEXT ▶</button>
+                </div>
+            </div>
+            
+            <div class="alien-text" id="alien-text-area">
+                </div>
+
+            <strong id="alien-question" style="display:block; margin-bottom:15px; color:white; font-size:1.1rem;">
+                </strong>
+            
+            <div class="quiz-opts" id="alien-options">
+                </div>
+            
+            <div id="logic-fb" style="margin-top:20px; padding:15px; background:rgba(16, 185, 129, 0.2); border:1px solid #10B981; border-radius:8px; color:#A7F3D0; font-style:italic; display:none;"></div>
+        </div>
+    </div>
+
+    <div class="traffic-section">
+        <h2 style="text-align:center;">Test 2: Traffic Control</h2>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:40px;">
+            Database Rambu Logika. <strong>Scroll</strong> untuk lihat lebih banyak kata. <strong>Klik</strong> untuk contoh.
+        </p>
+
+        <div class="light-grid">
+            
+            <div class="light-card lc-red">
+                <div class="bulb-container">
+                    <div class="bulb"></div>
+                    <div class="glow"></div>
+                </div>
+                <h3>RED LIGHT</h3>
+                <span class="light-subtitle">CONTRAST (Berlawanan)</span>
+                
+                <div class="scroll-area">
+                    <button class="word-btn red-btn" data-mean="Tetapi / Namun" data-ex="He studied hard; <strong>however</strong>, he failed." onclick="showEx(this)">However</button>
+                    <button class="word-btn red-btn" data-mean="Meskipun" data-ex="<strong>Although</strong> it rained, we played." onclick="showEx(this)">Although</button>
+                    <button class="word-btn red-btn" data-mean="Kendati demikian" data-ex="<strong>Despite</strong> the pain, he smiled." onclick="showEx(this)">Despite</button>
+                    <button class="word-btn red-btn" data-mean="Sebaliknya" data-ex="North is cold; <strong>conversely</strong>, South is hot." onclick="showEx(this)">Conversely</button>
+                    <button class="word-btn red-btn" data-mean="Namun (Formal)" data-ex="It was dangerous; <strong>nevertheless</strong>, he went." onclick="showEx(this)">Nevertheless</button>
+                    <button class="word-btn red-btn" data-mean="Di sisi lain" data-ex="It's cheap, but <strong>on the other hand</strong>, it's ugly." onclick="showEx(this)">On the other hand</button>
+                    <button class="word-btn red-btn" data-mean="Padahal / Sedangkan" data-ex="I like blue, <strong>whereas</strong> he likes red." onclick="showEx(this)">Whereas</button>
+                    <button class="word-btn red-btn" data-mean="Sementara itu" data-ex="She is rich, <strong>while</strong> I am poor." onclick="showEx(this)">While</button>
+                    <button class="word-btn red-btn" data-mean="Biarpun begitu" data-ex="He is old; <strong>yet</strong>, he is strong." onclick="showEx(this)">Yet</button>
+                    <button class="word-btn red-btn" data-mean="Sebaliknya" data-ex="Not a ghost, <strong>but rather</strong> a shadow." onclick="showEx(this)">But rather</button>
+                </div>
+
+                <div class="ex-screen">
+                    <span class="ex-label">EXAMPLE DISPLAY:</span>
+                    <p class="ex-text">👆 Klik kata di atas...</p>
+                </div>
+            </div>
+
+            <div class="light-card lc-green">
+                <div class="bulb-container">
+                    <div class="bulb"></div>
+                    <div class="glow"></div>
+                </div>
+                <h3>GREEN LIGHT</h3>
+                <span class="light-subtitle">ADDITION (Tambahan)</span>
+                
+                <div class="scroll-area">
+                    <button class="word-btn green-btn" data-mean="Lagipula" data-ex="Smart; <strong>moreover</strong>, kind." onclick="showEx(this)">Moreover</button>
+                    <button class="word-btn green-btn" data-mean="Selanjutnya" data-ex="Tired; <strong>furthermore</strong>, sick." onclick="showEx(this)">Furthermore</button>
+                    <button class="word-btn green-btn" data-mean="Sebagai tambahan" data-ex="Bread; <strong>in addition</strong>, milk." onclick="showEx(this)">In addition</button>
+                    <button class="word-btn green-btn" data-mean="Juga / Dan" data-ex="She <strong>also</strong> sings." onclick="showEx(this)">Also</button>
+                    <button class="word-btn green-btn" data-mean="Disamping itu" data-ex="<strong>Besides</strong> math, I like art." onclick="showEx(this)">Besides</button>
+                    <button class="word-btn green-btn" data-mean="Tambahan lagi" data-ex="<strong>Additionally</strong>, we need water." onclick="showEx(this)">Additionally</button>
+                    <button class="word-btn green-btn" data-mean="Sama halnya" data-ex="Cats nap; <strong>similarly</strong>, lions do." onclick="showEx(this)">Similarly</button>
+                    <button class="word-btn green-btn" data-mean="Demikian pula" data-ex="He left; <strong>likewise</strong>, she stayed." onclick="showEx(this)">Likewise</button>
+                    <button class="word-btn green-btn" data-mean="Bukan hanya.. tapi" data-ex="<strong>Not only</strong> smart, <strong>but also</strong> kind." onclick="showEx(this)">Not only... but</button>
+                    <button class="word-btn green-btn" data-mean="Serta / Juga" data-ex="Apples <strong>as well as</strong> oranges." onclick="showEx(this)">As well as</button>
+                </div>
+
+                <div class="ex-screen">
+                    <span class="ex-label">EXAMPLE DISPLAY:</span>
+                    <p class="ex-text">👆 Klik kata di atas...</p>
+                </div>
+            </div>
+
+            <div class="light-card lc-yellow">
+                <div class="bulb-container">
+                    <div class="bulb"></div>
+                    <div class="glow"></div>
+                </div>
+                <h3>YELLOW LIGHT</h3>
+                <span class="light-subtitle">RESULT (Akibat)</span>
+                
+                <div class="scroll-area">
+                    <button class="word-btn yellow-btn" data-mean="Oleh karena itu" data-ex="Lazy; <strong>therefore</strong>, failed." onclick="showEx(this)">Therefore</button>
+                    <button class="word-btn yellow-btn" data-mean="Akibatnya" data-ex="Rain; <strong>consequently</strong>, wet." onclick="showEx(this)">Consequently</button>
+                    <button class="word-btn yellow-btn" data-mean="Maka dari itu" data-ex="Eldest; <strong>thus</strong>, leader." onclick="showEx(this)">Thus</button>
+                    <button class="word-btn yellow-btn" data-mean="Karenanya" data-ex="I think; <strong>hence</strong>, I am." onclick="showEx(this)">Hence</button>
+                    <button class="word-btn yellow-btn" data-mean="Hasilnya" data-ex="He ate; <strong>as a result</strong>, full." onclick="showEx(this)">As a result</button>
+                    <button class="word-btn yellow-btn" data-mean="Sesuai dengan itu" data-ex="Rules changed; <strong>accordingly</strong>, we adapted." onclick="showEx(this)">Accordingly</button>
+                    <button class="word-btn yellow-btn" data-mean="Karena (Sebab)" data-ex="Cry <strong>because of</strong> pain." onclick="showEx(this)">Because of</button>
+                    <button class="word-btn yellow-btn" data-mean="Dikarenakan" data-ex="Delay <strong>due to</strong> rain." onclick="showEx(this)">Due to</button>
+                    <button class="word-btn yellow-btn" data-mean="Sejak / Karena" data-ex="<strong>Since</strong> you asked, I will tell." onclick="showEx(this)">Since</button>
+                    <button class="word-btn yellow-btn" data-mean="Untuk alasan ini" data-ex="It broke; <strong>for this reason</strong>, we left." onclick="showEx(this)">For this reason</button>
+                </div>
+
+                <div class="ex-screen">
+                    <span class="ex-label">EXAMPLE DISPLAY:</span>
+                    <p class="ex-text">👆 Klik kata di atas...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="radar-section" style="margin-bottom:60px;">
+        <h2 style="text-align:center;">Test 3: The Reference Hunter</h2>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:30px;">
+            Jangan sampai kehilangan jejak. Tentukan siapa "Pelaku" yang dimaksud oleh kata penunjuk ini.
+        </p>
+
+        <div class="radar-card">
+            <div class="radar-scan"></div>
+            
+            <div class="radar-interface">
+                <div class="target-display">
+                    <span class="crosshair">⌖</span>
+                    <span id="ref-target-word" style="color:#FCD34D; font-weight:bold; font-size:1.2rem; letter-spacing:1px;">LOCKED: "THE LATTER"</span>
+                </div>
+
+                <div class="radar-text" id="ref-text">
+                    </div>
+
+                <div class="radar-controls">
+                    <p style="margin:0 0 10px 0; font-size:0.8rem; color:#94A3B8; text-transform:uppercase;">SELECT TARGET:</p>
+                    <div id="ref-options" class="ref-grid">
+                        </div>
+                </div>
+
+                <div id="ref-fb" style="margin-top:15px; font-size:0.9rem; display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="syntax-section" style="margin-bottom:60px;">
+        <div class="syntax-card">
+            <div class="syntax-header">
+                <span class="file-name">📄 logic_master_key.txt</span>
+                <div class="win-controls">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+            </div>
+
+            <div class="syntax-body">
+                <h3 style="color:#C7D2FE; border-bottom:1px solid #4338CA; padding-bottom:10px; margin-top:0;">
+                    📐 THE LOGIC FORMULAS
+                </h3>
+
+                <div class="syntax-grid">
+                    
+                    <div class="syntax-group">
+                        <span class="group-label text-yellow">SEBAB - AKIBAT</span>
+                        
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">A; therefore, B</span>
+                            <div class="f-hint">A adalah penyebab, B adalah hasil mutlak.</div>
+                        </div>
+                        
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">Because of A, B</span>
+                            <div class="f-hint">A adalah alasan (Noun), B terjadi.</div>
+                        </div>
+
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">A leads to B</span>
+                            <div class="f-hint">A (Aksi) menyebabkan B (Kondisi).</div>
+                        </div>
+                    </div>
+
+                    <div class="syntax-group">
+                        <span class="group-label text-red">KONTRAS / LAVAN</span>
+                        
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">Although A, B</span>
+                            <div class="f-hint">Walau A terjadi, B (yang aneh) tetap terjadi.</div>
+                        </div>
+
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">A, whereas B</span>
+                            <div class="f-hint">A dan B adalah dua fakta yang bertolak belakang.</div>
+                        </div>
+
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">A; however, B</span>
+                            <div class="f-hint">A benar, TAPI B membatalkan/mengubah arah.</div>
+                        </div>
+                    </div>
+
+                    <div class="syntax-group">
+                        <span class="group-label text-green">LOGIKA KOMPLEKS</span>
+                        
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">Unless A, B</span>
+                            <div class="f-hint">"Kecuali jika A". (Jika tidak A, maka B).</div>
+                        </div>
+
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">Not only A, but also B</span>
+                            <div class="f-hint">A penting, dan B juga sama pentingnya.</div>
+                        </div>
+
+                        <div class="code-line" onclick="toggleHint(this)">
+                            <span class="f-code">Neither A nor B</span>
+                            <div class="f-hint">Dua-duanya TIDAK (Double Negative).</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="fatal-error-box">
+                    <strong class="error-title">⚠️ FATAL ERROR: THE SEMICOLON TRAP</strong>
+                    <p class="error-msg">
+                        Hati-hati tanda baca! <br>
+                        ✅ <strong>Benar:</strong> "It rained; however, we played." (Pakai titik koma ;)<br>
+                        ❌ <strong>Salah:</strong> "It rained, however, we played." (Koma saja itu SALAH)<br>
+                        <em>Tips: Connector 'Traffic Light' biasanya butuh titik koma atau titik sebelumnya.</em>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="next-container">
+        <p style="color:var(--text-muted); margin-bottom:20px;">Kamu sudah siap. Saatnya hadapi Boss Terakhir.</p>
+        <a href="materi-4-simulasi.html" class="next-btn">
+            FIGHT THE BOSS
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // 1. GLOBAL SOUNDS
+    // ==========================================
+    const correctSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.m4a');
+    const wrongSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.m4a');
+    correctSound.volume = 0.5; wrongSound.volume = 0.4;
+
+    // ==========================================
+    // 2. JABBERWOCKY (ALIEN DECODER) LOGIC
+    // ==========================================
+    const logicCases = [
+        {
+            text: `"Historically, the <span class='alien-word'>Grobok</span> was considered <span class='alien-word'>frabjous</span>. However, recent studies show that <span class='alien-word'>Blamping</span> actually <span class='alien-word'>depletes</span> the Grobok's core <span class='alien-word'>Quabs</span>."`,
+            q: "Why is Blamping problematic?",
+            opts: [
+                { txt: "A. Because the Grobok is frabjous.", correct: false },
+                { txt: "B. Because it depletes the Quabs.", correct: true },
+                { txt: "C. Because studies are recent.", correct: false }
+            ],
+            fb: "✅ <strong>CORRECT!</strong> Lihat polanya: Subject (Blamping) -> Verb Negatif (Depletes) -> Object (Quabs)."
+        },
+        {
+            text: `"While most <span class='alien-word'>Plombus</span> requires constant <span class='alien-word'>fregment</span> to survive, the <span class='alien-word'>North-Grobian Plombus</span> creates its own <span class='alien-word'>zork</span> through a process called <span class='alien-word'>glupification</span>."`,
+            q: "How does the North-Grobian Plombus differ from others?",
+            opts: [
+                { txt: "A. It requires constant fregment.", correct: false },
+                { txt: "B. It is eaten by zorks.", correct: false },
+                { txt: "C. It creates its own zork.", correct: true }
+            ],
+            fb: "✅ <strong>CORRECT!</strong> Pola Kontras (While): Kebanyakan butuh X, tapi dia bikin Y (creates zork)."
+        },
+        {
+            text: `"The <span class='alien-word'>Kringle</span> inflation was <span class='alien-word'>exacerbated</span> by the sudden <span class='alien-word'>snargling</span> of global <span class='alien-word'>woozles</span>."`,
+            q: "What caused the Kringle inflation to get worse?",
+            opts: [
+                { txt: "A. The snargling of woozles.", correct: true },
+                { txt: "B. The decrease of Kringles.", correct: false },
+                { txt: "C. The global stability.", correct: false }
+            ],
+            fb: "✅ <strong>CORRECT!</strong> Pola Pasif: A diperburuk oleh B. Jadi penyebabnya adalah B (Snargling)."
+        }
+    ];
+
+    let caseIndex = 0;
+
+    function loadCase() {
+        const data = logicCases[caseIndex];
+        
+        // Update Header & Text
+        document.getElementById('case-counter').innerText = `CASE 0${caseIndex + 1} / 03`;
+        document.getElementById('alien-text-area').innerHTML = data.text;
+        document.getElementById('alien-question').innerText = data.q;
+        
+        // Reset Feedback
+        const fbDiv = document.getElementById('logic-fb');
+        fbDiv.style.display = 'none';
+        fbDiv.className = ''; // Reset colors
+        fbDiv.style.background = 'rgba(16, 185, 129, 0.2)'; // Default Green
+
+        // Generate Buttons
+        const optsDiv = document.getElementById('alien-options');
+        optsDiv.innerHTML = ""; // Clear old buttons
+        
+        data.opts.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.className = 'q-btn';
+            btn.innerText = opt.txt;
+            // Pass the specific feedback text to checkLogic
+            btn.onclick = () => checkLogic(btn, opt.correct, data.fb);
+            optsDiv.appendChild(btn);
+        });
+    }
+
+    function nextCase() {
+        caseIndex = (caseIndex + 1) % logicCases.length;
+        loadCase();
+    }
+
+    function checkLogic(btn, isCorrect, feedbackText) {
+        // Disable siblings
+        const siblings = btn.parentElement.querySelectorAll('.q-btn');
+        siblings.forEach(b => {
+            b.style.pointerEvents = 'none';
+            if(!b.innerText.includes(btn.innerText) && !isCorrect) b.style.opacity = '0.5';
+        });
+
+        const fbDiv = document.getElementById('logic-fb');
+
+        if(isCorrect) {
+            btn.classList.add('q-correct');
+            correctSound.currentTime = 0; correctSound.play();
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            
+            // Show Success Feedback
+            fbDiv.style.display = 'block';
+            fbDiv.style.borderColor = '#10B981';
+            fbDiv.style.background = 'rgba(16, 185, 129, 0.2)';
+            fbDiv.style.color = '#A7F3D0';
+            fbDiv.innerHTML = feedbackText;
+        } else {
+            btn.classList.add('q-wrong');
+            wrongSound.currentTime = 0; wrongSound.play();
+            document.body.classList.add('apply-shake', 'apply-damage');
+            setTimeout(() => { document.body.classList.remove('apply-shake', 'apply-damage'); }, 500);
+            
+            // Show Error Feedback
+            fbDiv.style.display = 'block';
+            fbDiv.style.borderColor = '#EF4444';
+            fbDiv.style.background = 'rgba(239, 68, 68, 0.2)';
+            fbDiv.style.color = '#FECACA';
+            fbDiv.innerHTML = "❌ <strong>LOGIC ERROR.</strong> Coba lihat struktur kalimatnya lagi. Siapa Subjeknya? Siapa Objeknya?";
+        }
+    }
+
+    // ==========================================
+    // 3. TRAFFIC LIGHTS LOGIC
+    // ==========================================
+    function showEx(btn) {
+        // 1. Get the example text
+        const text = btn.getAttribute('data-ex');
+        
+        // 2. Find the screen inside the SAME card
+        const card = btn.closest('.light-card');
+        const screenText = card.querySelector('.ex-text');
+        const screenLabel = card.querySelector('.ex-label');
+        
+        // 3. Update Text
+        screenText.innerHTML = text;
+        screenLabel.style.color = '#34D399'; // Turn label green briefly
+        
+        // 4. Visual Feedback on Button
+        const siblings = card.querySelectorAll('.word-btn');
+        siblings.forEach(b => b.style.opacity = '0.6'); // Dim others
+        btn.style.opacity = '1'; // Highlight active
+    }
+
+    // ==========================================
+    // 4. REFERENCE HUNTER LOGIC
+    // ==========================================
+    const refCases = [
+        {
+            target: "THE LATTER",
+            text: "Many people confuse <span style='border-bottom:2px solid #34D399'>Astronomy</span> with <span style='border-bottom:2px solid #34D399'>Astrology</span>. While the former is a science, <span class='highlight-ref'>the latter</span> is a pseudoscience.",
+            opts: [
+                { txt: "Astronomy", correct: false },
+                { txt: "Astrology", correct: true }
+            ],
+            fb: "✅ <strong>Tepat!</strong> 'The Latter' artinya 'Yang disebutkan belakangan/kedua'. Yang kedua disebut adalah Astrology."
+        },
+        {
+            target: "RESPECTIVELY",
+            text: "<span style='border-bottom:2px solid #34D399'>Japan</span> and <span style='border-bottom:2px solid #34D399'>Brazil</span> are famous for <span class='highlight-ref'>Sushi</span> and <span class='highlight-ref'>Samba</span>, <strong>respectively</strong>.",
+            opts: [
+                { txt: "Japan = Samba, Brazil = Sushi", correct: false },
+                { txt: "Japan = Sushi, Brazil = Samba", correct: true }
+            ],
+            fb: "✅ <strong>Tepat!</strong> 'Respectively' artinya 'Secara berurutan'. Jadi urutannya harus sama: 1-1 dan 2-2."
+        },
+        {
+            target: "THOSE",
+            text: "The engines of the <span style='border-bottom:2px solid #34D399'>new jet</span> are more efficient than <span class='highlight-ref'>those</span> of the <span style='border-bottom:2px solid #34D399'>old plane</span>.",
+            opts: [
+                { txt: "The engines", correct: true },
+                { txt: "The plane", correct: false }
+            ],
+            fb: "✅ <strong>Tepat!</strong> 'Those' menggantikan kata benda jamak sebelumnya untuk menghindari pengulangan. Di sini 'Those' = 'The engines'."
+        }
+    ];
+
+    let refIndex = 0;
+
+    function loadRefCase() {
+        const data = refCases[refIndex];
+        
+        // Update UI
+        document.getElementById('ref-target-word').innerText = `LOCKED: "${data.target}"`;
+        document.getElementById('ref-text').innerHTML = data.text;
+        
+        const fb = document.getElementById('ref-fb');
+        fb.style.display = 'none';
+        
+        const grid = document.getElementById('ref-options');
+        grid.innerHTML = "";
+        
+        data.opts.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'ref-btn';
+            btn.innerText = opt.txt;
+            btn.onclick = () => checkRef(btn, opt.correct, data.fb);
+            grid.appendChild(btn);
+        });
+    }
+
+    function checkRef(btn, isCorrect, feedback) {
+        // Disable siblings
+        const siblings = btn.parentElement.querySelectorAll('.ref-btn');
+        siblings.forEach(b => {
+            b.style.pointerEvents = 'none';
+            if(!b.innerText.includes(btn.innerText)) b.style.opacity = '0.5';
+        });
+
+        const fb = document.getElementById('ref-fb');
+        fb.style.display = 'block';
+
+        if(isCorrect) {
+            btn.style.background = '#10B981';
+            btn.style.color = '#064E3B';
+            correctSound.currentTime = 0; correctSound.play();
+            
+            fb.style.color = '#6EE7B7';
+            fb.innerHTML = feedback + " <br><button onclick='nextRef()' style='margin-top:10px; background:white; color:#064E3B; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;'>Soal Selanjutnya ▶</button>";
+        } else {
+            btn.style.background = '#EF4444';
+            btn.style.borderColor = '#EF4444';
+            btn.style.color = 'white';
+            wrongSound.currentTime = 0; wrongSound.play();
+            
+            fb.style.color = '#FCA5A5';
+            fb.innerHTML = "❌ <strong>Meleset!</strong> Coba perhatikan urutannya lagi.";
+            
+            // Show Try Again button after 1 sec
+            setTimeout(() => {
+                fb.innerHTML += " <br><u onclick='loadRefCase()' style='cursor:pointer;'>Coba Lagi ⭮</u>";
+            }, 500);
+        }
+    }
+
+    function nextRef() {
+        refIndex = (refIndex + 1) % refCases.length;
+        loadRefCase();
+    }
+
+    // Initialize
+    loadRefCase();
+
+    // Initialize First Case
+    loadCase();
+
+    // ==========================================
+    // 5. FORMULA HINT TOGGLE
+    // ==========================================
+    function toggleHint(element) {
+        // Close others in the same group (optional, but cleaner)
+        const siblings = element.parentElement.querySelectorAll('.code-line');
+        siblings.forEach(el => {
+            if(el !== element) el.classList.remove('active');
+        });
+        
+        // Toggle current
+        element.classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>

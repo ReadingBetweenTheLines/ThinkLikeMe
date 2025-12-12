@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 1: Mindset Hacking</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #FAFAF9;
+            --text-main: #1C1917;
+            --text-muted: #57534E;
+            --gradient-blue: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+            --shadow-card: 0 10px 30px -5px rgba(0,0,0,0.06);
+            --shadow-hover: 0 20px 40px -5px rgba(37, 99, 235, 0.15);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.7;
+            overflow-x: hidden; /* Important for shake effect */
+        }
+
+        /* ================= GAME FX STYLES ================= */
+        
+        /* The violent shake animation */
+        @keyframes shake-hard {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            10% { transform: translate(-10px, -2px) rotate(-1deg); }
+            20% { transform: translate(10px, 2px) rotate(1deg); }
+            30% { transform: translate(-10px, 2px) rotate(0deg); }
+            40% { transform: translate(10px, -2px) rotate(1deg); }
+            50% { transform: translate(-10px, 2px) rotate(-1deg); }
+            60% { transform: translate(10px, 1px) rotate(0deg); }
+            70% { transform: translate(-10px, 1px) rotate(1deg); }
+            80% { transform: translate(10px, -1px) rotate(-1deg); }
+            90% { transform: translate(-5px, 0px) rotate(0deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+
+        /* Class added temporarily to body on wrong answer */
+        .apply-shake {
+            animation: shake-hard 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* The Red Damage Flash Overlay */
+        .damage-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(220, 38, 38, 0.4); /* Red tint */
+            z-index: 9999;
+            pointer-events: none; /* Allows clicks to pass through */
+            opacity: 0; transition: opacity 0.1s;
+        }
+        .apply-damage .damage-overlay {
+            opacity: 1;
+        }
+
+        /* ================= STANDARD STYLES ================= */
+        .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+
+        /* NAV */
+        .nav-header { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; 
+            background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .back-link { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.9rem; }
+        
+        /* HERO */
+        header { text-align: center; margin-bottom: 60px; }
+        .super-title {
+            font-family: 'Lora', serif; font-size: 3rem; font-weight: 800; margin: 0; line-height: 1.1;
+            background: var(--gradient-blue); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .subtitle { font-size: 1.2rem; color: var(--text-muted); margin-top: 15px; font-weight: 500; }
+
+        /* CONCEPT CARD */
+        .concept-card {
+            background: white; border-radius: 24px; padding: 40px; margin-bottom: 40px; box-shadow: var(--shadow-card);
+        }
+        h2 { font-family: 'Lora', serif; font-size: 1.8rem; margin-top: 0; }
+
+        /* BRAIN SIMULATION */
+        .brain-simulation { display: grid; gap: 20px; margin-top: 30px; }
+        .brain-box { padding: 25px; border-radius: 16px; font-size: 0.95rem; border-left: 5px solid #ccc; position: relative; overflow: hidden; }
+        .brain-beginner { background: #FEF2F2; border-color: #EF4444; }
+        .brain-master { background: #ECFDF5; border-color: #10B981; }
+        .brain-label { font-weight: 800; font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 10px; text-transform: uppercase; }
+
+        /* TRAP GRID */
+        .trap-grid { display: grid; gap: 40px; margin-top: 40px; }
+        .trap-card {
+            background: white; border-radius: 20px; padding: 0; 
+            border: 1px solid #E5E5E5; overflow: hidden;
+            box-shadow: var(--shadow-card); transition: 0.3s;
+        }
+        .trap-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: #2563EB; }
+        .trap-header { padding: 20px 25px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #F3F4F6; }
+        .t-red .trap-header { background: #FEF2F2; }
+        .t-yellow .trap-header { background: #FFFBEB; }
+        .trap-icon { font-size: 1.5rem; }
+        .trap-title { font-family: 'Lora', serif; font-weight: 700; font-size: 1.2rem; margin: 0; color: #111827; }
+
+        /* INTERACTIVE QUIZ AREA */
+        .quiz-area { padding: 25px; }
+        .text-snippet {
+            font-family: 'Georgia', serif; font-style: italic; color: #334155; 
+            background: #F1F5F9; padding: 15px; border-radius: 8px; border-left: 4px solid #334155;
+            margin-bottom: 15px;
+        }
+        .quiz-q { font-weight: 700; margin-bottom: 10px; display: block; }
+
+        /* BUTTONS */
+        .option-btn {
+            display: block; width: 100%; text-align: left; padding: 12px 15px; 
+            margin-bottom: 8px; border: 2px solid #E5E5E5; border-radius: 10px; 
+            background: white; cursor: pointer; font-size: 0.95rem; transition: 0.2s;
+            color: #4B5563; font-weight: 500; position: relative; overflow: hidden;
+        }
+        .option-btn:hover { border-color: #2563EB; background: #EFF6FF; color: #1E40AF; }
+        
+        /* Feedback States */
+        .correct { background: #DCFCE7 !important; border-color: #16A34A !important; color: #14532D !important; pointer-events: none; }
+        .wrong { background: #FEE2E2 !important; border-color: #DC2626 !important; color: #7F1D1D !important; opacity: 0.6; pointer-events: none; }
+
+        .feedback-msg { 
+            display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-size: 0.9rem; line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+        .fb-correct { background: #F0FDF4; border: 1px solid #BBF7D0; color: #166534; }
+        .fb-wrong { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* NEXT BTN */
+        .next-container { margin-top: 60px; text-align: center; }
+        .next-btn {
+            background: #1C1917; color: white; text-decoration: none; padding: 18px 40px; border-radius: 50px; font-weight: 700; 
+            display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+        }
+        .next-btn:hover { background: #2563EB; transform: scale(1.05); }
+
+        /* ================= CHEAT SHEET STYLES (MATCHING INDEX) ================= */
+        .summary-section { margin: 60px 0; }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 Column Grid */
+            gap: 20px;
+        }
+        @media(max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
+
+        .rule-card {
+            background: white;
+            border: 1px solid #E5E5E5;
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            cursor: default; /* Not a link, but feels interactive */
+        }
+
+        /* Border Colors based on type */
+        .c-red { border-left: 5px solid #DC2626; }
+        .c-yellow { border-left: 5px solid #D97706; }
+        .c-blue { border-left: 5px solid #2563EB; }
+        .c-green { border-left: 5px solid #059669; }
+
+        /* ================= HOVER EFFECT (THE MAGIC) ================= */
+        .rule-card:hover {
+            background: #1E293B; /* Dark Slate */
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(30, 41, 59, 0.3);
+            border-color: #1E293B; /* Hide border color on hover */
+        }
+
+        /* Typography Changes on Hover */
+        .rule-card h3 {
+            margin: 5px 0 10px 0;
+            font-family: 'Lora', serif;
+            font-size: 1.15rem;
+            color: #1C1917; /* Default Dark Text */
+            transition: color 0.3s;
+        }
+        .rule-card:hover h3 { color: white; }
+
+        .rule-label {
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: #94A3B8; display: block;
+        }
+
+        .rule-note {
+            font-size: 0.85rem; color: #57534E; margin-top: 10px; font-style: italic; transition: color 0.3s;
+        }
+        .rule-card:hover .rule-note { color: #CBD5E1; }
+
+        /* Action Box (The Solution) */
+        .rule-action {
+            display: flex; align-items: center; gap: 8px; margin-top: 5px;
+        }
+        .arrow { font-size: 1.2rem; color: #CBD5E1; }
+        .fix {
+            font-weight: 700; font-size: 0.95rem; color: #2563EB; transition: color 0.3s;
+        }
+        
+        /* Make the solution pop on hover */
+        .c-red:hover .fix { color: #FCA5A5; }    /* Light Red */
+        .c-yellow:hover .fix { color: #FDE047; } /* Light Yellow */
+        .c-blue:hover .fix { color: #93C5FD; }   /* Light Blue */
+        .c-green:hover .fix { color: #86EFAC; }  /* Light Green */
+
+        .rule-icon { font-size: 2rem; line-height: 1; }
+    </style>
+</head>
+<body>
+
+<div class="damage-overlay"></div>
+
+<div class="container">
+    
+    <div class="nav-header">
+        <a href="index.html" class="back-link">← Dashboard</a>
+        <span style="font-weight:800; font-size:0.8rem; color:#94A3B8;">MODUL 01</span>
+    </div>
+
+    <header>
+        <div style="font-size:3rem; margin-bottom:10px;">🧠</div>
+        <h1 class="super-title">Mindset Hacking</h1>
+        <p class="subtitle">Berhenti berenang di laut kata. Mulai berselancar di atasnya.</p>
+    </header>
+
+    <div class="concept-card">
+        <h2>Perbedaan Cara Kerja Otak</h2>
+        <p>Bayangkan kamu bertemu kalimat seram ini di soal UTBK:</p>
+        <div style="background:#F1F5F9; padding:15px; border-radius:8px; font-weight:bold; margin-bottom:20px; font-family: 'Lora', serif; border:1px solid #E2E8F0;">
+            "The <span style="color:#DC2626">pervasive hegemony</span> of social media has <span style="color:#DC2626">precipitated</span> a <span style="color:#DC2626">decline</span> in interaction."
+        </div>
+
+        <div class="brain-simulation">
+            <div class="brain-box brain-beginner">
+                <span class="brain-label" style="color:#991B1B">🧠 OTAK PEMULA (TRANSLATION MODE)</span>
+                "The pervasive... <em>duh artinya apa ya?</em> Hegemony? <em>Kerajaan?</em> Social media... <em>oke medsos.</em> Precipitated? <em>Hujan??</em> Decline... <em>menolak?</em> <br><br>
+                <strong>Hasil:</strong> Panik. Waktu habis buat mikir arti kata."
+            </div>
+
+            <div class="brain-box brain-master">
+                <span class="brain-label" style="color:#065F46">🚀 OTAK MASTER (PATTERN MODE)</span>
+                "Ada kata sulit <em>hegemony</em> (Subjek). Lalu ada <em>precipitated</em> (Kata Kerja). <br>
+                Saya nggak tahu artinya, tapi saya lihat polanya: <br>
+                <strong>[Medsos]</strong> &rarr; <strong>[Menyebabkan]</strong> &rarr; <strong>[Penurunan Interaksi].</strong><br><br>
+                <strong>Hasil:</strong> Paham inti kalimat dalam 3 detik."
+            </div>
+        </div>
+    </div>
+
+    <h2 style="text-align:center; margin-bottom:10px;">4 Jebakan Maut</h2>
+    <p style="text-align:center; color:var(--text-muted); margin-bottom:40px;">Hati-hati. Salah langkah sedikit, layar akan berguncang!</p>
+
+    <div class="trap-grid">
+        
+        <div class="trap-card t-red">
+            <div class="trap-header">
+                <div class="trap-icon">🦜</div>
+                <div class="trap-title">1. Si Beo (Verbatim Trap)</div>
+            </div>
+            <div class="quiz-area">
+                <p>Jebakan ini menyalin kata-kata yang <strong>100% sama persis</strong> dengan teks.</p>
+                <div class="text-snippet">"The new carbon tax <strong>precipitated a significant shift</strong> in industrial behavior."</div>
+                <span class="quiz-q">Question: What was the result of the tax?</span>
+                
+                <button class="option-btn" onclick="checkTrap(this, 'fb1', false)">A. It precipitated a significant shift.</button>
+                <button class="option-btn" onclick="checkTrap(this, 'fb1', true)">B. It caused a major change in industries.</button>
+                
+                <div id="fb1" class="feedback-msg"></div>
+            </div>
+        </div>
+
+        <div class="trap-card t-yellow">
+            <div class="trap-header">
+                <div class="trap-icon">⚠️</div>
+                <div class="trap-title">2. Si Lebay (Extreme Trap)</div>
+            </div>
+            <div class="quiz-area">
+                <p>Teks akademik itu sopan. Hindari kata mutlak: <em>Always, Never, Solely, Must</em>.</p>
+                <div class="text-snippet">"Most studies <strong>suggest</strong> that the collapse was <strong>likely</strong> driven by drought."</div>
+                <span class="quiz-q">Question: What caused the collapse?</span>
+                
+                <button class="option-btn" onclick="checkTrap(this, 'fb2', false)">A. Drought was the <strong>sole</strong> cause.</button>
+                <button class="option-btn" onclick="checkTrap(this, 'fb2', true)">B. Drought was a <strong>probable</strong> factor.</button>
+                
+                <div id="fb2" class="feedback-msg"></div>
+            </div>
+        </div>
+
+        <div class="trap-card t-yellow">
+            <div class="trap-header">
+                <div class="trap-icon">🎯</div>
+                <div class="trap-title">3. Salah Alamat (Wrong Context)</div>
+            </div>
+            <div class="quiz-area">
+                <p>Kalimatnya <strong>faktual dan benar</strong> ada di teks, tapi tidak menjawab pertanyaan.</p>
+                <div class="text-snippet">"Inflation reduces purchasing power. Consequently, people buy fewer goods."</div>
+                <span class="quiz-q">Question: What is the <strong>cause</strong> of reduced power?</span>
+                
+                <button class="option-btn" onclick="checkTrap(this, 'fb3', false)">A. People buy fewer goods.</button>
+                <button class="option-btn" onclick="checkTrap(this, 'fb3', true)">B. High inflation rates.</button>
+                
+                <div id="fb3" class="feedback-msg"></div>
+            </div>
+        </div>
+
+        <div class="trap-card t-red">
+            <div class="trap-header">
+                <div class="trap-icon">🍎</div>
+                <div class="trap-title">4. Apel Busuk (Rotten Apple)</div>
+            </div>
+            <div class="quiz-area">
+                <p>Bagian depan kalimat benar, tapi ada <strong>satu kata kecil</strong> di belakang yang salah.</p>
+                <div class="text-snippet">"REM sleep is characterized by rapid eye movements and muscle paralysis."</div>
+                <span class="quiz-q">Question: What happens during REM sleep?</span>
+                
+                <button class="option-btn" onclick="checkTrap(this, 'fb4', false)">A. Eyes move fast and muscles become <strong>active</strong>.</button>
+                <button class="option-btn" onclick="checkTrap(this, 'fb4', true)">B. Eyes move fast and body is immobile.</button>
+                
+                <div id="fb4" class="feedback-msg"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="next-container">
+        <p style="color:var(--text-muted); margin-bottom:20px;">Udah paham musuhnya? Sekarang ambil senjatanya.</p>
+        <a href="materi-2-survival-kit.html" class="next-btn">
+            Ambil Survival Kit
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+
+</div>
+
+<div class="summary-section">
+        <h2 style="text-align:center; margin-bottom:10px;">Cheat Sheet: Rumus Anti-Jebakan</h2>
+        <p style="text-align:center; margin-bottom:30px; color:var(--text-muted);">Hafalkan pola ini. Ini adalah algoritma kemenanganmu.</p>
+
+        <div class="summary-grid">
+            
+            <div class="rule-card c-red">
+                <span class="rule-icon">🦜</span>
+                <div class="rule-content">
+                    <span class="rule-label">Masalah</span>
+                    <h3>Kata Sama Persis (Verbatim)</h3>
+                    <div class="rule-action">
+                        <span class="arrow">⬇</span>
+                        <span class="fix">Cari Sinonim</span>
+                    </div>
+                    <p class="rule-note">Contoh: <em>Exacerbated</em> &rarr; <em>Worsened</em></p>
+                </div>
+            </div>
+
+            <div class="rule-card c-yellow">
+                <span class="rule-icon">⚠️</span>
+                <div class="rule-content">
+                    <span class="rule-label">Masalah</span>
+                    <h3>Kata Ekstrem (Always/Must)</h3>
+                    <div class="rule-action">
+                        <span class="arrow">⬇</span>
+                        <span class="fix">Cari "Likely / Maybe"</span>
+                    </div>
+                    <p class="rule-note">Akademisi jarang 100% yakin.</p>
+                </div>
+            </div>
+
+            <div class="rule-card c-blue">
+                <span class="rule-icon">🔭</span>
+                <div class="rule-content">
+                    <span class="rule-label">Masalah</span>
+                    <h3>Ditanya "Main Idea"</h3>
+                    <div class="rule-action">
+                        <span class="arrow">⬇</span>
+                        <span class="fix">Hindari Detail Spesifik</span>
+                    </div>
+                    <p class="rule-note">Detail itu Benar, tapi bukan Inti.</p>
+                </div>
+            </div>
+
+            <div class="rule-card c-green">
+                <span class="rule-icon">🎭</span>
+                <div class="rule-content">
+                    <span class="rule-label">Masalah</span>
+                    <h3>Teks Bernada Negatif (-)</h3>
+                    <div class="rule-action">
+                        <span class="arrow">⬇</span>
+                        <span class="fix">Buang Opsi Positif (+)</span>
+                    </div>
+                    <p class="rule-note">Jangan pilih "Benefit" kalau teks bahas "Disaster".</p>
+                </div>
+            </div>
+
+            <div class="rule-card c-yellow">
+                <span class="rule-icon">🎯</span>
+                <div class="rule-content">
+                    <span class="rule-label">Masalah</span>
+                    <h3>Info Benar tapi Aneh</h3>
+                    <div class="rule-action">
+                        <span class="arrow">⬇</span>
+                        <span class="fix">Cek Soal (Sebab/Akibat?)</span>
+                    </div>
+                    <p class="rule-note">Jangan terkecoh fakta yang tidak nyambung.</p>
+                </div>
+            </div>
+
+            <div class="rule-card c-red">
+                <span class="rule-icon">🍎</span>
+                <div class="rule-content">
+                    <span class="rule-label">Masalah</span>
+                    <h3>Kalimat Panjang & Rumit</h3>
+                    <div class="rule-action">
+                        <span class="arrow">⬇</span>
+                        <span class="fix">Baca Sampai Titik</span>
+                    </div>
+                    <p class="rule-note">Cek kata terakhir. Seringkali salahnya di ujung.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    // Load Sounds (Using public domain sounds for demo stability)
+    const correctSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.m4a'); // Ding
+    const wrongSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.m4a'); // Buzzer
+    correctSound.volume = 0.5;
+    wrongSound.volume = 0.4;
+
+    function checkTrap(btn, feedbackId, isCorrect) {
+        const feedbackEl = document.getElementById(feedbackId);
+        
+        // Disable other options
+        const siblings = btn.parentElement.querySelectorAll('.option-btn');
+        siblings.forEach(sib => {
+            sib.style.pointerEvents = 'none'; 
+            if(sib !== btn) sib.style.opacity = '0.5';
+        });
+
+        if(isCorrect) {
+            // --- CORRECT EFFECTS ---
+            btn.classList.add('correct');
+            feedbackEl.className = 'feedback-msg fb-correct';
+            feedbackEl.innerHTML = "<strong>✅ Tepat Sekali! Ding Ding!</strong> Kamu aman dari jebakan.";
+            
+            // Play Sound
+            correctSound.currentTime = 0;
+            correctSound.play();
+
+            // Shoot Confetti
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#16A34A', '#2563EB', '#FCD34D']
+            });
+
+        } else {
+            // --- WRONG EFFECTS ---
+            btn.classList.add('wrong');
+            // Highlight the correct one automatically
+            siblings.forEach(sib => { if(sib.onclick.toString().includes('true')) sib.classList.add('correct'); });
+            
+            feedbackEl.className = 'feedback-msg fb-wrong';
+            feedbackEl.innerHTML = "<strong>❌ TETOT! Kena Deh.</strong><br>Lihat jawaban yang benar. Jangan sampai ketipu lagi nanti!";
+            
+            // Play Sound
+            wrongSound.currentTime = 0;
+            wrongSound.play();
+
+            // Trigger Shake & Red Flash
+            document.body.classList.add('apply-shake', 'apply-damage');
+            
+            // Remove effects after animation ends (0.5s)
+            setTimeout(() => {
+                document.body.classList.remove('apply-shake', 'apply-damage');
+            }, 500);
+        }
+        
+        feedbackEl.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
