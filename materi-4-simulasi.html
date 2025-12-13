@@ -284,6 +284,63 @@
             color: #FECACA; font-size: 1.5rem; max-width: 600px; 
             text-align: center; margin-top: 20px; line-height: 1.6; 
         }
+
+        /* ================= RPG FEEDBACK EFFECTS ================= */
+        
+        /* 1. FLOATING DAMAGE NUMBERS */
+        .damage-number {
+            position: absolute;
+            color: #FFD700; /* Gold */
+            font-family: 'Impact', sans-serif;
+            font-size: 2rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 100;
+            text-shadow: 2px 2px 0px #000;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-60px) scale(1); opacity: 0; }
+        }
+
+        /* 2. BOSS SPEECH BUBBLE */
+        .boss-bubble {
+            position: absolute;
+            top: 10px; /* Near his head */
+            left: 50%; /* To the right of the sidebar */
+            transform: translateX(-50%) scale(0);
+            background: white;
+            color: black;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: var(--font-tech);
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 90%;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        /* The little triangle pointing to him */
+        .boss-bubble::after {
+            content: "";
+            position: absolute; bottom: -10px; left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        
+        .bubble-show { 
+            transform: translateX(-50%) scale(1) !important
+         }
+        
+        @keyframes popIn { from{transform: scale(0);} to{transform: scale(1);} }
     </style>
 </head>
 <body>
@@ -319,7 +376,9 @@
 
     <div class="battle-arena">
         
-        <div class="boss-sidebar">
+        <div class="boss-sidebar" style="position:relative;"> <div id="bossBubble" class="boss-bubble">
+            Jangan Mencontek!
+        </div>
             <div class="boss-frame">
                 <div class="boss-scaler">
                     <div id="bossEntity"></div>
@@ -436,6 +495,49 @@
     let currentQIndex = 0;
     let currentHP = 100;
     
+    // --- BOSS DIALOGUE & EFFECTS (Paste this near the top of your script) ---
+    const bossLines = {
+        idle: ["Waktu berjalan...", "Kerjakan sendiri.", "Mata ke monitor.", "Jangan berisik."],
+        hit: ["Mustahil!", "Kok bisa tahu?!", "Hoki doang itu!", "Siapa gurumu?!", "Tunggu soal berikutnya!"],
+        attack: ["SALAH!", "Minus poin!", "Kamu tidak belajar?!", "Saya catat nomor kamu!", "Gagal total!"]
+    };
+
+    function bossSpeak(type) {
+        const bubble = document.getElementById('bossBubble');
+        if(!bubble) return; // Safety check
+        const lines = bossLines[type];
+        const randomLine = lines[Math.floor(Math.random() * lines.length)];
+        
+        bubble.innerText = randomLine;
+        bubble.classList.add('bubble-show');
+        
+        // Hide after 2 seconds
+        setTimeout(() => {
+            bubble.classList.remove('bubble-show');
+        }, 2000);
+    }
+
+    function spawnDamageNumber(amount) {
+        const sidebar = document.querySelector('.boss-sidebar');
+        if(!sidebar) return; // Safety check
+
+        const num = document.createElement('div');
+        num.classList.add('damage-number');
+        num.innerText = "-" + amount.toFixed(0);
+        
+        // Randomize position slightly so they don't stack perfectly
+        const randomX = Math.random() * 50 + 50; 
+        const randomY = Math.random() * 50 + 100;
+        
+        num.style.left = randomX + "px";
+        num.style.top = randomY + "px";
+        
+        sidebar.appendChild(num);
+        
+        // Delete element after animation finishes
+        setTimeout(() => num.remove(), 1000);
+    }
+
     // NEW LOGIC: Base damage is lower (4%), but combos add up!
     const baseDamage = 4; 
     let comboStreak = 0; // Starts at 0
@@ -498,6 +600,7 @@
         `;
     }
 
+    // --- REPLACE YOUR OLD checkAnswer WITH THIS NEW ONE ---
     function checkAnswer(btn, isCorrect) {
         const allBtns = document.querySelectorAll('.opt-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
@@ -505,24 +608,30 @@
         const comboDisplay = document.getElementById('comboDisplay');
 
         if(isCorrect) {
-            // --- CORRECT: BUILD COMBO ---
-            comboStreak++; // Increase Streak
-            
-            // Calculate Damage: Base + (Streak * 1.5)
-            // Example: Streak 1 = 5.5 dmg. Streak 3 = 8.5 dmg. Streak 5 = 11.5 dmg!
+            // --- WIN LOGIC ---
+            comboStreak++; 
             let totalDmg = baseDamage + (comboStreak * 1.5);
-            
             currentHP -= totalDmg;
             document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
             
-            // UI Updates
+            // 1. UPDATE COMBO UI
             btn.classList.add('opt-correct');
-            comboDisplay.innerText = `CHAIN x${comboStreak} (+${totalDmg.toFixed(1)} DMG)`;
-            comboDisplay.classList.add('combo-active');
+            if(comboDisplay) {
+                comboDisplay.innerText = `CHAIN x${comboStreak} (+${totalDmg.toFixed(1)} DMG)`;
+                comboDisplay.classList.add('combo-active');
+            }
+
+            // 2. VISUAL EFFECTS (Damage & Speech)
+            spawnDamageNumber(totalDmg);
+            if(currentHP < 30) {
+                bossSpeak("hit"); 
+            } else if (Math.random() > 0.5) { 
+                bossSpeak("hit");
+            }
             
             playSound('win'); triggerVisualFX('win');
             
-            // CRITICAL PHASE LOGIC (Same as before)
+            // 3. BOSS ANIMATION STATES
             if (currentHP < 30) {
                 bossEntity.classList.remove('boss-aggressive');
                 bossEntity.classList.add('boss-critical');
@@ -537,24 +646,26 @@
                 showFeedback(true, "TARGET HIT!");
             }
 
-            // Check Win Condition Immediately
             if(currentHP <= 0) {
                 setTimeout(winGame, 1000);
                 return;
             }
-
             setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
 
         } else {
-            // --- WRONG: BREAK COMBO ---
-            comboStreak = 0; // Reset to zero
-            
+            // --- LOSS LOGIC ---
+            comboStreak = 0;
             btn.classList.add('opt-wrong');
             allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); });
             
             // UI Updates
-            comboDisplay.innerText = "CHAIN BROKEN";
-            comboDisplay.classList.remove('combo-active');
+            if(comboDisplay) {
+                comboDisplay.innerText = "CHAIN BROKEN";
+                comboDisplay.classList.remove('combo-active');
+            }
+            
+            // Boss Taunt
+            bossSpeak("attack");
             
             playSound('lose'); triggerVisualFX('lose');
             showFeedback(false, "ERROR! CHAIN RESET.");
@@ -569,7 +680,7 @@
         }
     }
 
-    // UPDATE LOADQUESTION TO CHECK FOR "BAD ENDING"
+    // LOADQUESTION TO CHECK FOR "BAD ENDING"
     function loadQuestion(idx) {
         // --- CHECK END GAME CONDITIONS ---
         if(idx >= questions.length) { 
@@ -645,6 +756,27 @@
         document.getElementById('failScreen').style.display = 'flex';
         playSound('lose'); // Play the evil laugh one last time
     }
+
+    // ==========================================
+    // BOSS IDLE TIMER (The "Nagging" System)
+    // ==========================================
+    
+    // This runs every 12 seconds (12000 milliseconds)
+    setInterval(() => {
+        
+        // Only speak if:
+        // 1. The Boss is alive (HP > 0)
+        // 2. The Fail Screen isn't showing
+        const failScreen = document.getElementById('failScreen');
+        
+        if (currentHP > 0 && failScreen.style.display !== 'flex') {
+            // 30% chance to just stay silent (so he doesn't talk TOO much)
+            if(Math.random() > 0.3) {
+                bossSpeak('idle');
+            }
+        }
+        
+    }, 12000); // <--- CHANGE THIS NUMBER to make him faster/slower
 </script>
 
 </body>
