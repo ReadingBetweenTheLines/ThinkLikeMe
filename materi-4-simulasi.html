@@ -103,94 +103,96 @@
             height: 100%;
             overflow: hidden;
         }
-
-            /* ================= MOBILE OPTION A: STICKY HEADER ================= */
+        /* ================= MOBILE FIXED (ABSOLUTE POSITIONING) ================= */
 @media (max-width: 900px) {
 
-    /* 1. LAYOUT: STACK VERTICALLY */
+    /* 1. MAIN LAYOUT */
     .battle-arena {
         display: flex;
         flex-direction: column;
-        /* Calculate height: 100vh minus the top orange HUD (approx 60px) */
         height: calc(100vh - 60px); 
-        overflow: hidden; /* Prevent page scroll, only panels scroll */
+        overflow: hidden; 
     }
 
-    /* 2. BOSS HEADER (THE STICKY TOP STRIP) */
+    /* 2. THE HEADER STRIP */
     .boss-sidebar {
-        /* Fixed height for the boss area */
-        height: 110px; 
-        min-height: 110px;
+        height: 120px; /* Increased slightly to fit his head */
+        min-height: 120px;
         width: 100%;
-        
-        /* Layout: Horizontal Row */
-        display: flex;
-        flex-direction: row;
-        align-items: flex-end; /* Align boss to bottom of this strip */
-        justify-content: center; /* Center him */
-        
-        /* Visuals */
-        background: #0f172a; /* Dark Blue Background */
+        background: #0f172a; 
         border-bottom: 3px solid var(--gold);
-        border-right: none;
-        padding: 0;
-        position: relative;
-        z-index: 50;
+        
+        /* CRITICAL: Allows us to pin the boss inside */
+        position: relative; 
+        display: block; /* Stop using Flexbox for the container */
+        overflow: hidden; /* Cut off his legs, keep the body */
     }
 
-    /* 3. BOSS SCALING (MAKE HIM VISIBLE) */
+    /* 3. THE BOSS (PINNED TO BOTTOM) */
     .boss-frame {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: flex-end; /* Push sprite to bottom line */
-        overflow: visible; /* Don't cut off his head */
+        position: absolute;
+        bottom: 0; /* Sit on the floor of the header */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Center alignment correction */
+        
+        width: 160px; /* Give him a fixed width container */
+        height: 100%; 
+        z-index: 10; /* Ensure he is above the background */
+        
+        /* Remove old flex properties that might conflict */
+        display: block; 
+        margin: 0;
     }
 
     .boss-scaler {
-        /* Scale Logic: 337px (Original) -> Scale 0.35 -> ~117px */
-        /* This fits perfectly in the 110px header with slight overlap */
-        transform: scale(0.35) !important; 
+        /* Force him to be anchored to the bottom center */
         transform-origin: bottom center !important; 
-        margin-bottom: -10px; /* Pull him down slightly to hide feet cut-off */
+        transform: scale(0.38) !important; /* Scale him down */
+        
+        /* Positioning inside the frame */
+        position: absolute;
+        bottom: -15px; /* Push him down slightly so we see chest-up */
+        left: 0;
+        right: 0;
+        margin: 0 auto;
     }
 
-    /* 4. CHAT BUBBLE RE-POSITIONING */
+    /* 4. CHAT BUBBLE (TOP RIGHT) */
     .boss-bubble {
-        /* Move bubble to the side so it doesn't cover his face */
-        left: 70% !important; 
+        left: auto !important;
+        right: 10px !important; /* Stick to right edge */
         top: 10px !important;
         width: 140px !important;
-        transform-origin: bottom left;
+        transform-origin: top right;
+        z-index: 20;
     }
     .boss-bubble::after {
-        left: -10px; bottom: 10px; top: auto; /* Tail points Left */
-        border-width: 8px 10px 8px 0;
-        border-color: transparent white transparent transparent;
+        left: auto; right: 20px; /* Tail points right */
+        bottom: -10px; top: auto;
+        border-width: 10px 10px 0; /* Triangle pointing down */
+        border-color: white transparent transparent transparent;
     }
 
-    /* 5. TEXT PANEL (MIDDLE - SCROLLABLE) */
+    /* 5. TEXT PANEL (SCROLLABLE) */
     .text-panel {
-        flex: 1; /* Takes all available space between Boss and Questions */
-        overflow-y: auto; /* Enable Scroll */
-        padding: 15px;
-        border-right: none;
+        flex: 1; 
+        overflow-y: auto; 
+        padding: 20px;
         background: var(--bg);
-        font-size: 0.95rem; /* Readable text size */
+        font-size: 1rem;
         border-bottom: 1px solid var(--border);
     }
 
-    /* 6. CONTROL PANEL (BOTTOM - SCROLLABLE) */
+    /* 6. CONTROL PANEL (BOTTOM) */
     .control-panel {
-        height: 35%; /* Fixed height for questions (approx 1/3 of screen) */
-        min-height: 200px;
-        overflow-y: auto; /* Enable Scroll */
+        height: 35%;
+        min-height: 220px;
+        overflow-y: auto;
         padding: 10px;
         background: #1e293b;
     }
 
-    /* HIDE the "PENGAWAS" label on mobile (Too cluttered) */
+    /* HIDE the "PENGAWAS" label */
     .boss-sidebar div[style*="font-size:0.7rem"] { display: none; }
 }
 
