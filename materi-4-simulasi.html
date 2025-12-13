@@ -28,12 +28,13 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'inter', sans-serif;
             background-color: var(--bg);
-            color: var(--text-main);
+            color: var(--text);
             margin: 0;
             padding: 0;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             overflow: hidden; 
         }
 
@@ -341,6 +342,95 @@
          }
         
         @keyframes popIn { from{transform: scale(0);} to{transform: scale(1);} }
+
+        /* ================= MOBILE RESPONSIVENESS (PHONES) ================= */
+        @media (max-width: 900px) {
+
+        /* 1. CHANGE GRID TO VERTICAL STACK */
+        .battle-arena {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 70px); /* Fill screen minus Top HUD */
+            overflow: hidden; /* Stop the whole page from scrolling */
+            }
+
+        /* 2. SHRINK BOSS TO A "MINI-HEADER" */
+        .boss-sidebar {
+            height: 90px; /* Fixed small height */
+            min-height: 90px;
+            width: 100%;
+            flex-direction: row; /* Layout items horizontally */
+            padding: 0 10px;
+            border-right: none;
+            border-bottom: 2px solid var(--gold);
+            background: #020617;
+            overflow: hidden;
+            }
+
+        /* 3. MAKE BOSS TINY */
+        .boss-frame {
+            width: 80px; /* Constrain width */
+            height: 100%;
+            margin: 0;
+            }
+    
+        .boss-scaler {
+            /* Shrink him drastically for mobile */
+            transform: scale(0.35) !important; 
+            transform-origin: bottom left; /* Anchor him to the bottom-left corner */
+            margin-left: 10px;
+            }
+
+        /* Hide the "PENGAWAS" label on mobile to save space */
+        .boss-sidebar div[style*="font-size:0.7rem"] {
+            display: none;
+            }
+    
+        /* Move Chat Bubble to right side on mobile */
+        .boss-bubble {
+            left: 120px !important;
+            top: 20px !important;
+            width: 150px !important;
+            transform: scale(0);
+            transform-origin: left center;
+            }
+        .boss-bubble::after {
+            left: -10px; bottom: auto; top: 10px; /* Point left towards boss */
+            border-width: 10px 10px 10px 0;
+            border-color: transparent white transparent transparent;
+            }
+
+        /* 4. TEXT PANEL (SCROLLABLE TOP HALF) */
+        .text-panel {
+            flex: 1; /* Take 50% of remaining space */
+            height: auto;
+            overflow-y: auto; /* Enable scrolling inside this box */
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+            padding: 15px;
+            font-size: 0.95rem; /* Slightly smaller text for reading */
+            }
+
+        /* 5. QUIZ PANEL (SCROLLABLE BOTTOM HALF) */
+        .control-panel {
+            flex: 1; /* Take other 50% */
+            height: auto;
+            overflow-y: auto; /* Enable scrolling for answers */
+            padding: 10px;
+            background: #0f172a;
+            }
+
+        /* Fix Buttons for Touch Screens */
+        .opt-btn {
+            padding: 12px 10px;
+            min-height: 50px; /* Easier to tap */
+            font-size: 0.9rem;
+            }
+    
+        .q-card {
+            margin-bottom: 50px; /* Extra space at bottom for scrolling */
+            }
+        }
     </style>
 </head>
 <body>
