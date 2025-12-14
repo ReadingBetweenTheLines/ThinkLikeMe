@@ -516,11 +516,159 @@
         .q-card {
             margin-bottom: 50px; /* Extra space at bottom for scrolling */
             }
-        }
+        }/* ================= BOSS SKILLS FX ================= */
+
+/* SKILL 1: INK SPLATTER */
+    .ink-blob {
+    position: absolute;
+    background: #000;
+    border-radius: 50%;
+    filter: blur(2px);
+    z-index: 50;
+    cursor: pointer;
+    /* Look like irregular ink */
+    box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    animation: splat 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+/* Add a shine to make it look wet */
+.ink-blob::after {
+    content: '';
+    position: absolute;
+    top: 20%; left: 20%;
+    width: 20%; height: 20%;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+@keyframes splat { from { transform: scale(0); } to { transform: scale(1); } }
+.ink-cleaned { animation: fadeOut 0.3s forwards; }
+@keyframes fadeOut { to { opacity: 0; transform: scale(1.5); } }
+
+/* SKILL 2: SILENCE (LOCKED BUTTONS) */
+.opt-locked {
+    background: #334155 !important;
+    color: #64748B !important;
+    border-color: #475569 !important;
+    cursor: not-allowed !important;
+    position: relative;
+    overflow: hidden;
+}
+/* Chains icon overlay */
+.opt-locked::after {
+    content: "🔒 LOCKED";
+    position: absolute;
+    top: 50%; right: 20px;
+    transform: translateY(-50%);
+    font-family: var(--font-tech);
+    color: #94A3B8;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+/* SKILL 3: GLITCH TEXT */
+.text-glitched {
+    animation: glitch-anim 0.3s infinite;
+    color: var(--red) !important;
+    text-shadow: 2px 0 blue, -2px 0 red;
+}
+@keyframes glitch-anim {
+    0% { transform: translate(0) }
+    20% { transform: translate(-2px, 2px) }
+    40% { transform: translate(-2px, -2px) }
+    60% { transform: translate(2px, 2px) }
+    80% { transform: translate(2px, -2px) }
+    100% { transform: translate(0) }
+}
+
+.cursed-word {
+    color: #C084FC;
+    font-family: 'Times New Roman', serif;
+    font-weight: bold;
+    border-bottom: 1px dashed #C084FC;
+    cursor: help;
+    
+    /* CRITICAL FIXES */
+    user-select: none;           /* Allow clicking, not highlighting */
+    -webkit-user-select: none;
+    pointer-events: auto !important; /* Force it to accept clicks */
+    position: relative;          /* Lift it up */
+    z-index: 100;                /* Ensure it's above overlays */
+    display: inline-block;
+}
+
+@keyframes pulseText {
+    0% { text-shadow: 0 0 2px #C084FC; }
+    50% { text-shadow: 0 0 8px #C084FC; }
+    100% { text-shadow: 0 0 2px #C084FC; }
+}
+
+/* PANIC OVERLAY (When peeking at words) */
+.panic-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle, transparent 20%, rgba(220, 38, 38, 0.6) 90%);
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    mix-blend-mode: multiply;
+}
+.panic-active { opacity: 1; animation: pulseRed 0.5s infinite; }
+
+@keyframes pulseRed {
+    0% { background: radial-gradient(circle, transparent 20%, rgba(220, 38, 38, 0.6) 90%); }
+    50% { background: radial-gradient(circle, transparent 15%, rgba(220, 38, 38, 0.8) 90%); }
+    100% { background: radial-gradient(circle, transparent 20%, rgba(220, 38, 38, 0.6) 90%); }
+}   
+
+    /* HERO UI */
+    .focus-pip {
+        width: 30px; height: 10px;
+        background: #1e293b; 
+        border: 1px solid #475569;
+        transform: skewX(-20deg);
+        transition: 0.3s;
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    }
+    .focus-pip.active {
+        background: #0EA5E9; /* Cyan Glow */
+        border-color: #7DD3FC;
+        box-shadow: 0 0 10px #0EA5E9, inset 0 0 5px white;
+    }
+
+    .skill-btn {
+        flex: 1;
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 4px;
+        color: #94a3b8;
+        cursor: not-allowed;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: 0.2s;
+    }
+    .skill-icon { font-size: 1.2rem; filter: grayscale(1); }
+    
+    /* UNLOCKED STATE */
+    .skill-btn.ready {
+        background: linear-gradient(to bottom, #1e293b, #0f172a);
+        border-color: #38BDF8;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 2px 0 #0f172a;
+    }
+    .skill-btn.ready:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
+    .skill-btn.ready:active { transform: translateY(0); }
+    .skill-btn.ready .skill-icon { filter: grayscale(0); }
+
+    /* Button Colors */
+    .skill-btn.ready:nth-child(1) { border-bottom: 2px solid #22c55e; } /* Green */
+    .skill-btn.ready:nth-child(2) { border-bottom: 2px solid #eab308; } /* Gold */
+    .skill-btn.ready:nth-child(3) { border-bottom: 2px solid #f43f5e; } /* Red */
     </style>
 </head>
 <body>
 
+<div class="panic-overlay" id="panicOverlay"></div>
 <div class="fx-overlay" id="damageOverlay"></div>
 <div class="fx-overlay" id="healOverlay"></div>
 
@@ -534,16 +682,30 @@
 <div class="screen-battle" id="battleScreen">
     
     <div class="hud-top">
-        <div>
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
-                <span style="font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold);">BOSS INTEGRITY</span>
-                <span id="comboDisplay" style="font-family: var(--font-tech); font-size: 0.8rem; color: var(--green); opacity:0; transition:0.3s;">
-                    CHAIN x1
+        <div style="display:flex; flex-direction:column; flex:1; margin-right:20px;">
+            
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <span style="font-family: var(--font-tech); font-size: 0.7rem; color: var(--gold);">BOSS INTEGRITY</span>
+                    <span id="comboDisplay" style="font-family: var(--font-tech); font-size: 0.7rem; color: var(--green); opacity:0; transition:0.3s;">
+                        CHAIN x1
+                    </span>
+                </div>
+                <span style="font-family: var(--font-tech); font-size: 0.7rem; color: #818CF8;">
+                    ABILITY CHARGE: <span id="manaText" style="font-weight:bold;">0%</span>
                 </span>
             </div>
+
+            <div style="display:flex; gap:10px; height:10px; width:100%;">
+                
+                <div class="boss-hp-container" style="flex:3; width:auto;">
+                    <div class="boss-hp-bar" id="bossHP"></div>
+                </div>
+
+                <div style="flex:1; background:#1e293b; border-radius:5px; overflow:hidden; border:1px solid #334155; position:relative;">
+                    <div id="bossManaBar" style="width:0%; height:100%; background:#818CF8; transition:width 0.2s; box-shadow:0 0 10px #818CF8;"></div>
+                </div>
             
-            <div class="boss-hp-container">
-                <div class="boss-hp-bar" id="bossHP"></div>
             </div>
         </div>
 
@@ -569,8 +731,32 @@
             </div>
 
         <div class="control-panel">
-            <div id="quiz-container">
+            
+            <div class="hero-interface" style="margin-bottom: 15px; padding: 10px; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-family:var(--font-tech); font-size:0.7rem; color:#38BDF8;">NEURAL CHARGE</span>
+                    <div class="focus-meter" style="display:flex; gap:5px;">
+                        <div id="focus1" class="focus-pip"></div>
+                        <div id="focus2" class="focus-pip"></div>
+                        <div id="focus3" class="focus-pip"></div>
+                    </div>
                 </div>
+                <div style="display:flex; gap:10px; height: 40px;">
+                    <button id="skillBtn1" class="skill-btn disabled" onclick="castDoubleSlash()" title="Remove 2 Wrong Answers (Cost: 1)">
+                        <span class="skill-icon">⚔️</span> <span class="skill-cost">I</span>
+                    </button>
+                    <button id="skillBtn2" class="skill-btn disabled" onclick="castChronoBreak()" title="Freeze Time (Cost: 2)">
+                        <span class="skill-icon">⏱️</span> <span class="skill-cost">II</span>
+                    </button>
+                    <button id="skillBtn3" class="skill-btn disabled" onclick="castTruthVision()" title="Reveal Answer (Cost: 3)">
+                        <span class="skill-icon">👁️</span> <span class="skill-cost">III</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="quiz-container">
+            </div>
+
             <div class="feedback-modal" id="fbModal"></div>
         </div>
     </div>
@@ -599,6 +785,7 @@
 </div>
 
 <script>
+
     // --- 1. SMART AUDIO ---
     const synth = window.speechSynthesis;
     function playSound(type) {
@@ -614,6 +801,70 @@
                 }
             });
         }
+    }
+
+    // --- 0. PROCEDURAL SOUND ENGINE (No MP3s needed) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(freq, type, duration, vol=0.1) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // SFX: INK SPLAT (Low, wet "Bloop" sound)
+    function sfxSplat() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        // Pitch drop to simulate liquid
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    // SFX: LOCK (Metallic "Clank")
+    function sfxLock() {
+        playTone(800, 'square', 0.1, 0.1); // High ping
+        setTimeout(() => playTone(150, 'sawtooth', 0.3, 0.2), 50); // Low thud
+    }
+
+    // SFX: GLITCH (Random Static Noise)
+    function sfxGlitch() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        // Fill with white noise
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        
+        noise.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
     }
 
     function triggerVisualFX(type) {
@@ -667,9 +918,38 @@
         { tId: 4, q: "20. The danger of superintelligence is:", opts: ["It will be angry.", "It views us as obstacles.", "It steals jobs.", "It turns off."], ans: 1 }
     ];
 
+    // ==========================================
+    // THE ACADEMIC MATRIX (UPDATED FOR YOUR TEXTS)
+    // ==========================================
+    const academicMatrix = {
+        // Words found in your Fermi Paradox & Brain texts
+        "is": ["constitutes", "represents", "symbolizes"],
+        "are": ["embody", "constitute", "personify"],
+        "many": ["numerous", "multitudinous", "myriad"],
+        "common": ["prevalent", "ubiquitous", "pervasive"],
+        "rare": ["scarce", "infrequent", "sporadic"],
+        "likely": ["probable", "plausible", "presumable"],
+        "exist": ["persist", "endure", "subsist"],
+        "found": ["located", "detected", "uncovered"],
+        "idea": ["concept", "notion", "paradigm"],
+        "life": ["existence", "sentience", "organism"],
+        "humans": ["homo sapiens", "populace", "subjects"],
+        "filter": ["sift", "winnow", "screen"], // Your request
+        "brain": ["cerebrum", "cortex", "neural net"],
+        "view": ["perspective", "standpoint", "vantage"],
+        "change": ["fluctuate", "transform", "metamorphose"],
+        "difficult": ["arduous", "laborious", "formidable"],
+        "evidence": ["corroboration", "substantiation", "testimony"],
+        "news": ["tidings", "intelligence", "communiqué"],
+        "show": ["demonstrate", "elucidate", "exhibit"]
+    };
+
     // --- GAME ENGINE ---
     let currentQIndex = 0;
     let currentHP = 100;
+    let bossSkillCycle = 0;
+    let activeBossTimer = null;
+    let isAbilityActive = false;
     
     // --- BOSS DIALOGUE & EFFECTS (Paste this near the top of your script) ---
     const bossLines = {
@@ -742,7 +1022,95 @@
         }, 1000);
     }
 
+    // ==========================================
+    // CLEANUP CREW (Resets Board State)
+    // ==========================================
+    function resetBoardState() {
+        console.log(">> SYSTEM: Cleaning Board for next question.");
+
+        // unlock mana bar
+        isAbilityActive = false;
+        
+        // Kill any active Boss Timers (The 10s wait)
+        if (activeBossTimer) {
+            clearTimeout(activeBossTimer);
+            activeBossTimer = null;
+        }
+
+        // 2. Remove Silence/Locks
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('opt-locked');
+            btn.style.pointerEvents = 'auto'; // Force clickability
+        });
+
+        // 3. Remove Glitch Text
+        const qText = document.querySelector('.q-text');
+        if(qText) {
+            qText.classList.remove('text-glitched');
+            // Note: Inner text will be replaced by loadQuestion anyway
+        }
+
+        // 4. Remove Cursed Words (Visuals)
+        const cursed = document.querySelectorAll('.cursed-word');
+        cursed.forEach(span => {
+            // Replace with original text just to be clean
+            if(span.dataset.original) {
+                const text = document.createTextNode(span.dataset.original);
+                span.parentNode.replaceChild(text, span);
+            }
+        });
+
+        // 5. Stop Panic/Peeking Effects
+        const panic = document.getElementById('panicOverlay');
+        if(panic) panic.classList.remove('panic-active');
+        document.body.classList.remove('shake-screen');
+        if(typeof peekInterval !== 'undefined') clearInterval(peekInterval);
+        
+        // 6. Reset Timer Color
+        const timerEl = document.getElementById('timer');
+        if(timerEl) timerEl.style.color = "#EF4444";
+    }
+
+    // ==========================================
+    // BOSS STATE MANAGER (The Fix)
+    // ==========================================
+    function finishBossAttack() {
+        console.log(">> ATTACK ENDED: Resuming Mana Generation & Cleaning Up");
+
+        // 1. UNLOCK THE BAR (Resume filling)
+        isAbilityActive = false;
+        
+        // 2. CLEAN UP WORDS (Search & Destroy)
+        const cursed = document.querySelectorAll('.cursed-word');
+        cursed.forEach(span => {
+            if(span.dataset.original) {
+                // If user is peeking, force close first
+                if(span.dataset.state === "open" && window.togglePeek) {
+                    window.togglePeek(span); 
+                }
+                const text = document.createTextNode(span.dataset.original);
+                span.parentNode.replaceChild(text, span);
+            }
+        });
+
+        // 3. CLEAN UP BUTTONS (Unlock)
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('opt-locked');
+            btn.style.pointerEvents = 'auto';
+        });
+
+        // 4. CLEAN UP GLITCH
+        const qText = document.querySelector('.q-text');
+        if(qText) qText.classList.remove('text-glitched');
+
+        // 5. Sound
+        try { playTone(600, 'sine', 0.5, 0.1); } catch(e){}
+    }
+
     function loadQuestion(idx) {
+        resetBoardState(); // CLEANUP BEFORE LOADING NEW QUESTION
         if(idx >= questions.length) { winGame(); return; }
         const qData = questions[idx];
         const currentPassage = passages.find(p => p.id === qData.tId);
@@ -776,83 +1144,107 @@
         `;
     }
 
-    // --- REPLACE YOUR OLD checkAnswer WITH THIS NEW ONE ---
     function checkAnswer(btn, isCorrect) {
+        // 1. Disable all buttons immediately so user can't double-click
         const allBtns = document.querySelectorAll('.opt-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
+        
         const bossEntity = document.getElementById('bossEntity');
         const comboDisplay = document.getElementById('comboDisplay');
 
         if(isCorrect) {
-            // --- WIN LOGIC ---
+            // ========================
+            // CORRECT ANSWER (WIN)
+            // ========================
             comboStreak++; 
+            addFocus(1);
             let totalDmg = baseDamage + (comboStreak * 1.5);
             currentHP -= totalDmg;
             document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
             
-            // 1. UPDATE COMBO UI
+            // Visuals
             btn.classList.add('opt-correct');
             if(comboDisplay) {
                 comboDisplay.innerText = `CHAIN x${comboStreak} (+${totalDmg.toFixed(1)} DMG)`;
                 comboDisplay.classList.add('combo-active');
             }
 
-            // 2. VISUAL EFFECTS (Damage & Speech)
+            // FX
             spawnDamageNumber(totalDmg);
-            if(currentHP < 30) {
-                bossSpeak("hit"); 
-            } else if (Math.random() > 0.5) { 
-                bossSpeak("hit");
-            }
-            
-            playSound('win'); triggerVisualFX('win');
-            
-            // 3. BOSS ANIMATION STATES
+            playSound('win'); 
+            triggerVisualFX('win');
+
+            // Feedback
             if (currentHP < 30) {
-                bossEntity.classList.remove('boss-aggressive');
-                bossEntity.classList.add('boss-critical');
-                document.body.classList.add('screen-critical');
-                showFeedback(true, `CRITICAL HIT! (Combo x${comboStreak})`);
-            } else if (currentHP < 60) {
-                bossEntity.classList.add('boss-aggressive');
-                showFeedback(true, `COMBO x${comboStreak}! Keep it up!`);
+                 bossEntity.classList.add('boss-critical');
+                 showFeedback(true, "CRITICAL HIT!");
             } else {
-                bossEntity.classList.add('state-damaged');
-                setTimeout(() => bossEntity.classList.remove('state-damaged'), 1000);
-                showFeedback(true, "TARGET HIT!");
+                 bossEntity.classList.add('state-damaged');
+                 setTimeout(() => bossEntity.classList.remove('state-damaged'), 1000);
+                 showFeedback(true, "TARGET HIT!");
             }
 
+
+
+            // NEXT QUESTION TIMER (WIN)
             if(currentHP <= 0) {
                 setTimeout(winGame, 1000);
-                return;
+            } else {
+                setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
             }
-            setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
 
         } else {
-            // --- LOSS LOGIC ---
+            // ========================
+            // WRONG ANSWER (LOSS)
+            // ========================
             comboStreak = 0;
+            
+            // 1. Visuals: Highlight Wrong & Correct
             btn.classList.add('opt-wrong');
-            allBtns.forEach(b => { if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); });
+            // Show which one was actually right
+            allBtns.forEach(b => { 
+                if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); 
+            });
             
-            // UI Updates
-            if(comboDisplay) {
-                comboDisplay.innerText = "CHAIN BROKEN";
-                comboDisplay.classList.remove('combo-active');
-            }
-            
-            // Boss Taunt
-            bossSpeak("attack");
-            
-            playSound('lose'); triggerVisualFX('lose');
-            showFeedback(false, "ERROR! CHAIN RESET.");
-            
-            document.body.classList.add('shake-screen');
-            setTimeout(() => document.body.classList.remove('shake-screen'), 500);
-            
-            bossEntity.classList.add('state-attack');
-            setTimeout(() => { bossEntity.classList.remove('state-attack'); }, 1500);
+            // 2. CRITICAL FIX: Schedule Next Question EARLY
+            // We set this timer BEFORE calling the dangerous Boss functions.
+            // This guarantees the game moves forward even if the Boss logic crashes.
+            setTimeout(() => { 
+                currentQIndex++; 
+                loadQuestion(currentQIndex); 
+            }, 2500); // Wait 2.5s before moving on so user sees the penalty
 
-            setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 2500);
+            // 3. Boss Punishment (Wrapped in Try/Catch for safety)
+            try {
+                // Reset Combo UI
+                if(comboDisplay) {
+                    comboDisplay.innerText = "CHAIN BROKEN";
+                    comboDisplay.classList.remove('combo-active');
+                }
+                
+                // Add Mana Penalty (Check if function exists first)
+                if(typeof addMana === 'function') {
+                    addMana(25); // +25% Charge instantly!
+                    showFeedback(false, "WRONG! CHARGE +25%");
+                } else {
+                    showFeedback(false, "WRONG ANSWER");
+                }
+                
+                // Boss Reaction Animation
+                bossSpeak("attack");
+                bossEntity.classList.add('state-attack');
+                setTimeout(() => { bossEntity.classList.remove('state-attack'); }, 1500);
+                
+                // FX & Sound
+                triggerVisualFX('lose');
+                document.body.classList.add('shake-screen');
+                setTimeout(() => document.body.classList.remove('shake-screen'), 500);
+                
+                playSound('lose'); // Plays evil sound
+            } catch(e) { 
+                console.error("Boss Logic Error:", e);
+                // Game continues anyway because of Step 2!
+            }
         }
     }
 
@@ -934,25 +1326,478 @@
     }
 
     // ==========================================
-    // BOSS IDLE TIMER (The "Nagging" System)
+    // BOSS SKILL TRIGGER (With Safety Backup)
     // ==========================================
-    
-    // This runs every 12 seconds (12000 milliseconds)
-    setInterval(() => {
+    if (typeof window.bossSkillCycle === 'undefined') window.bossSkillCycle = 0;
+
+    function triggerBossSkill() {
+        if (currentHP <= 0 || document.getElementById('failScreen').style.display === 'flex') {
+            isAbilityActive = false; // Safety unlock
+            return;
+        }
+
+        // Safety Cycle Reset
+        if (typeof window.bossSkillCycle !== 'number' || isNaN(window.bossSkillCycle)) {
+            window.bossSkillCycle = 0;
+        }
+
+        let skillName = "";
         
-        // Only speak if:
-        // 1. The Boss is alive (HP > 0)
-        // 2. The Fail Screen isn't showing
-        const failScreen = document.getElementById('failScreen');
+        // --- 1. CAST THE SKILL ---
+        if (window.bossSkillCycle === 0) {
+            skillName = "VOCABULARY CHECK";
+            skillLexicalOverload();
+        } 
+        else if (window.bossSkillCycle === 1) {
+            skillName = "SILENCE (LOCK)";
+            skillSilence();
+        } 
+        else if (window.bossSkillCycle === 2) {
+            skillName = "SYSTEM GLITCH";
+            skillGlitch();
+        }
+
+        showSkillAnnouncement(skillName);
+
+        // --- 2. ROTATE CYCLE ---
+        window.bossSkillCycle++; 
+        if (window.bossSkillCycle > 2) window.bossSkillCycle = 0;
+
+        // --- 3. SAFETY WATCHDOG (The Bug Fix) ---
+        // If the skill's own timer fails to unlock the bar for any reason,
+        // this supervisor will force-unlock it after 12 seconds.
+        setTimeout(() => {
+            if(isAbilityActive) {
+                console.warn(">> WATCHDOG: Force-unlocking mana bar (Skill took too long).");
+                isAbilityActive = false;
+            }
+        }, 12000); 
+    }
+
+    // Helper: Shows a big warning text when a skill starts
+    function showSkillAnnouncement(name) {
+        // Create element if it doesn't exist
+        let announce = document.getElementById('skillAnnounce');
+        if (!announce) {
+            announce = document.createElement('div');
+            announce.id = 'skillAnnounce';
+            announce.style.position = 'fixed';
+            announce.style.top = '20%';
+            announce.style.left = '50%';
+            announce.style.transform = 'translate(-50%, -50%)';
+            announce.style.background = 'rgba(255, 0, 0, 0.8)';
+            announce.style.color = 'white';
+            announce.style.padding = '10px 30px';
+            announce.style.fontFamily = 'monospace';
+            announce.style.fontWeight = 'bold';
+            announce.style.zIndex = '1000';
+            announce.style.pointerEvents = 'none';
+            announce.style.border = '2px solid white';
+            document.body.appendChild(announce);
+        }
+
+        announce.innerText = "BOSS CASTING: " + name;
+        announce.style.display = 'block';
         
-        if (currentHP > 0 && failScreen.style.display !== 'flex') {
-            // 30% chance to just stay silent (so he doesn't talk TOO much)
-            if(Math.random() > 0.3) {
-                bossSpeak('idle');
+        // Hide after 2 seconds
+        setTimeout(() => {
+            announce.style.display = 'none';
+        }, 2000);
+    }
+
+    // ==========================================
+    // ADVANCED VOCABULARY ENGINE (API BASED)
+    // ==========================================
+
+    // Fallback list in case API is offline or slow
+    const backupDict = {
+        "use": "utilize", "help": "facilitate", "show": "demonstrate",
+        "bad": "detrimental", "good": "beneficial", "think": "contemplate"
+    };
+
+    function skillLexicalOverload() {
+        console.log(">> SKILL: Lexical Overload");
+        bossSpeakAttack("VOCABULARY CHECK!");
+        try { sfxMagic(); } catch(e) {} 
+
+        // 1. Matrix Setup
+        const localMatrix = {
+            "common": ["ubiquitous", "prevalent"], "rare": ["scarce", "infrequent"],
+            "life": ["existence", "sentience"], "humans": ["homo sapiens", "populace"],
+            "exist": ["persist", "endure"], "filter": ["sift", "winnow"],
+            "idea": ["concept", "paradigm"], "view": ["perspective", "standpoint"],
+            "change": ["fluctuate", "metamorphose"], "evidence": ["corroboration", "substantiation"],
+            "difficult": ["arduous", "laborious"], "likely": ["plausible", "presumable"],
+            "is": ["constitutes", "represents"], "are": ["embody", "constitute"],
+            "many": ["multitudinous", "myriad"]
+        };
+
+        const panel = document.getElementById('textPanel');
+        const walker = document.createTreeWalker(panel, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        const targetableNodes = [];
+
+        while(node = walker.nextNode()) {
+            const text = node.nodeValue;
+            if(text.trim().length > 2) {
+                 const hasKeyword = Object.keys(localMatrix).some(key => new RegExp(`\\b${key}\\b`, 'i').test(text));
+                const parentClass = node.parentNode.className || "";
+                if(hasKeyword && !parentClass.includes("cursed-word")) targetableNodes.push(node);
             }
         }
+
+        // SAFETY: If no words found, end ability immediately to unlock bar
+        if(targetableNodes.length === 0) {
+            console.warn(">> No words to curse. Aborting.");
+            finishBossAttack(); 
+            return;
+        }
+
+        // 2. Apply Curse
+        const attackCount = Math.min(5, targetableNodes.length);
+        for(let i=0; i<attackCount; i++) {
+            const targetNode = targetableNodes[Math.floor(Math.random() * targetableNodes.length)];
+            const text = targetNode.nodeValue;
+            const foundKey = Object.keys(localMatrix).find(key => new RegExp(`\\b${key}\\b`, 'i').test(text));
+
+            if(foundKey) {
+                const replacements = localMatrix[foundKey];
+                const advancedWord = replacements[Math.floor(Math.random() * replacements.length)];
+                const match = text.match(new RegExp(`\\b${foundKey}\\b`, 'i'));
+                if(!match) continue;
+                const originalWordExact = match[0];
+
+                const span = document.createElement('span');
+                span.className = "cursed-word";
+                span.innerText = advancedWord.toUpperCase();
+                span.dataset.original = originalWordExact;
+                span.dataset.cursed = advancedWord.toUpperCase();
+                span.dataset.state = "closed"; 
+                span.setAttribute("onclick", "togglePeek(this)"); 
+                span.style.userSelect = "none"; 
+                span.style.cursor = "pointer";
+
+                const wrapper = document.createElement('span');
+                const safeKey = foundKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const parts = text.split(new RegExp(`\\b${safeKey}\\b`, 'i'));
+
+                if(parts.length > 1) {
+                    wrapper.innerHTML = parts[0];
+                    wrapper.appendChild(span);
+                    wrapper.append(parts.slice(1).join(originalWordExact));
+                    targetNode.parentNode.replaceChild(wrapper, targetNode);
+                }
+            }
+        }
+
+        // 3. SET TIMER TO FINISH
+        // This is the only place we schedule the end
+        activeBossTimer = setTimeout(finishBossAttack, 10000); 
+    }
+
+    function skillSilence() {
+        try { sfxLock(); } catch(e) {}
+        bossSpeakAttack("DIAM!");
         
-    }, 12000); // <--- CHANGE THIS NUMBER to make him faster/slower
+        const btns = document.querySelectorAll('.opt-btn');
+        if(btns.length > 0) {
+            btns.forEach(btn => {
+                btn.classList.add('opt-locked');
+                btn.style.pointerEvents = 'none';
+            });
+            // Schedule the End
+            activeBossTimer = setTimeout(finishBossAttack, 10000); 
+        } else {
+            // Safety: If no buttons, end immediately
+            finishBossAttack();
+        }
+    }
+
+    function skillGlitch() {
+        try { sfxGlitch(); } catch(e) {}
+        bossSpeakAttack("SYSTEM ERROR...");
+        
+        const qText = document.querySelector('.q-text');
+        if(!qText) { finishBossAttack(); return; }
+
+        const originalText = qText.innerText;
+        qText.classList.add('text-glitched');
+        qText.innerText = originalText.split('').sort(() => 0.5 - Math.random()).join('');
+
+        // Schedule the End (5 seconds for glitch)
+        activeBossTimer = setTimeout(() => {
+            // Manually revert text before calling manager (special case)
+            qText.innerText = originalText; 
+            finishBossAttack();
+        }, 5000);
+    }
+
+    // Helper for Boss Aggressive Lines
+    function bossSpeakAttack(text) {
+        const bubble = document.getElementById('bossBubble');
+        bubble.innerText = text;
+        bubble.style.color = "var(--red)";
+        bubble.classList.add('bubble-show');
+        setTimeout(() => {
+            bubble.classList.remove('bubble-show');
+            bubble.style.color = "black"; // Reset color
+        }, 2000);
+        
+        // Make boss sprite look angry momentarily
+        const boss = document.getElementById('bossEntity');
+        boss.classList.add('state-attack');
+        setTimeout(() => boss.classList.remove('state-attack'), 1000);
+    }
+
+    // ==========================================
+    // BOSS ARTIFICIAL INTELLIGENCE (THE BRAIN)
+    // ==========================================
+    
+    // ==========================================
+    // BOSS TICK ENGINE (Passive Mana Gen)
+    // ==========================================
+    setInterval(() => {
+        // Only generate mana if game is active
+        const failScreen = document.getElementById('failScreen');
+        const isFailVisible = window.getComputedStyle(failScreen).display === 'flex'; 
+        
+        // Also don't generate if he is dead OR if we are currently peeking (don't punish twice)
+        const isPeeking = document.getElementById('panicOverlay').classList.contains('panic-active');
+
+        if (currentHP > 0 && !isFailVisible && !isPeeking && !isAbilityActive) {
+            addMana(MANA_PASSIVE_RATE);
+        }
+    }, 100); // Run 10 times a second
+
+    // ==========================================
+    // TOGGLE PEEK MECHANIC (GLOBAL)
+    // ==========================================
+    let peekInterval;
+
+    // Attach to window to ensure HTML can see it
+    window.togglePeek = function(span) {
+        console.log("Clicked word:", span.dataset.original); // Debug log
+
+        if (span.dataset.state === "closed") {
+            // --- OPEN ---
+            span.dataset.state = "open";
+            span.innerText = span.dataset.original; 
+            span.style.color = "#FFFFFF"; 
+            span.style.backgroundColor = "#DC2626"; // Add background color to make it obvious
+            span.style.padding = "0 4px"; // Add padding for the background
+            span.style.borderRadius = "4px";
+            
+            // Visuals
+            const panic = document.getElementById('panicOverlay');
+            if(panic) panic.classList.add('panic-active');
+            
+            // Drain Time
+            if(peekInterval) clearInterval(peekInterval);
+            peekInterval = setInterval(() => {
+                if(typeof timeLeft !== 'undefined') {
+                    timeLeft--; 
+                    try { playTone(800, 'square', 0.05, 0.05); } catch(e){}
+                    
+                    // Update timer UI immediately for feedback
+                    let m = Math.floor(timeLeft / 60);
+                    let s = timeLeft % 60;
+                    const timerEl = document.getElementById('timer');
+                    if(timerEl) {
+                        timerEl.innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                        timerEl.style.color = "red";
+                    }
+
+                    if(timeLeft <= 0) {
+                        clearInterval(peekInterval);
+                        if(typeof failGame === 'function') failGame();
+                    }
+                }
+            }, 200); 
+            
+        } else {
+            // --- CLOSE ---
+            span.dataset.state = "closed";
+            span.innerText = span.dataset.cursed; 
+            span.style.color = "#C084FC"; 
+            span.style.backgroundColor = "transparent"; // Remove background
+            span.style.padding = "0";
+            
+            // Stop Visuals
+            const panic = document.getElementById('panicOverlay');
+            if(panic) panic.classList.remove('panic-active');
+            if(peekInterval) clearInterval(peekInterval);
+            
+            const timerEl = document.getElementById('timer');
+            if(timerEl) timerEl.style.color = "#EF4444"; // Reset timer color
+        }
+    }// ==========================================
+    // BOSS RAGE MECHANIC (The Casting Bar)
+    // ==========================================
+    let bossMana = 0;
+    const MANA_PASSIVE_RATE = 0.4; // Fills 0.4% every 100ms (Full in ~25 sec)
+    const MANA_PENALTY = 25;       // +25% charge instantly on wrong answer
+
+    function addMana(amount) {
+        if(currentHP <= 0) return;
+
+        // 1. If we are currently in "Ability Mode", do not add charge.
+        if(isAbilityActive) return; 
+
+        bossMana += amount;
+        if(bossMana > 100) bossMana = 100;
+        
+        // Update UI
+        const bar = document.getElementById('bossManaBar');
+        const text = document.getElementById('manaText');
+        if(bar) bar.style.width = bossMana + "%";
+        if(text) text.innerText = Math.floor(bossMana) + "%";
+
+        // 2. TRIGGER AT 100%
+        if(bossMana >= 100) {
+            console.log(">> BOSS CHARGE FULL! Initiating Attack...");
+            
+            // A. LOCK THE BAR IMMEDIATELY
+            isAbilityActive = true; 
+            
+            // B. RESET VALUES IMMEDIATELY (Safety First)
+            bossMana = 0;
+            if(bar) bar.style.width = "0%";
+            if(text) text.innerText = "0%";
+
+            // C. CAST SPELL (Wrapped in Try/Catch)
+            // If this crashes, the bar is already reset, so the game won't freeze.
+            try {
+                triggerBossSkill();
+            } catch(e) {
+                console.error(e);
+                finishBossAttack();
+        }
+    }
+
+}
+
+// ==========================================
+    // HERO FOCUS SYSTEM
+    // ==========================================
+    let playerFocus = 0;
+    const MAX_FOCUS = 3;
+
+    function addFocus(amount) {
+        playerFocus += amount;
+        if(playerFocus > MAX_FOCUS) playerFocus = MAX_FOCUS;
+        if(playerFocus < 0) playerFocus = 0;
+        updateFocusUI();
+    }
+
+    function updateFocusUI() {
+        // Update Pips
+        for(let i=1; i<=3; i++) {
+            const pip = document.getElementById(`focus${i}`);
+            if(pip) {
+                if(i <= playerFocus) pip.classList.add('active');
+                else pip.classList.remove('active');
+            }
+        }
+        // Unlock Buttons
+        const btn1 = document.getElementById('skillBtn1');
+        const btn2 = document.getElementById('skillBtn2');
+        const btn3 = document.getElementById('skillBtn3');
+
+        if(btn1 && btn2 && btn3) {
+            [btn1, btn2, btn3].forEach(b => {
+                 b.classList.remove('ready', 'disabled');
+                 b.classList.add('disabled');
+            });
+
+            if(playerFocus >= 1) { btn1.classList.remove('disabled'); btn1.classList.add('ready'); }
+            if(playerFocus >= 2) { btn2.classList.remove('disabled'); btn2.classList.add('ready'); }
+            if(playerFocus >= 3) { btn3.classList.remove('disabled'); btn3.classList.add('ready'); }
+        }
+    }
+
+    // ==========================================
+    // SKILL EFFECTS
+    // ==========================================
+
+    // SKILL 1: DOUBLE SLASH (Remove 2 Wrong Answers)
+    function castDoubleSlash() {
+        if(playerFocus < 1) return;
+        if(isAbilityActive) return; // Optional: Cannot use during boss attack
+
+        addFocus(-1);
+        try { playSound('slash'); } catch(e){}
+
+        const allBtns = Array.from(document.querySelectorAll('.opt-btn'));
+        const correctBtn = allBtns.find(b => b.getAttribute('onclick').includes('true'));
+        // Filter out buttons that are already hidden or correct
+        const wrongBtns = allBtns.filter(b => b !== correctBtn && b.style.visibility !== 'hidden');
+
+        // Randomly hide 2
+        wrongBtns.sort(() => Math.random() - 0.5);
+        let count = 0;
+        wrongBtns.forEach(btn => {
+            if(count < 2) {
+                btn.style.transition = "0.2s";
+                btn.style.transform = "scaleX(0)";
+                setTimeout(() => btn.style.visibility = "hidden", 200);
+                count++;
+            }
+        });
+    }
+
+    // SKILL 2: CHRONO BREAK (Freeze Time)
+    function castChronoBreak() {
+        if(playerFocus < 2) return;
+        
+        addFocus(-2);
+        try { playSound('time_stop'); } catch(e){}
+
+        // Visuals
+        document.body.style.filter = "grayscale(100%) contrast(1.2)";
+        document.body.style.transition = "filter 0.5s";
+        const timerEl = document.getElementById('timer');
+        if(timerEl) {
+            timerEl.style.color = "#38BDF8";
+            timerEl.style.textShadow = "0 0 10px #38BDF8";
+        }
+
+        // Logic
+        window.isTimeFrozen = true; 
+
+        // Revert after 15s
+        setTimeout(() => {
+            window.isTimeFrozen = false;
+            document.body.style.filter = "none";
+            if(timerEl) {
+                timerEl.style.color = "#EF4444";
+                timerEl.style.textShadow = "none";
+            }
+            try { playSound('time_resume'); } catch(e){}
+        }, 15000);
+    }
+
+    // SKILL 3: TRUTH VISION (Reveal Answer)
+    function castTruthVision() {
+        if(playerFocus < 3) return;
+
+        addFocus(-3);
+        try { playSound('divine'); } catch(e){}
+
+        const allBtns = document.querySelectorAll('.opt-btn');
+        allBtns.forEach(btn => {
+            if(btn.getAttribute('onclick').includes('true')) {
+                // Gold Glow
+                btn.style.boxShadow = "0 0 30px #F59E0B";
+                btn.style.border = "2px solid #FCD34D";
+                btn.style.background = "linear-gradient(45deg, #78350F, #F59E0B)";
+                btn.style.color = "white";
+                btn.style.fontWeight = "bold";
+                btn.innerText = "👁️ " + btn.innerText;
+            } else {
+                btn.style.opacity = "0.3";
+            }
+        });
+    }
 </script>
 
 </body>
