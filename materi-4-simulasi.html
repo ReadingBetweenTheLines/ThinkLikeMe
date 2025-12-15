@@ -1833,7 +1833,7 @@ const round3Data = {
         // ============================================
         if(isSniperActive) {
             if(!isCorrect) {
-                // HIT WRONG TARGET -> DESTROY IT
+                // Wrong Target in Sniper Mode -> Just destroy button
                 btn.style.transition = "0.2s";
                 btn.style.transform = "scale(0.9)";
                 btn.style.backgroundColor = "#EF4444";
@@ -1842,12 +1842,11 @@ const round3Data = {
                     btn.style.pointerEvents = "none";
                 }, 200);
                 try { playSound('gunshot'); } catch(e){}
-                return; // STOP HERE (Don't run normal loss logic)
+                return; 
             } else {
-                // HIT CORRECT TARGET -> WIN & EXIT SNIPER MODE
+                // Correct Target -> Exit Sniper Mode & Continue
                 isSniperActive = false;
                 document.body.classList.remove('sniper-active');
-                // Allow code to continue down to Normal Win Logic...
             }
         }
 
@@ -1855,7 +1854,7 @@ const round3Data = {
         // 2. NORMAL GAMEPLAY LOGIC
         // ============================================
         
-        // 1. LOCK ALL BUTTONS IMMEDIATELY
+        // Lock all buttons immediately
         const allBtns = document.querySelectorAll('.opt-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
         
@@ -1869,10 +1868,13 @@ const round3Data = {
             // HERO: CHARGE ENERGY BAR
             processNeuralCharge(); 
             
-            // CALCULATE DAMAGE
-            let totalDmg = baseDamage + (comboStreak * 1.5);
+            // DAMAGE CALCULATION
+            let totalDmg = baseDamage + (comboStreak * 2); // Increased Combo Bonus
             currentHP -= totalDmg;
-            document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
+            
+            // UPDATE HP BAR (PERCENTAGE CALCULATION)
+            let hpPercent = (currentHP / maxHP) * 100;
+            document.getElementById('bossHP').style.width = Math.max(0, hpPercent) + "%";
             
             // VISUALS
             btn.classList.add('opt-correct');
@@ -1886,37 +1888,35 @@ const round3Data = {
             try { playSound('win'); } catch(e){}
 
             // BOSS REACTION
-            if (currentHP < 30) bossEntity.classList.add('boss-critical');
+            if (hpPercent < 30) bossEntity.classList.add('boss-critical');
             else {
                  bossEntity.classList.add('state-damaged');
                  setTimeout(() => bossEntity.classList.remove('state-damaged'), 1000);
             }
 
-            // NEXT STEP (Win Game or Next Question)
+            // GAME OVER OR NEXT QUESTION
             if(currentHP <= 0) {
                 setTimeout(winGame, 1000);
             } else {
-                // ROUND TRANSITION LOGIC (WIN)
+                // NEXT QUESTION / NEXT ROUND
                 setTimeout(() => {
                     if (currentQIndex + 1 < questions.length) {
                         currentQIndex++;
                         loadQuestion(currentQIndex);
                     } else {
-                        // Round Finished -> Next Round
                         showRoundTransition(currentRoundIndex + 1);
                     }
                 }, 1500);
             }
 
         } else {
-            // --- LOSS PATH (FIXED) ---
+            // --- LOSS PATH (HARDCORE MODE) ---
             comboStreak = 0;
             
-            // VISUALS: Show Red button, show Green (correct) button
+            // VISUALS: ONLY Show Red (Do not reveal Green)
             btn.classList.add('opt-wrong');
-            allBtns.forEach(b => { 
-                if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); 
-            });
+            
+            // [REMOVED] The code that turned the correct answer green is GONE.
             
             // UI UPDATES
             if(comboDisplay) {
@@ -1924,35 +1924,27 @@ const round3Data = {
                 comboDisplay.classList.remove('combo-active');
             }
             
-            // PENALTY: BOSS CHARGES MANA
+            // BOSS ATTACK
             addMana(25); 
-            showFeedback(false, "WRONG! CHARGE +25%");
-            
-            // BOSS ATTACK ANIMATION
+            showFeedback(false, "MISS! CHARGE LOST");
             bossSpeak("attack");
             bossEntity.classList.add('state-attack');
             setTimeout(() => { bossEntity.classList.remove('state-attack'); }, 1500);
             
-            // SCREEN SHAKE & SOUND
             triggerVisualFX('lose');
             try { playSound('lose'); } catch(e){}
             document.body.classList.add('shake-screen');
             setTimeout(() => document.body.classList.remove('shake-screen'), 500);
 
-            // NEXT STEP (Loss Game or Next Question)
-            // ROUND TRANSITION LOGIC (LOSS)
+            // NEXT QUESTION / NEXT ROUND
             setTimeout(() => {
-                // Check if we died from the penalty? (Optional, usually checked elsewhere)
-                
                 if (currentQIndex + 1 < questions.length) {
                     currentQIndex++;
                     loadQuestion(currentQIndex);
                 } else {
-                    // Even if you missed the last question, you move to the next round
-                    alert("ROUND COMPLETE! PREPARE FOR NEXT PHASE...");
-                    loadRound(currentRoundIndex + 1);
+                    showRoundTransition(currentRoundIndex + 1);
                 }
-            }, 2500); // Longer delay for wrong answers so you can see the correct one
+            }, 2500);
         }
     }
 
