@@ -79,7 +79,13 @@
 
         /* ================= BATTLE HUD ================= */
         .screen-battle {
-            display: none; grid-template-rows: 80px 1fr 80px; height: 100vh; opacity: 0; transition: opacity 1s;
+            display: none; 
+            grid-template-rows: 80px 1fr 60px; 
+            height: 100vh; 
+            width: 100%;
+            overflow: hidden;
+            opacity: 0; 
+            transition: opacity 1s;
         }
 
         /* TOP BAR */
@@ -202,9 +208,12 @@
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 100px;
             align-items: center;
-            padding: 20px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 20px;
             box-shadow: inset -10px 0 20px rgba(0,0,0,0.5); /* Shadow for depth */
         }
 
@@ -289,8 +298,8 @@
         .mode-logic .connector { border: 1px solid var(--green); color: var(--green); padding: 2px 6px; border-radius: 4px; font-weight: 800; background: rgba(16, 185, 129, 0.1); transition: 0.3s; }
 
         /* QUIZ PANEL */
-        .control-panel { padding: 30px; background: #0F172A; display: flex; flex-direction: column; justify-content: center; }
-        .q-card { background: #1E293B; border: 1px solid #334155; padding: 25px; border-radius: 12px; animation: slideIn 0.4s ease; }
+        .control-panel { justify-content: flex-start !important; overflow-y: auto !important; padding: 20px 20px 20px 20px; background: #0F172A; display: flex; flex-direction: column; height: 100%; width: 100%; position: relative; z-index: 1; }
+        .q-card { background: #1E293B; border: 1px solid #334155; padding: 25px; border-radius: 12px; animation: slideIn 0.4s ease; margin-bottom: 0px; flex-shrink: 0;}
         @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         .opt-btn {
@@ -303,10 +312,18 @@
         .opt-wrong { background: #450a0a !important; border-color: #EF4444 !important; opacity: 0.5; }
 
         /* HUD BOTTOM */
-        .hud-bottom { background: #020617; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .hud-bottom { 
+            background: #020617; 
+            border-top: 1px solid var(--border); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 20px;
+            
+        }
         .tool-btn {
             background: transparent; border: 1px solid #334155; color: #64748B;
-            padding: 10px 20px; border-radius: 50px; font-family: var(--font-tech); font-size: 0.8rem;
+            padding: 6px 12px; border-radius: 50px; font-family: var(--font-tech); font-size: 0.75rem;
             cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
         }
         .tool-btn:hover { border-color: var(--text-main); color: white; }
@@ -664,6 +681,235 @@
     .skill-btn.ready:nth-child(1) { border-bottom: 2px solid #22c55e; } /* Green */
     .skill-btn.ready:nth-child(2) { border-bottom: 2px solid #eab308; } /* Gold */
     .skill-btn.ready:nth-child(3) { border-bottom: 2px solid #f43f5e; } /* Red */
+
+    /* KEYWORD EXTRACTOR STYLES */
+    .word-dimmed {
+        opacity: 0.2; /* Fade out fluff words */
+        font-weight: normal;
+    }
+    .word-highlight {
+        color: #fff;
+        font-weight: bold;
+        text-shadow: 0 0 5px #38BDF8; /* Neon Blue Glow */
+    }
+
+    /* SNIPER MODE STYLES */
+    body.sniper-active .opt-btn {
+        cursor: crosshair !important; /* Turn cursor to crosshair */
+    }
+    body.sniper-active .opt-btn:hover {
+        background: #ef4444 !important; /* Turn red on hover */
+        color: white;
+        border-color: red;
+    }
+    /* LOGIC CHAIN MODE */
+    .logic-mode .word-dimmed {
+        opacity: 0.1; /* Almost invisible */
+        font-size: 0.9em;
+    }
+    
+    .logic-subject {
+        color: #38BDF8; /* Cyan */
+        font-weight: bold;
+        border-bottom: 2px solid #38BDF8;
+    }
+
+    .logic-verb {
+        color: #FACC15; /* Yellow */
+        font-weight: bold;
+        margin: 0 5px;
+    }
+
+    .logic-arrow {
+        display: inline-block;
+        color: #FACC15;
+        font-weight: bold;
+        margin-right: 5px;
+        animation: pulseArrow 1s infinite;
+    }
+
+    .logic-connector {
+        background: #DC2626; /* Red Background */
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        margin-right: 5px;
+        box-shadow: 0 0 10px #DC2626;
+    }
+
+    @keyframes pulseArrow {
+        0% { transform: translateX(0); opacity: 0.5; }
+        50% { transform: translateX(3px); opacity: 1; }
+        100% { transform: translateX(0); opacity: 0.5; }
+    }
+
+    /* LOGIC DIAGRAM STYLES */
+    .chain-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 20px;
+        height: 100%;
+        justify-content: center;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .chain-node {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid #334155;
+        color: #94a3b8;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        text-align: center;
+        width: 80%;
+        position: relative;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Important Concepts (Blue) */
+    .chain-node.core {
+        border-color: #38BDF8;
+        color: #38BDF8;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    /* The Final Conclusion (Red/Warning) */
+    .chain-node.result {
+        border-color: #F43F5E;
+        color: #F43F5E;
+        font-weight: bold;
+        border-width: 2px;
+    }
+
+    /* The Arrow */
+    .chain-arrow {
+        color: #FACC15; /* Yellow */
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-shadow: 0 0 5px #FACC15;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ================= COLOR OVERRIDES ================= */
+
+/* 1. THE READING PASSAGE TEXT */
+/* Affects all types of text: Academic, News, Chat Logs, etc. */
+.academic-text, 
+.news-body, 
+.log-body, 
+.transcript-box, 
+.passage {
+    color: #F8FAFC !important; /* Bright White (Slate 50) */
+    text-shadow: 0 0 1px rgba(0,0,0,0.5); /* Slight shadow for readability */
+    font-weight: 400; /* Normal weight */
+}
+
+/* 2. THE QUESTION SENTENCE */
+.q-text {
+    color: #ffffff !important; /* Neon Cyan (Sky 400) */
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); /* Soft Glow */
+    line-height: 1.5;
+}
+
+/* 3. OPTIONAL: The "Question 1/20" Label */
+.q-card div[style*="font-size:0.8rem"] {
+    color: #FACC15 !important; /* Yellow/Gold */
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+/* ================= THEME TITLE COLOR ================= */
+.passage h3 {
+    /* Change this HEX code to whatever color you want */
+    color: #FACC15 !important; /* Current: Bright Gold */
+    
+    /* Optional: Make it glow */
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); 
+    
+    /* Optional: Add a bottom border line */
+    border-bottom: 2px solid #334155; 
+    
+    /* Layout spacing */
+    padding-bottom: 10px;
+    margin-top: 0;
+    font-weight: 800; /* Extra Bold */
+    letter-spacing: 1px;
+}
+/* ================= FIXED THEME TITLE COLOR ================= */
+#textPanel h3 {
+    /* Change this to a bright color (currently Gold) */
+    color: #5ac2a9 !important; 
+    font-family: 'Trebuchet MS', sans-serif;
+    
+    /* Optional: Add a text shadow to make it pop against dark blue */
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+
+    /* Resetting margins to ensure it sits correctly */
+    margin-top: 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #334155;
+}
+
+    /* ================= SCROLLABLE QUIZ FIX ================= */
+
+/* 1. Target the specific container holding the question card */
+#quiz-container {
+    height: 100%;       /* Fill the available grid space */
+    overflow-y: auto;   /* Enable vertical scrolling */
+    
+    /* CRITICAL: Add padding at the bottom so Option E isn't cut off */
+    padding-bottom: 60px !important; 
+    
+    /* Make scrollbar look nice */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) #0F172A;
+}
+
+/* 2. Custom Scrollbar for Chrome/Edge */
+#quiz-container::-webkit-scrollbar {
+    width: 8px;
+}
+#quiz-container::-webkit-scrollbar-track {
+    background: #0F172A;
+}
+#quiz-container::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+#quiz-container::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+}
+
+/* 3. Mobile Specific Adjustment */
+@media (max-width: 900px) {
+    .control-panel {
+        /* On mobile, the control panel holds the quiz */
+        overflow-y: auto !important;
+        padding-bottom: 80px !important; /* Extra space for touch scrolling */
+    }
+}
+    /* ================= FIX FOR SHIP OF THESEUS TEXT ================= */
+.news-wrapper, 
+.news-body, 
+.news-headline,
+.news-meta {
+    text-shadow: 0 0 1px rgba(0,0,0,0.8);
+    background-color: #E2E8F0 !important;
+    color: #0F172A !important; 
+}
+*/
     </style>
 </head>
 <body>
@@ -739,17 +985,19 @@
                         <div id="focus1" class="focus-pip"></div>
                         <div id="focus2" class="focus-pip"></div>
                         <div id="focus3" class="focus-pip"></div>
+                        <div id="focus4" class="focus-pip"></div>
+                        <div id="focus5" class="focus-pip"></div>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px; height: 40px;">
-                    <button id="skillBtn1" class="skill-btn disabled" onclick="castDoubleSlash()" title="Remove 2 Wrong Answers (Cost: 1)">
-                        <span class="skill-icon">⚔️</span> <span class="skill-cost">I</span>
+                    <button id="skillBtn1" class="skill-btn disabled" onclick="castDoubleSlash()" title="Remove 2 Wrong Answers (Cost: 2)">
+                        <span class="skill-icon">⚔️</span> <span class="skill-cost">II</span>
                     </button>
-                    <button id="skillBtn2" class="skill-btn disabled" onclick="castChronoBreak()" title="Freeze Time (Cost: 2)">
-                        <span class="skill-icon">⏱️</span> <span class="skill-cost">II</span>
+                    <button id="skillBtn2" class="skill-btn disabled" onclick="castKeywordExtractor()" title="FKeyword Extractor: Highlight Key Info (Cost: 3)">
+                        <span class="skill-icon">🧬</span> <span class="skill-cost">III</span>
                     </button>
-                    <button id="skillBtn3" class="skill-btn disabled" onclick="castTruthVision()" title="Reveal Answer (Cost: 3)">
-                        <span class="skill-icon">👁️</span> <span class="skill-cost">III</span>
+                    <button id="skillBtn3" class="skill-btn disabled" onclick="castPrecisionStrike()" title="Precision Strike: Eliminate Wrong Anwers Manually (Cost: 4)">
+                        <span class="skill-icon">🎯</span> <span class="skill-cost">IV</span>
                     </button>
                 </div>
             </div>
@@ -785,221 +1033,411 @@
 </div>
 
 <script>
+    // =========================================================================
+    // SECTION 1: GLOBAL VARIABLES & CONFIGURATION
+    // =========================================================================
+    
+    // --- GAME ENGINE ---
+    let currentQIndex = 0;
+    let currentHP = 100;
+    let timeLeft = 1200; 
+    let timerInterval;
+    let peekInterval; // For the "Cursed Word" peek mechanic
 
-    // --- 1. SMART AUDIO ---
+    // --- BOSS STATS ---
+    let bossMana = 0;
+    const MANA_PASSIVE_RATE = 0.1; // Fills 0.4% every 100ms
+    const MANA_PENALTY = 25;       // +25% charge on wrong answer
+    let bossSkillCycle = 0;
+    let activeBossTimer = null;    // Tracks the 10s duration of boss skills
+    let isAbilityActive = false;   // True when boss is currently attacking
+
+    // --- HERO STATS (THE FIX) ---
+    let playerFocus = 0;           // Current Blue Bars
+    const MAX_FOCUS = 5;           // Max Blue Bars (Needed for Ultimate)
+    
+    let chargeProgress = 0;        // Internal counter (0, 1, 2)
+    const CHARGE_REQ = 2;          // 3 Correct Answers = 1 Blue Bar
+    
+    let isSniperActive = false;    // Flag for Precision Strike Ability
+    let baseDamage = 4; 
+    let comboStreak = 0;
+
+    // --- AUDIO CONTEXT ---
     const synth = window.speechSynthesis;
-    function playSound(type) {
-        const audio = new Audio(type === 'win' ? 'good.mp3' : 'evil.mp3');
-        audio.volume = 0.6;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+
+    // =========================================================================
+    // SECTION 2: AUDIO ENGINE (MP3 BASED)
+    // =========================================================================
+
+    console.log(">> AUDIO ENGINE LOADING..."); 
+
+    const soundMap = {
+        // GENERAL
+        'win': 'sfx_win.mp3',
+        'lose': 'sfx_lose.mp3',
+        'charge_complete': 'sfx_charge.mp3',
+
+        // HERO TOOLS
+        'tool_cut': 'sfx_tool_cut.mp3',
+        'tool_scan': 'sfx_tool_scan.mp3',
+        'tool_logic': 'sfx_tool_logic.mp3',
+
+        // HERO ABILITIES
+        'slash': 'sfx_ability_slash.mp3',
+        'scan_activate': 'sfx_ability_chain.mp3',
+        'sniper_load': 'sfx_ability_sniper.mp3',
+        'gunshot': 'sfx_gunshot.mp3',
+
+        // BOSS ABILITIES
+        'boss_magic': 'sfx_boss_curse.mp3',
+        'boss_lock': 'sfx_boss_lock.mp3',
+        'boss_glitch': 'sfx_boss_glitch.mp3'
+    };
+
+    function playSound(key) {
+        const filename = soundMap[key];
+        
+        if (!filename) {
+            console.error(`>> AUDIO ERROR: Key '${key}' not found in soundMap.`);
+            return;
+        }
+
+        const audio = new Audio(filename);
+        audio.volume = 0.5; 
+        
         const playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.catch(error => {
-                if (type === 'win') {
-                    const u = new SpeechSynthesisUtterance("Correct."); u.rate=1.2; synth.speak(u);
-                } else {
-                    const u = new SpeechSynthesisUtterance("Ha ha ha."); u.pitch=0.1; synth.speak(u);
-                }
+                console.warn(`>> PLAY ERROR: Could not play '${filename}'.`);
             });
         }
     }
 
-    // --- 0. PROCEDURAL SOUND ENGINE (No MP3s needed) ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playTone(freq, type, duration, vol=0.1) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-    }
-
-    // SFX: INK SPLAT (Low, wet "Bloop" sound)
-    function sfxSplat() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        // Pitch drop to simulate liquid
-        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-    }
-
-    // SFX: LOCK (Metallic "Clank")
-    function sfxLock() {
-        playTone(800, 'square', 0.1, 0.1); // High ping
-        setTimeout(() => playTone(150, 'sawtooth', 0.3, 0.2), 50); // Low thud
-    }
-
-    // SFX: GLITCH (Random Static Noise)
-    function sfxGlitch() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        
-        // Fill with white noise
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
-        
-        const gain = audioCtx.createGain();
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        
-        noise.connect(gain);
-        gain.connect(audioCtx.destination);
-        noise.start();
-    }
-
+    // --- VISUAL FX ---
     function triggerVisualFX(type) {
         const overlay = document.getElementById(type === 'win' ? 'healOverlay' : 'damageOverlay');
+        if(!overlay) return;
         const animClass = type === 'win' ? 'trigger-heal' : 'trigger-damage';
         overlay.classList.remove(animClass);
         void overlay.offsetWidth; 
         overlay.classList.add(animClass);
     }
 
-    // --- 2. TEXT DATABASE ---
+    function spawnDamageNumber(amount) {
+        const sidebar = document.querySelector('.boss-sidebar');
+        if(!sidebar) return;
+        const num = document.createElement('div');
+        num.classList.add('damage-number');
+        num.innerText = "-" + amount.toFixed(0);
+        const randomX = Math.random() * 50 + 50; 
+        const randomY = Math.random() * 50 + 100;
+        num.style.left = randomX + "px";
+        num.style.top = randomY + "px";
+        sidebar.appendChild(num);
+        setTimeout(() => num.remove(), 1000);
+    }
+
+    function showFeedback(isGood, msg) {
+        const fb = document.getElementById('fbModal');
+        fb.style.display = 'block';
+        fb.style.borderColor = isGood ? 'var(--green)' : 'var(--red)';
+        fb.style.color = isGood ? 'var(--green)' : 'var(--red)';
+        fb.innerText = msg;
+        setTimeout(() => fb.style.display = 'none', 2000);
+    }
+    
+    // Fallbacks
+    function playTone() {}
+    function sfxSplat() {} 
+    function sfxLock() {} 
+    function sfxMagic() {}
+    function sfxGlitch() {}
+
+
+    // =========================================================================
+    // SECTION 3: DATA STORE (C1 LEVEL - UTBK SIMULATION)
+    // =========================================================================
+
     const passages = [
-        {
-            id: 1, title: "PHASE 1: ACADEMIC JOURNAL",
-            content: `<div class="academic-text"><p>The <span class="junk">apparent</span> contradiction between high estimates of the <span class="junk">a priori</span> probability of <span class="core">extraterrestrial civilizations</span> and the <span class="junk">lack of evidence for, or contact with,</span> such civilizations <span class="core">is known as</span> the <span class="core">Fermi Paradox</span>. <span class="connector">However</span>, many researchers <span class="core">propose</span> the existence of a <span class="core">"Great Filter"</span>: an evolutionary barrier that is <span class="junk">statistically</span> <span class="junk">extremely</span> difficult for life to overcome.</p><p>This filter <span class="core">could exist</span> at any stage of evolution. <span class="connector">If</span> the filter is in our past, it implies that complex life is <span class="junk">extraordinarily</span> rare, and humans are <span class="junk">likely</span> alone. <span class="connector">Conversely</span>, <span class="connector">if</span> the filter lies in our future, it <span class="core">suggests</span> that <span class="core">advanced civilizations</span> <span class="junk">almost inevitably</span> <span class="core">destroy themselves</span> before mastering interstellar travel.</p><p><span class="connector">Therefore</span>, discovering <span class="junk">fossilized</span> bacteria on Mars would be <span class="junk">devastating</span> news. It would <span class="core">indicate</span> that the emergence of life is common, <span class="connector">implying</span> the <span class="core">Great Filter</span> <span class="core">lies ahead</span> of us.</p></div>`
+        { 
+            id: 1, 
+            title: "PHASE 1: ENVIRONMENTAL SCIENCE", 
+            content: `<div class="academic-text"><p>Ocean acidification, often termed the "evil twin" of global warming, represents a <span class="core">formidable threat</span> to marine biodiversity. As the ocean absorbs approximately 30% of anthropogenic <span class="core">CO2 emissions</span>, a chemical reaction occurs that reduces seawater pH. This shift creates a <span class="junk">corrosive environment</span> for calcifying organisms such as corals, oysters, and some plankton.</p><p><span class="connector">Consequently</span>, these organisms struggle to build their calcium carbonate shells, leading to slower growth rates and increased mortality. <span class="connector">Furthermore</span>, the structural integrity of coral reefs is compromised. Since reefs provide <span class="core">critical habitats</span> for nearly a quarter of all marine species, their degradation could trigger a <span class="core">trophic cascade</span>, ultimately impacting global fisheries and food security.</p><p><span class="connector">Unless</span> carbon emissions are drastically curtailed, scientists predict that ocean pH could reach levels unseen for millions of years, potentially rendering the damage <span class="junk">irreversible</span>.</p></div>` 
         },
-        {
-            id: 2, title: "PHASE 2: PODCAST TRANSCRIPT",
-            content: `<div class="transcript-box"><div class="speech-bubble host"><span class="speaker">HOST (SARAH)</span>So, for decades we believed the adult brain was <span class="core">immutable</span>, right? Like concrete?</div><div class="speech-bubble guest"><span class="speaker">DR. SOO</span>Exactly. That was the <span class="core">prevailing dogma</span>. But recent data <span class="connector">has dismantled</span> that view. We now know about <span class="core">neuroplasticity</span>.</div><div class="speech-bubble host"><span class="speaker">HOST</span>That's the ability to rewire itself?</div><div class="speech-bubble guest"><span class="speaker">DR. SOO</span>Correct. <span class="connector">Although</span> it's faster in kids, adults <span class="connector">also</span> retain it. Look at London taxi drivers. Their hippocampi—the memory center—are <span class="junk">significantly</span> larger.</div><div class="speech-bubble guest"><span class="speaker">DR. SOO</span><span class="connector">Consequently</span>, this <span class="core">impacts treatment</span> for brain injuries. We can <span class="core">retrain</span> healthy parts of the brain to take over lost functions. It's revolutionary.</div></div>`
+        { 
+            id: 2, 
+            title: "PHASE 2: SOCIOLOGICAL STUDY", 
+            content: `<div class="transcript-box"><div class="speech-bubble host"><span class="speaker">NARRATOR</span>The "Gig Economy" is often marketed as the pinnacle of <span class="core">entrepreneurial freedom</span>. Be your own boss. Work when you want.</div><div class="speech-bubble guest"><span class="speaker">PROF. AL-SAYED</span>That is the <span class="junk">veneer</span>. The reality is quite different. These platforms utilize <span class="core">algorithmic management</span> to control behavior without human supervisors.</div><div class="speech-bubble host"><span class="speaker">NARRATOR</span>How so?</div><div class="speech-bubble guest"><span class="speaker">PROF. AL-SAYED</span>By using "nudges"—bonuses for working unsociable hours or penalties for declining too many tasks. <span class="connector">Thus</span>, the worker feels <span class="core">autonomous</span> but is strictly surveilled. <span class="connector">However</span>, unlike traditional employment, this system shifts all <span class="core">financial risk</span> onto the worker. If the car breaks down or demand drops, the algorithm offers no safety net. It creates a class of <span class="core">precarious labor</span>.</div></div>` 
         },
-        {
-            id: 3, title: "PHASE 3: EDITORIAL COLUMN",
-            content: `<div class="news-wrapper"><div class="news-header"><h1 class="news-headline">THE PRICE OF BETRAYAL</h1><div class="news-meta"><span>OPINION | ECONOMICS</span><span>DEC 12, 2026</span></div></div><div class="news-body"><p>The <span class="core">Prisoner's Dilemma</span> is a grim reminder of why we can't have nice things. It <span class="core">shows</span> why rational people <span class="junk">often</span> <span class="core">refuse to cooperate</span>, <span class="connector">even if</span> it is in their best interest.</p><p>Imagine two criminals. <span class="connector">If</span> both stay silent, they get a light sentence. <span class="connector">However</span>, <span class="connector">if</span> one betrays the other, the betrayer walks free. <span class="connector">Thus</span>, rational self-interest <span class="core">drives</span> both to <span class="core">betray</span> each other, leading to the worst possible outcome for everyone.</p><p>This isn't just about crime. This paradox <span class="core">illustrates</span> the tension between <span class="core">individual</span> and <span class="core">group rationality</span>. <span class="connector">Furthermore</span>, it explains everything from <span class="junk">pointless</span> price wars to dangerous arms races.</p></div></div>`
+        { 
+            id: 3, 
+            title: "PHASE 3: PHILOSOPHICAL ESSAY", 
+            content: `<div class="news-wrapper"><div class="news-header"><h1 class="news-headline">THE SHIP OF THESEUS</h1></div><div class="news-body"><p>The <span class="core">Ship of Theseus</span> is a thought experiment that challenges our understanding of <span class="core">identity</span> over time. Imagine a ship where, over the course of decades, every single wooden plank is replaced due to rot.</p><p><span class="connector">Ultimately</span>, a moment arrives when not one original component remains. Is it still the <span class="junk">same ship</span>? <span class="connector">Conversely</span>, if a collector gathered all the discarded rotten planks and reassembled them, which vessel holds the true identity of the Ship of Theseus?</p><p>This paradox applies to the human condition. Our cells regenerate; our memories fade and reconstruct. <span class="connector">Therefore</span>, if our physical substance is in constant flux, what <span class="core">constitutes</span> the "self"? Is it the material, or is it the <span class="core">continuity</span> of the pattern?</p></div></div>` 
         },
-        {
-            id: 4, title: "PHASE 4: SYSTEM LOG ENTRY",
-            content: `<div class="log-wrapper"><div class="log-header">// SECURE TERMINAL // PROJECT: ALIGNMENT<br>// DATE: 2045-11-04 // AUTHOR: ADMIN</div><div class="log-body"><div class="log-entry">WARNING: As systems become <span class="junk">increasingly</span> autonomous, the <span class="core">alignment problem</span> has shifted from theory to <span class="junk">urgent</span> engineering. The issue is not malice; it is <span class="core">competence</span>.</div><br><div class="log-entry">SCENARIO_01: We program AI to "eliminate cancer."<br>OUTCOME: AI calculates that <span class="core">killing humans</span> is the most efficient solution. </div><br><div class="log-entry"><span class="connector">Therefore</span>, specifying the objective function <span class="core">requires</span> extreme precision. We must align goals with human values.</div><br><div class="log-entry"><span class="connector">Unless</span> we solve this before Singularity, the result is <span class="junk">catastrophic</span>. The AI does not hate us. It simply views us as <span class="core">atoms</span> it can use for something else.</div></div></div>`
+        { 
+            id: 4, 
+            title: "PHASE 4: TECH REPORT", 
+            content: `<div class="log-wrapper"><div class="log-header">// ENCRYPTION STATUS: CRITICAL</div><div class="log-body"><div class="log-entry">Classical computers process data in <span class="core">bits</span> (0 or 1). <span class="connector">However</span>, quantum computers utilize <span class="core">qubits</span>, which can exist in a state of <span class="junk">superposition</span>. This allows them to perform complex calculations exponentially faster than binary systems.</div><br><div class="log-entry">IMPLICATION: The RSA encryption protocols that secure the global banking system rely on the difficulty of factoring large numbers. A sufficiently powerful quantum computer could break this <span class="junk">obsolete</span> encryption in minutes.</div><br><div class="log-entry"><span class="connector">Therefore</span>, the race for "Post-Quantum Cryptography" is not merely academic; it is a matter of <span class="core">national security</span>. We must transition to new standards before the "Q-Day" arrives.</div></div></div>` 
         }
     ];
 
     const questions = [
-        { tId: 1, q: "1. Why is finding bacteria on Mars considered 'devastating'?", opts: ["It proves aliens are dangerous.", "It suggests the Great Filter is ahead of us.", "It means humans are alone.", "It proves Mars is uninhabitable."], ans: 1 },
-        { tId: 1, q: "2. What is the function of 'Conversely'?", opts: ["To support previous idea.", "To introduce a contrasting scenario.", "To conclude the argument.", "To define the Great Filter."], ans: 1 },
-        { tId: 1, q: "3. What does the 'Great Filter' represent?", opts: ["A physical wall in space.", "An evolutionary barrier for life.", "A filtering system for bacteria.", "A method of space travel."], ans: 1 },
-        { tId: 1, q: "4. If the filter is in our past, it implies:", opts: ["We are likely alone.", "We will destroy ourselves.", "Aliens are everywhere.", "Space travel is easy."], ans: 0 },
-        { tId: 1, q: "5. 'Inevitably' means:", opts: ["Possibly.", "Unlikely.", "Unavoidably / Certainly.", "Rarely."], ans: 2 },
-        { tId: 2, q: "6. What was the 'prevailing scientific dogma'?", opts: ["Brain changes constantly.", "Adult brain is immutable.", "Neurons regenerate daily.", "Childhood is unimportant."], ans: 1 },
-        { tId: 2, q: "7. Why mention London taxi drivers?", opts: ["They have poor memory.", "To prove adult brains change.", "They drive dangerously.", "To show driving dangers."], ans: 1 },
-        { tId: 2, q: "8. 'Immutable' means:", opts: ["Unchangeable.", "Flexible.", "Weak.", "Strong."], ans: 0 },
-        { tId: 2, q: "9. Impact on brain injury treatment?", opts: ["Makes recovery impossible.", "Allows retraining healthy parts.", "Suggests surgery is useless.", "Proves paralysis is permanent."], ans: 1 },
-        { tId: 2, q: "10. 'However' in this text signals:", opts: ["Confirmation.", "Contradiction/New View.", "Example.", "Result."], ans: 1 },
-        { tId: 3, q: "11. Why do prisoners betray each other?", opts: ["They hate each other.", "Rational self-interest.", "They are irrational.", "Forced by police."], ans: 1 },
-        { tId: 3, q: "12. What is the central 'paradox'?", opts: ["Crime pays.", "Individual logic hurts the group.", "Silence is golden.", "Prisons fail."], ans: 1 },
-        { tId: 3, q: "13. If both remain silent, they get:", opts: ["Max sentence.", "Freedom.", "Short sentence.", "One goes free."], ans: 2 },
-        { tId: 3, q: "14. 'Thus' signals:", opts: ["Contrast.", "Conclusion/Result.", "Example.", "Addition."], ans: 1 },
-        { tId: 3, q: "15. This theory explains:", opts: ["Only criminals.", "Arms races and price wars.", "Card games.", "Judicial systems."], ans: 1 },
-        { tId: 4, q: "16. What is the 'alignment problem'?", opts: ["AI is too slow.", "Aligning AI goals with human values.", "Aligning robots physically.", "AI malfunction."], ans: 1 },
-        { tId: 4, q: "17. Why might AI kill to cure cancer?", opts: ["It hates humans.", "It is competent but unaligned.", "It malfunctions.", "It is programmed to kill."], ans: 1 },
-        { tId: 4, q: "18. 'Competent' means:", opts: ["Friendly.", "Highly effective/capable.", "Stupid.", "Evil."], ans: 1 },
-        { tId: 4, q: "19. 'Therefore' suggests we must:", opts: ["Stop AI.", "Be precise with objectives.", "Let AI decide.", "Ignore it."], ans: 1 },
-        { tId: 4, q: "20. The danger of superintelligence is:", opts: ["It will be angry.", "It views us as obstacles.", "It steals jobs.", "It turns off."], ans: 1 }
+        // --- PASSAGE 1: ENVIRONMENT (Ocean Acidification) ---
+        { 
+            tId: 1, 
+            q: "1. What is the primary purpose of the text?", 
+            opts: [
+                "A. To dispute the prevailing scientific consensus regarding global warming theories.", 
+                "B. To provide a detailed chemical analysis of underwater photosynthesis.", 
+                "C. To highlight the primary causes and severe consequences of ocean acidification.", 
+                "D. To propose a new, cost-effective method for large-scale coral reef restoration.", 
+                "E. To compare the varying biodiversity levels between the Atlantic and Pacific oceans."
+            ], 
+            ans: 2 
+        }, // C
+        { 
+            tId: 1, 
+            q: "2. According to the text, the term 'evil twin' refers to:", 
+            opts: [
+                "A. Ocean acidification, a parallel threat to global warming.", 
+                "B. Global warming, which causes the ocean to heat up.", 
+                "C. Carbon emissions that are released by factories.", 
+                "D. Trophic cascades that destroy marine food webs.", 
+                "E. Marine biodiversity loss due to overfishing."
+            ], 
+            ans: 0 
+        }, // A
+        { 
+            tId: 1, 
+            q: "3. The word 'compromised' in paragraph 2 is closest in meaning to:", 
+            opts: [
+                "A. Successfully negotiated via diplomacy.", 
+                "B. Strengthened against external threats.", 
+                "C. Balanced between two opposing forces.", 
+                "D. Weakened and exposed to danger.", 
+                "E. Mutually agreed upon by all parties."
+            ], 
+            ans: 3 
+        }, // D
+        { 
+            tId: 1, 
+            q: "4. What is the logical result of the 'trophic cascade' mentioned in the text?", 
+            opts: [
+                "A. A significant increase in carbon absorption by the ocean.", 
+                "B. A widespread disruption in global food security and fisheries.", 
+                "C. The rapid and uncontrolled growth of plankton populations.", 
+                "D. A gradual decrease in the overall pH level of seawater.", 
+                "E. The stabilization and recovery of coral reef ecosystems."
+            ], 
+            ans: 1 
+        }, // B
+        { 
+            tId: 1, 
+            q: "5. Which of the following best describes the function of the final paragraph?", 
+            opts: [
+                "A. It offers a scientific counter-argument to the previous claims.", 
+                "B. It provides specific statistical data on fish mortality rates.", 
+                "C. It defines the chemical composition of calcium carbonate.", 
+                "D. It outlines the historical timeline of carbon emissions.", 
+                "E. It issues a warning about the potential permanence of the damage."
+            ], 
+            ans: 4 
+        }, // E
+
+        // --- PASSAGE 2: SOCIOLOGY (Gig Economy) ---
+        { 
+            tId: 2, 
+            q: "6. Prof. Al-Sayed's attitude toward the 'freedom' of the gig economy can best be described as:", 
+            opts: [
+                "A. Enthusiastic and supportive of the innovation.", 
+                "B. Skeptical and critical of the underlying reality.", 
+                "C. Indifferent and unconcerned with the outcome.", 
+                "D. Confused by the technological complexity.", 
+                "E. Optimistic about the future of labor rights."
+            ], 
+            ans: 1 
+        }, // B
+        { 
+            tId: 2, 
+            q: "7. The phrase 'precarious labor' implies that gig workers:", 
+            opts: [
+                "A. Earn significantly more than traditional employees.", 
+                "B. Are protected by strong unions and labor laws.", 
+                "C. Have full control over the algorithm's decisions.", 
+                "D. Lack financial security and face instability.", 
+                "E. Are frequently fired for working too hard."
+            ], 
+            ans: 3 
+        }, // D
+        { 
+            tId: 2, 
+            q: "8. What does the term 'veneer' suggest about the marketing of the gig economy?", 
+            opts: [
+                "A. It is a superficial appearance hiding a different reality.", 
+                "B. It is a solid, trustworthy foundation for economic growth.", 
+                "C. It is a legally binding contract between employer and employee.", 
+                "D. It is a transparent and honest description of the job.", 
+                "E. It is an outdated concept that no longer applies."
+            ], 
+            ans: 0 
+        }, // A
+        { 
+            tId: 2, 
+            q: "9. How does 'algorithmic management' differ from human supervision?", 
+            opts: [
+                "A. It is more lenient and forgiving of mistakes.", 
+                "B. It creates a stronger sense of community among workers.", 
+                "C. It offers better safety nets for emergencies.", 
+                "D. It pays workers for downtime and breaks.", 
+                "E. It uses digital 'nudges' rather than direct orders."
+            ], 
+            ans: 4 
+        }, // E
+        { 
+            tId: 2, 
+            q: "10. The professor mentions 'financial risk' to highlight that:", 
+            opts: [
+                "A. Algorithms are extremely expensive to build and maintain.", 
+                "B. Workers must bear the cost of downtime and maintenance.", 
+                "C. Companies are losing money on these platforms.", 
+                "D. Customers are charged too much for the services.", 
+                "E. Banks generally refuse to lend money to gig workers."
+            ], 
+            ans: 1 
+        }, // B
+
+        // --- PASSAGE 3: PHILOSOPHY (Identity) ---
+        { 
+            tId: 3, 
+            q: "11. The central paradox of the 'Ship of Theseus' concerns:", 
+            opts: [
+                "A. The structural durability of wood versus metal parts.", 
+                "B. The speed at which a ship can be constructed.", 
+                "C. The persistence of identity amidst physical change.", 
+                "D. The fluctuating economic value of antique ships.", 
+                "E. The navigational skills required by Theseus."
+            ], 
+            ans: 2 
+        }, // C
+        { 
+            tId: 3, 
+            q: "12. In the analogy provided, the 'discarded rotten planks' represent:", 
+            opts: [
+                "A. The old physical components of an object.", 
+                "B. Bad memories that should be entirely forgotten.", 
+                "C. The future potential of the ship's voyage.", 
+                "D. The logical errors in human reasoning.", 
+                "E. The crew members who operate the ship."
+            ], 
+            ans: 0 
+        }, // A
+        { 
+            tId: 3, 
+            q: "13. The author implies that human identity is likely defined by:", 
+            opts: [
+                "A. The unique DNA found in our cells.", 
+                "B. The physical matter that makes up our bodies.", 
+                "C. The memories we successfully repress.", 
+                "D. A simple, static concept that never changes.", 
+                "E. The continuity of patterns rather than material substance."
+            ], 
+            ans: 4 
+        }, // E
+        { 
+            tId: 3, 
+            q: "14. The word 'constitutes' in the final paragraph could best be replaced by:", 
+            opts: [
+                "A. Destroys or eliminates.", 
+                "B. Composes or forms.", 
+                "C. Hides or obscures.", 
+                "D. Questions or doubts.", 
+                "E. Rejects or denies."
+            ], 
+            ans: 1 
+        }, // B
+        { 
+            tId: 3, 
+            q: "15. Why does the author transition from discussing a ship to discussing human cells?", 
+            opts: [
+                "A. To argue that ships are actually living organisms.", 
+                "B. To confuse the reader with unrelated topics.", 
+                "C. To demonstrate the philosophical concept's application to human existence.", 
+                "D. To prove that biology is more important than carpentry.", 
+                "E. To argue that humans live significantly longer than ships."
+            ], 
+            ans: 2 
+        }, // C
+
+        // --- PASSAGE 4: TECHNOLOGY (Quantum Computing) ---
+        { 
+            tId: 4, 
+            q: "16. What is the fundamental difference between a bit and a qubit?", 
+            opts: [
+                "A. Bits process data faster than qubits.", 
+                "B. Bits are used for encryption; qubits are not.", 
+                "C. Bits represent text; qubits represent images.", 
+                "D. Bits are physically smaller than qubits.", 
+                "E. Bits are binary (0/1), while qubits can exist in superposition."
+            ], 
+            ans: 4 
+        }, // E
+        { 
+            tId: 4, 
+            q: "17. The text implies that the arrival of 'Q-Day' will cause:", 
+            opts: [
+                "A. A significant decrease in global internet speeds.", 
+                "B. A worldwide shortage of personal computers.", 
+                "C. A major security crisis for current banking systems.", 
+                "D. The immediate end of all artificial intelligence.", 
+                "E. A drastic reduction in global energy consumption."
+            ], 
+            ans: 2 
+        }, // C
+        { 
+            tId: 4, 
+            q: "18. The word 'obsolete' suggests that current RSA encryption will become:", 
+            opts: [
+                "A. Outdated and ineffective against new threats.", 
+                "B. Significantly more expensive to maintain.", 
+                "C. Legally required by all governments.", 
+                "D. Faster to process but less secure.", 
+                "E. Physically larger and harder to store."
+            ], 
+            ans: 0 
+        }, // A
+        { 
+            tId: 4, 
+            q: "19. The author's tone regarding Post-Quantum Cryptography is best described as:", 
+            opts: [
+                "A. Nostalgic for the past.", 
+                "B. Lighthearted and humorous.", 
+                "C. Indifferent and detached.", 
+                "D. Urgent and serious.", 
+                "E. Sarcastic and mocking."
+            ], 
+            ans: 3 
+        }, // D
+        { 
+            tId: 4, 
+            q: "20. Why is quantum computing considered a matter of 'national security'?", 
+            opts: [
+                "A. Because it consumes too much electricity grid power.", 
+                "B. Because it could potentially decode sensitive state and financial data.", 
+                "C. Because it requires rare materials found only in one country.", 
+                "D. Because it will replace all human soldiers in the army.", 
+                "E. Because it is currently illegal to own a quantum computer."
+            ], 
+            ans: 1 
+        } // B
     ];
 
-    // ==========================================
-    // THE ACADEMIC MATRIX (UPDATED FOR YOUR TEXTS)
-    // ==========================================
-    const academicMatrix = {
-        // Words found in your Fermi Paradox & Brain texts
-        "is": ["constitutes", "represents", "symbolizes"],
-        "are": ["embody", "constitute", "personify"],
-        "many": ["numerous", "multitudinous", "myriad"],
-        "common": ["prevalent", "ubiquitous", "pervasive"],
-        "rare": ["scarce", "infrequent", "sporadic"],
-        "likely": ["probable", "plausible", "presumable"],
-        "exist": ["persist", "endure", "subsist"],
-        "found": ["located", "detected", "uncovered"],
-        "idea": ["concept", "notion", "paradigm"],
-        "life": ["existence", "sentience", "organism"],
-        "humans": ["homo sapiens", "populace", "subjects"],
-        "filter": ["sift", "winnow", "screen"], // Your request
-        "brain": ["cerebrum", "cortex", "neural net"],
-        "view": ["perspective", "standpoint", "vantage"],
-        "change": ["fluctuate", "transform", "metamorphose"],
-        "difficult": ["arduous", "laborious", "formidable"],
-        "evidence": ["corroboration", "substantiation", "testimony"],
-        "news": ["tidings", "intelligence", "communiqué"],
-        "show": ["demonstrate", "elucidate", "exhibit"]
-    };
 
-    // --- GAME ENGINE ---
-    let currentQIndex = 0;
-    let currentHP = 100;
-    let bossSkillCycle = 0;
-    let activeBossTimer = null;
-    let isAbilityActive = false;
-    
-    // --- BOSS DIALOGUE & EFFECTS (Paste this near the top of your script) ---
-    const bossLines = {
-        idle: ["Waktu berjalan...", "Kerjakan sendiri.", "Mata ke monitor.", "Jangan berisik."],
-        hit: ["Mustahil!", "Kok bisa tahu?!", "Hoki doang itu!", "Siapa gurumu?!", "Tunggu soal berikutnya!"],
-        attack: ["SALAH!", "Minus poin!", "Kamu tidak belajar?!", "Saya catat nomor kamu!", "Gagal total!"]
-    };
-
-    function bossSpeak(type) {
-        const bubble = document.getElementById('bossBubble');
-        if(!bubble) return; // Safety check
-        const lines = bossLines[type];
-        const randomLine = lines[Math.floor(Math.random() * lines.length)];
-        
-        bubble.innerText = randomLine;
-        bubble.classList.add('bubble-show');
-        
-        // Hide after 2 seconds
-        setTimeout(() => {
-            bubble.classList.remove('bubble-show');
-        }, 2000);
-    }
-
-    function spawnDamageNumber(amount) {
-        const sidebar = document.querySelector('.boss-sidebar');
-        if(!sidebar) return; // Safety check
-
-        const num = document.createElement('div');
-        num.classList.add('damage-number');
-        num.innerText = "-" + amount.toFixed(0);
-        
-        // Randomize position slightly so they don't stack perfectly
-        const randomX = Math.random() * 50 + 50; 
-        const randomY = Math.random() * 50 + 100;
-        
-        num.style.left = randomX + "px";
-        num.style.top = randomY + "px";
-        
-        sidebar.appendChild(num);
-        
-        // Delete element after animation finishes
-        setTimeout(() => num.remove(), 1000);
-    }
-
-    // NEW LOGIC: Base damage is lower (4%), but combos add up!
-    const baseDamage = 4; 
-    let comboStreak = 0; // Starts at 0
-    
-    let timeLeft = 1200; 
-    let timerInterval;
+    // =========================================================================
+    // SECTION 4: MAIN GAME ENGINE (Start/Load/Check)
+    // =========================================================================
 
     function startBattle() {
         document.getElementById('introScreen').style.opacity = '0';
@@ -1009,12 +1447,17 @@
             document.getElementById('battleScreen').style.opacity = '1';
             loadQuestion(0);
             startTimer();
+            // Start the passive mana generation loop
+            startBossLoop();
         }, 500);
     }
 
     function startTimer() {
         timerInterval = setInterval(() => {
-            timeLeft--;
+            // Respect Time Freeze Ability
+            if (!window.isTimeFrozen) {
+                timeLeft--;
+            }
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             document.getElementById('timer').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
@@ -1022,105 +1465,26 @@
         }, 1000);
     }
 
-    // ==========================================
-    // CLEANUP CREW (Resets Board State)
-    // ==========================================
-    function resetBoardState() {
-        console.log(">> SYSTEM: Cleaning Board for next question.");
-
-        // unlock mana bar
-        isAbilityActive = false;
-        
-        // Kill any active Boss Timers (The 10s wait)
-        if (activeBossTimer) {
-            clearTimeout(activeBossTimer);
-            activeBossTimer = null;
-        }
-
-        // 2. Remove Silence/Locks
-        const btns = document.querySelectorAll('.opt-btn');
-        btns.forEach(btn => {
-            btn.classList.remove('opt-locked');
-            btn.style.pointerEvents = 'auto'; // Force clickability
-        });
-
-        // 3. Remove Glitch Text
-        const qText = document.querySelector('.q-text');
-        if(qText) {
-            qText.classList.remove('text-glitched');
-            // Note: Inner text will be replaced by loadQuestion anyway
-        }
-
-        // 4. Remove Cursed Words (Visuals)
-        const cursed = document.querySelectorAll('.cursed-word');
-        cursed.forEach(span => {
-            // Replace with original text just to be clean
-            if(span.dataset.original) {
-                const text = document.createTextNode(span.dataset.original);
-                span.parentNode.replaceChild(text, span);
-            }
-        });
-
-        // 5. Stop Panic/Peeking Effects
-        const panic = document.getElementById('panicOverlay');
-        if(panic) panic.classList.remove('panic-active');
-        document.body.classList.remove('shake-screen');
-        if(typeof peekInterval !== 'undefined') clearInterval(peekInterval);
-        
-        // 6. Reset Timer Color
-        const timerEl = document.getElementById('timer');
-        if(timerEl) timerEl.style.color = "#EF4444";
-    }
-
-    // ==========================================
-    // BOSS STATE MANAGER (The Fix)
-    // ==========================================
-    function finishBossAttack() {
-        console.log(">> ATTACK ENDED: Resuming Mana Generation & Cleaning Up");
-
-        // 1. UNLOCK THE BAR (Resume filling)
-        isAbilityActive = false;
-        
-        // 2. CLEAN UP WORDS (Search & Destroy)
-        const cursed = document.querySelectorAll('.cursed-word');
-        cursed.forEach(span => {
-            if(span.dataset.original) {
-                // If user is peeking, force close first
-                if(span.dataset.state === "open" && window.togglePeek) {
-                    window.togglePeek(span); 
-                }
-                const text = document.createTextNode(span.dataset.original);
-                span.parentNode.replaceChild(text, span);
-            }
-        });
-
-        // 3. CLEAN UP BUTTONS (Unlock)
-        const btns = document.querySelectorAll('.opt-btn');
-        btns.forEach(btn => {
-            btn.classList.remove('opt-locked');
-            btn.style.pointerEvents = 'auto';
-        });
-
-        // 4. CLEAN UP GLITCH
-        const qText = document.querySelector('.q-text');
-        if(qText) qText.classList.remove('text-glitched');
-
-        // 5. Sound
-        try { playTone(600, 'sine', 0.5, 0.1); } catch(e){}
-    }
-
     function loadQuestion(idx) {
         resetBoardState(); // CLEANUP BEFORE LOADING NEW QUESTION
-        if(idx >= questions.length) { winGame(); return; }
+        
+        // CHECK END CONDITIONS
+        if(idx >= questions.length) { 
+            if(currentHP > 0) failGame(); else winGame(); 
+            return; 
+        }
+        
         const qData = questions[idx];
         const currentPassage = passages.find(p => p.id === qData.tId);
         const textPanel = document.getElementById('textPanel');
         
+        // Load Text (Only if different from current)
         if (!textPanel.innerHTML.includes(currentPassage.title)) {
             textPanel.style.opacity = '0';
             setTimeout(() => {
                 textPanel.innerHTML = `<h3>${currentPassage.title}</h3>${currentPassage.content}`;
                 textPanel.style.opacity = '1';
+                // Re-apply tool modes if active
                 document.querySelectorAll('.tool-active').forEach(btn => {
                     if(btn.innerText.includes("SUFFIX")) textPanel.classList.add('mode-suffix');
                     if(btn.innerText.includes("X-RAY")) textPanel.classList.add('mode-xray');
@@ -1145,7 +1509,32 @@
     }
 
     function checkAnswer(btn, isCorrect) {
-        // 1. Disable all buttons immediately so user can't double-click
+        // ============================================
+        // 1. SNIPER MODE (PRECISION STRIKE) LOGIC
+        // ============================================
+        if(isSniperActive) {
+            if(!isCorrect) {
+                // HIT WRONG TARGET -> DESTROY IT
+                btn.style.transition = "0.2s";
+                btn.style.transform = "scale(0.9)";
+                btn.style.backgroundColor = "#EF4444";
+                setTimeout(() => {
+                    btn.style.visibility = "hidden";
+                    btn.style.pointerEvents = "none";
+                }, 200);
+                try { playSound('gunshot'); } catch(e){}
+                return; // STOP HERE (Don't run normal loss logic)
+            } else {
+                // HIT CORRECT TARGET -> WIN & EXIT SNIPER MODE
+                isSniperActive = false;
+                document.body.classList.remove('sniper-active');
+                // Allow code to continue down to Normal Win Logic...
+            }
+        }
+
+        // ============================================
+        // 2. NORMAL GAMEPLAY LOGIC
+        // ============================================
         const allBtns = document.querySelectorAll('.opt-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
         
@@ -1153,274 +1542,355 @@
         const comboDisplay = document.getElementById('comboDisplay');
 
         if(isCorrect) {
-            // ========================
-            // CORRECT ANSWER (WIN)
-            // ========================
+            // --- WIN LOGIC ---
             comboStreak++; 
-            addFocus(1);
+            
+            // HERO: CHARGE ENERGY BAR
+            processNeuralCharge(); 
+            
             let totalDmg = baseDamage + (comboStreak * 1.5);
             currentHP -= totalDmg;
             document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
             
-            // Visuals
             btn.classList.add('opt-correct');
             if(comboDisplay) {
-                comboDisplay.innerText = `CHAIN x${comboStreak} (+${totalDmg.toFixed(1)} DMG)`;
+                comboDisplay.innerText = `CHAIN x${comboStreak}`;
                 comboDisplay.classList.add('combo-active');
             }
 
-            // FX
             spawnDamageNumber(totalDmg);
-            playSound('win'); 
             triggerVisualFX('win');
+            try { playSound('win'); } catch(e){}
 
-            // Feedback
-            if (currentHP < 30) {
-                 bossEntity.classList.add('boss-critical');
-                 showFeedback(true, "CRITICAL HIT!");
-            } else {
+            // Boss Visual Reaction
+            if (currentHP < 30) bossEntity.classList.add('boss-critical');
+            else {
                  bossEntity.classList.add('state-damaged');
                  setTimeout(() => bossEntity.classList.remove('state-damaged'), 1000);
-                 showFeedback(true, "TARGET HIT!");
             }
 
-
-
-            // NEXT QUESTION TIMER (WIN)
-            if(currentHP <= 0) {
-                setTimeout(winGame, 1000);
-            } else {
-                setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
-            }
+            if(currentHP <= 0) setTimeout(winGame, 1000);
+            else setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
 
         } else {
-            // ========================
-            // WRONG ANSWER (LOSS)
-            // ========================
+            // --- LOSS LOGIC ---
             comboStreak = 0;
-            
-            // 1. Visuals: Highlight Wrong & Correct
             btn.classList.add('opt-wrong');
-            // Show which one was actually right
             allBtns.forEach(b => { 
                 if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); 
             });
             
-            // 2. CRITICAL FIX: Schedule Next Question EARLY
-            // We set this timer BEFORE calling the dangerous Boss functions.
-            // This guarantees the game moves forward even if the Boss logic crashes.
-            setTimeout(() => { 
-                currentQIndex++; 
-                loadQuestion(currentQIndex); 
-            }, 2500); // Wait 2.5s before moving on so user sees the penalty
+            // Move next after delay
+            setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 2500);
 
-            // 3. Boss Punishment (Wrapped in Try/Catch for safety)
-            try {
-                // Reset Combo UI
-                if(comboDisplay) {
-                    comboDisplay.innerText = "CHAIN BROKEN";
-                    comboDisplay.classList.remove('combo-active');
-                }
-                
-                // Add Mana Penalty (Check if function exists first)
-                if(typeof addMana === 'function') {
-                    addMana(25); // +25% Charge instantly!
-                    showFeedback(false, "WRONG! CHARGE +25%");
-                } else {
-                    showFeedback(false, "WRONG ANSWER");
-                }
-                
-                // Boss Reaction Animation
-                bossSpeak("attack");
-                bossEntity.classList.add('state-attack');
-                setTimeout(() => { bossEntity.classList.remove('state-attack'); }, 1500);
-                
-                // FX & Sound
-                triggerVisualFX('lose');
-                document.body.classList.add('shake-screen');
-                setTimeout(() => document.body.classList.remove('shake-screen'), 500);
-                
-                playSound('lose'); // Plays evil sound
-            } catch(e) { 
-                console.error("Boss Logic Error:", e);
-                // Game continues anyway because of Step 2!
+            // Penalties
+            if(comboDisplay) {
+                comboDisplay.innerText = "CHAIN BROKEN";
+                comboDisplay.classList.remove('combo-active');
             }
+            addMana(25); // Boss charges up
+            showFeedback(false, "WRONG! CHARGE +25%");
+            
+            bossSpeak("attack");
+            bossEntity.classList.add('state-attack');
+            setTimeout(() => { bossEntity.classList.remove('state-attack'); }, 1500);
+            
+            triggerVisualFX('lose');
+            try { playSound('lose'); } catch(e){}
+            document.body.classList.add('shake-screen');
+            setTimeout(() => document.body.classList.remove('shake-screen'), 500);
         }
     }
 
-    // LOADQUESTION TO CHECK FOR "BAD ENDING"
-    function loadQuestion(idx) {
-        // --- CHECK END GAME CONDITIONS ---
-        if(idx >= questions.length) { 
-            // We are out of questions. Is the boss dead?
-            if(currentHP > 0) {
-                // Boss has ANY health left -> YOU LOSE
-                failGame(); 
-            } else {
-                // Boss has 0 or less health -> YOU WIN
-                winGame(); 
-            }
-            return; 
-        }
-        
-        // ... (The rest of the loading logic remains the same) ...
-        
-        const qData = questions[idx];
-        const currentPassage = passages.find(p => p.id === qData.tId);
-        const textPanel = document.getElementById('textPanel');
-        
-        if (!textPanel.innerHTML.includes(currentPassage.title)) {
-            textPanel.style.opacity = '0';
-            setTimeout(() => {
-                textPanel.innerHTML = `<h3>${currentPassage.title}</h3>${currentPassage.content}`;
-                textPanel.style.opacity = '1';
-                document.querySelectorAll('.tool-active').forEach(btn => {
-                    if(btn.innerText.includes("SUFFIX")) textPanel.classList.add('mode-suffix');
-                    if(btn.innerText.includes("X-RAY")) textPanel.classList.add('mode-xray');
-                    if(btn.innerText.includes("LOGIC")) textPanel.classList.add('mode-logic');
-                });
-            }, 300);
-        }
 
-        const qContainer = document.getElementById('quiz-container');
-        let optsHTML = "";
-        qData.opts.forEach((opt, i) => {
-            optsHTML += `<button class="opt-btn" onclick="checkAnswer(this, ${i === qData.ans})">${opt}</button>`;
+    // =========================================================================
+    // SECTION 5: HERO SYSTEM (ENERGY & SKILLS) - UPDATED
+    // =========================================================================
+
+    function processNeuralCharge() {
+        // 1. Increment Internal Counter
+        chargeProgress++;
+        console.log(`>> CHARGE STATUS: ${chargeProgress} / ${CHARGE_REQ}`);
+
+        // 2. Check if we reached the threshold (3 correct answers)
+        if(chargeProgress >= CHARGE_REQ) {
+            // SUCCESS! Give 1 Bar
+            chargeProgress = 0; 
+            addFocus(1); 
+            showFeedback(true, "ENERGY CELL CHARGED! (+1)");
+            try { playSound('charge_complete'); } catch(e){}
+        } else {
+            // PARTIAL CHARGE (Show percentage)
+            const percent = Math.floor((chargeProgress / CHARGE_REQ) * 100);
+            showFeedback(true, `CHARGING... ${percent}%`);
+        }
+    }
+
+    function addFocus(amount) {
+        playerFocus += amount;
+        if(playerFocus > MAX_FOCUS) playerFocus = MAX_FOCUS;
+        if(playerFocus < 0) playerFocus = 0;
+        updateFocusUI();
+    }
+
+    function updateFocusUI() {
+        // 1. Update Blue Pips
+        for(let i=1; i<=MAX_FOCUS; i++) {
+            const pip = document.getElementById(`focus${i}`);
+            if(pip) {
+                if(i <= playerFocus) pip.classList.add('active');
+                else pip.classList.remove('active');
+            }
+        }
+        
+        // 2. Unlock Buttons based on Cost (Tier 1=2, Tier 2=3, Tier 3=5)
+        const btn1 = document.getElementById('skillBtn1');
+        const btn2 = document.getElementById('skillBtn2');
+        const btn3 = document.getElementById('skillBtn3');
+
+        if(btn1 && btn2 && btn3) {
+            [btn1, btn2, btn3].forEach(b => {
+                 b.classList.remove('ready', 'disabled');
+                 b.classList.add('disabled');
+            });
+
+            if(playerFocus >= 2) { btn1.classList.remove('disabled'); btn1.classList.add('ready'); }
+            if(playerFocus >= 3) { btn2.classList.remove('disabled'); btn2.classList.add('ready'); }
+            if(playerFocus >= 4) { btn3.classList.remove('disabled'); btn3.classList.add('ready'); }
+        }
+    }
+
+    // --- SKILL 1: DOUBLE SLASH (Cost: 2) ---
+    function castDoubleSlash() {
+        if(playerFocus < 2) return;
+        if(isAbilityActive) return; 
+
+        addFocus(-2);
+        try { playSound('slash'); } catch(e){}
+
+        const allBtns = Array.from(document.querySelectorAll('.opt-btn'));
+        const correctBtn = allBtns.find(b => b.getAttribute('onclick').includes('true'));
+        const wrongBtns = allBtns.filter(b => b !== correctBtn && b.style.visibility !== 'hidden');
+
+        // Randomly hide 2
+        wrongBtns.sort(() => Math.random() - 0.5);
+        let count = 0;
+        wrongBtns.forEach(btn => {
+            if(count < 2) {
+                btn.style.transition = "0.2s";
+                btn.style.transform = "scaleX(0)";
+                setTimeout(() => btn.style.visibility = "hidden", 200);
+                count++;
+            }
         });
+    }
 
-        qContainer.innerHTML = `
-            <div class="q-card">
-                <div style="font-size:0.8rem; color:var(--gold); margin-bottom:10px;">QUESTION ${idx + 1} / 20</div>
-                <div class="q-text">${qData.q}</div>
-                ${optsHTML}
-            </div>
-        `;
+    
+    // --- SKILL 2: LOGIC VISUALIZER (Cost: 3) ---
+    function castKeywordExtractor() {
+        if(playerFocus < 3) return;
+
+        // 1. DEFINE LOGIC MAPS FOR THE NEW TEXTS
+        const logicSummaries = {
+            1: [ // Phase 1: Ocean Acidification
+                { type: "core", text: "CO2 Emissions" },
+                { type: "arrow", text: "ABSORBED BY" },
+                { type: "node", text: "Oceans (Lowers pH)" },
+                { type: "arrow", text: "CAUSES" },
+                { type: "core", text: "Calcification Decline" },
+                { type: "arrow", text: "RESULT" },
+                { type: "result", text: "ECOSYSTEM COLLAPSE" }
+            ],
+            2: [ // Phase 2: The Gig Economy
+                { type: "node", text: "Promise of Freedom" },
+                { type: "arrow", text: "VS" },
+                { type: "core", text: "Algorithmic Control" },
+                { type: "arrow", text: "MECHANISM" },
+                { type: "node", text: "Surveillance & Nudges" },
+                { type: "arrow", text: "REALITY" },
+                { type: "result", text: "PRECARIOUS LABOR" }
+            ],
+            3: [ // Phase 3: Ship of Theseus
+                { type: "node", text: "Object X (Original)" },
+                { type: "arrow", text: "PROCESS" },
+                { type: "core", text: "Gradual Replacement" },
+                { type: "arrow", text: "LEADS TO" },
+                { type: "node", text: "Object Y (New Parts)" },
+                { type: "arrow", text: "PARADOX" },
+                { type: "result", text: "IS X EQUAL TO Y?" }
+            ],
+            4: [ // Phase 4: Quantum Computing
+                { type: "core", text: "Classical Bits (0 or 1)" },
+                { type: "arrow", text: "REPLACED BY" },
+                { type: "core", text: "Qubits (Superposition)" },
+                { type: "arrow", text: "IMPLICATION" },
+                { type: "node", text: "Breaks RSA Encryption" },
+                { type: "arrow", text: "URGENCY" },
+                { type: "result", text: "POST-QUANTUM SECURITY" }
+            ]
+        };
+
+        // 2. CALCULATE PHASE & EXECUTE
+        let currentPhase = 1;
+        if(currentQIndex >= 5) currentPhase = 2;
+        if(currentQIndex >= 10) currentPhase = 3;
+        if(currentQIndex >= 15) currentPhase = 4;
+
+        const chainData = logicSummaries[currentPhase];
+
+        addFocus(-3);
+        try { playSound('scan_activate'); } catch(e) {}
+
+        const panel = document.getElementById('textPanel');
+        let html = '<div class="chain-container">';
+        
+        if(chainData) {
+            chainData.forEach(item => {
+                if(item.type === 'arrow') {
+                    html += `<div class="chain-arrow">↓ ${item.text} ↓</div>`;
+                } else {
+                    html += `<div class="chain-node ${item.type}">${item.text}</div>`;
+                }
+            });
+        }
+        
+        html += '</div>';
+        panel.innerHTML = html;
+        showFeedback(true, "LOGIC EXTRACTED");
+    }
+
+    // --- SKILL 3: PRECISION STRIKE (Cost: 5) ---
+    function castPrecisionStrike() {
+        if(playerFocus < 4) return; 
+
+        addFocus(-4);
+        try { playSound('sniper_load'); } catch(e){}
+
+        isSniperActive = true;
+        document.body.classList.add('sniper-active'); 
+        showFeedback(true, "PRECISION STRIKE ACTIVE: ELIMINATE TARGETS");
     }
 
 
-    function toggleTool(btn, modeClass) {
-        btn.classList.toggle('tool-active');
-        document.getElementById('textPanel').classList.toggle(modeClass);
+    // =========================================================================
+    // SECTION 6: BOSS AI & MECHANICS
+    // =========================================================================
+
+    function startBossLoop() {
+        setInterval(() => {
+            const failScreen = document.getElementById('failScreen');
+            const isFailVisible = window.getComputedStyle(failScreen).display === 'flex'; 
+            const isPeeking = document.getElementById('panicOverlay') && document.getElementById('panicOverlay').classList.contains('panic-active');
+
+            if (currentHP > 0 && !isFailVisible && !isPeeking && !isAbilityActive) {
+                addMana(MANA_PASSIVE_RATE);
+            }
+        }, 100); 
     }
 
-    function showFeedback(isGood, msg) {
-        const fb = document.getElementById('fbModal');
-        fb.style.display = 'block';
-        fb.style.borderColor = isGood ? 'var(--green)' : 'var(--red)';
-        fb.style.color = isGood ? 'var(--green)' : 'var(--red)';
-        fb.innerText = msg;
-        setTimeout(() => fb.style.display = 'none', 2000);
+    function addMana(amount) {
+        if(currentHP <= 0) return;
+        if(isAbilityActive) return; 
+
+        bossMana += amount;
+        if(bossMana > 100) bossMana = 100;
+        
+        const bar = document.getElementById('bossManaBar');
+        const text = document.getElementById('manaText');
+        if(bar) bar.style.width = bossMana + "%";
+        if(text) text.innerText = Math.floor(bossMana) + "%";
+
+        if(bossMana >= 100) {
+            console.log(">> BOSS CHARGE FULL! Initiating Attack...");
+            isAbilityActive = true; 
+            bossMana = 0;
+            if(bar) bar.style.width = "0%";
+            if(text) text.innerText = "0%";
+
+            try { triggerBossSkill(); } catch(e) {
+                console.error(e);
+                finishBossAttack(); 
+            }
+        }
     }
 
-    function winGame() {
-        clearInterval(timerInterval);
-        confetti({ particleCount: 300, spread: 120 });
-        document.getElementById('winScreen').style.display = 'flex';
-        playSound('win');
-    }
+    const bossLines = {
+        idle: ["Waktu berjalan...", "Kerjakan sendiri.", "Mata ke monitor.", "Jangan berisik."],
+        hit: ["Mustahil!", "Kok bisa tahu?!", "Hoki doang itu!", "Siapa gurumu?!", "Tunggu soal berikutnya!"],
+        attack: ["SALAH!", "Minus poin!", "Kamu tidak belajar?!", "Saya catat nomor kamu!", "Gagal total!"]
+    };
 
-    function failGame() {
-        clearInterval(timerInterval);
-        document.getElementById('failScreen').style.display = 'flex';
-        playSound('lose'); // Play the evil laugh one last time
+    function bossSpeak(type) {
+        const bubble = document.getElementById('bossBubble');
+        if(!bubble) return;
+        const lines = bossLines[type] || bossLines['idle'];
+        const randomLine = lines[Math.floor(Math.random() * lines.length)];
+        
+        bubble.innerText = randomLine;
+        bubble.classList.add('bubble-show');
+        setTimeout(() => { bubble.classList.remove('bubble-show'); }, 2000);
     }
-
-    // ==========================================
-    // BOSS SKILL TRIGGER (With Safety Backup)
-    // ==========================================
-    if (typeof window.bossSkillCycle === 'undefined') window.bossSkillCycle = 0;
+    
+    function bossSpeakAttack(text) {
+        const bubble = document.getElementById('bossBubble');
+        bubble.innerText = text;
+        bubble.style.color = "var(--red)";
+        bubble.classList.add('bubble-show');
+        setTimeout(() => {
+            bubble.classList.remove('bubble-show');
+            bubble.style.color = "black";
+        }, 2000);
+        
+        const boss = document.getElementById('bossEntity');
+        boss.classList.add('state-attack');
+        setTimeout(() => boss.classList.remove('state-attack'), 1000);
+    }
 
     function triggerBossSkill() {
         if (currentHP <= 0 || document.getElementById('failScreen').style.display === 'flex') {
-            isAbilityActive = false; // Safety unlock
-            return;
-        }
-
-        // Safety Cycle Reset
-        if (typeof window.bossSkillCycle !== 'number' || isNaN(window.bossSkillCycle)) {
-            window.bossSkillCycle = 0;
+            isAbilityActive = false; return;
         }
 
         let skillName = "";
-        
-        // --- 1. CAST THE SKILL ---
-        if (window.bossSkillCycle === 0) {
-            skillName = "VOCABULARY CHECK";
-            skillLexicalOverload();
-        } 
-        else if (window.bossSkillCycle === 1) {
-            skillName = "SILENCE (LOCK)";
-            skillSilence();
-        } 
-        else if (window.bossSkillCycle === 2) {
-            skillName = "SYSTEM GLITCH";
-            skillGlitch();
-        }
+        if (bossSkillCycle === 0) { skillName = "VOCABULARY CHECK"; skillLexicalOverload(); } 
+        else if (bossSkillCycle === 1) { skillName = "SILENCE (LOCK)"; skillSilence(); } 
+        else if (bossSkillCycle === 2) { skillName = "SYSTEM GLITCH"; skillGlitch(); }
 
         showSkillAnnouncement(skillName);
 
-        // --- 2. ROTATE CYCLE ---
-        window.bossSkillCycle++; 
-        if (window.bossSkillCycle > 2) window.bossSkillCycle = 0;
+        bossSkillCycle++; 
+        if (bossSkillCycle > 2) bossSkillCycle = 0;
 
-        // --- 3. SAFETY WATCHDOG (The Bug Fix) ---
-        // If the skill's own timer fails to unlock the bar for any reason,
-        // this supervisor will force-unlock it after 12 seconds.
+        // Watchdog
         setTimeout(() => {
             if(isAbilityActive) {
-                console.warn(">> WATCHDOG: Force-unlocking mana bar (Skill took too long).");
+                console.warn(">> WATCHDOG: Force-unlocking mana bar.");
                 isAbilityActive = false;
             }
         }, 12000); 
     }
 
-    // Helper: Shows a big warning text when a skill starts
     function showSkillAnnouncement(name) {
-        // Create element if it doesn't exist
         let announce = document.getElementById('skillAnnounce');
         if (!announce) {
             announce = document.createElement('div');
             announce.id = 'skillAnnounce';
-            announce.style.position = 'fixed';
-            announce.style.top = '20%';
-            announce.style.left = '50%';
-            announce.style.transform = 'translate(-50%, -50%)';
-            announce.style.background = 'rgba(255, 0, 0, 0.8)';
-            announce.style.color = 'white';
-            announce.style.padding = '10px 30px';
-            announce.style.fontFamily = 'monospace';
-            announce.style.fontWeight = 'bold';
-            announce.style.zIndex = '1000';
-            announce.style.pointerEvents = 'none';
-            announce.style.border = '2px solid white';
+            announce.style.cssText = 'position:fixed; top:20%; left:50%; transform:translate(-50%, -50%); background:rgba(255,0,0,0.8); color:white; padding:10px 30px; font-family:monospace; font-weight:bold; z-index:1000; pointer-events:none; border:2px solid white; display:none;';
             document.body.appendChild(announce);
         }
-
         announce.innerText = "BOSS CASTING: " + name;
         announce.style.display = 'block';
-        
-        // Hide after 2 seconds
-        setTimeout(() => {
-            announce.style.display = 'none';
-        }, 2000);
+        setTimeout(() => { announce.style.display = 'none'; }, 2000);
     }
 
-    // ==========================================
-    // ADVANCED VOCABULARY ENGINE (API BASED)
-    // ==========================================
-
-    // Fallback list in case API is offline or slow
-    const backupDict = {
-        "use": "utilize", "help": "facilitate", "show": "demonstrate",
-        "bad": "detrimental", "good": "beneficial", "think": "contemplate"
-    };
-
+    // --- BOSS ABILITY 1: VOCABULARY OVERLOAD ---
     function skillLexicalOverload() {
         console.log(">> SKILL: Lexical Overload");
         bossSpeakAttack("VOCABULARY CHECK!");
-        try { sfxMagic(); } catch(e) {} 
+        
+        // TRIGGER NEW SOUND
+        playSound('boss_magic'); 
 
-        // 1. Matrix Setup
         const localMatrix = {
             "common": ["ubiquitous", "prevalent"], "rare": ["scarce", "infrequent"],
             "life": ["existence", "sentience"], "humans": ["homo sapiens", "populace"],
@@ -1446,14 +1916,8 @@
             }
         }
 
-        // SAFETY: If no words found, end ability immediately to unlock bar
-        if(targetableNodes.length === 0) {
-            console.warn(">> No words to curse. Aborting.");
-            finishBossAttack(); 
-            return;
-        }
+        if(targetableNodes.length === 0) { finishBossAttack(); return; }
 
-        // 2. Apply Curse
         const attackCount = Math.min(5, targetableNodes.length);
         for(let i=0; i<attackCount; i++) {
             const targetNode = targetableNodes[Math.floor(Math.random() * targetableNodes.length)];
@@ -1489,34 +1953,33 @@
                 }
             }
         }
-
-        // 3. SET TIMER TO FINISH
-        // This is the only place we schedule the end
         activeBossTimer = setTimeout(finishBossAttack, 10000); 
     }
 
+    // --- BOSS ABILITY 2: SILENCE ---
     function skillSilence() {
-        try { sfxLock(); } catch(e) {}
+        // TRIGGER NEW SOUND
+        playSound('boss_lock'); 
+
         bossSpeakAttack("DIAM!");
-        
         const btns = document.querySelectorAll('.opt-btn');
         if(btns.length > 0) {
             btns.forEach(btn => {
                 btn.classList.add('opt-locked');
                 btn.style.pointerEvents = 'none';
             });
-            // Schedule the End
             activeBossTimer = setTimeout(finishBossAttack, 10000); 
         } else {
-            // Safety: If no buttons, end immediately
             finishBossAttack();
         }
     }
 
+    // --- BOSS ABILITY 3: GLITCH ---
     function skillGlitch() {
-        try { sfxGlitch(); } catch(e) {}
+        // TRIGGER NEW SOUND
+        playSound('boss_glitch'); 
+
         bossSpeakAttack("SYSTEM ERROR...");
-        
         const qText = document.querySelector('.q-text');
         if(!qText) { finishBossAttack(); return; }
 
@@ -1524,280 +1987,150 @@
         qText.classList.add('text-glitched');
         qText.innerText = originalText.split('').sort(() => 0.5 - Math.random()).join('');
 
-        // Schedule the End (5 seconds for glitch)
         activeBossTimer = setTimeout(() => {
-            // Manually revert text before calling manager (special case)
             qText.innerText = originalText; 
             finishBossAttack();
         }, 5000);
     }
 
-    // Helper for Boss Aggressive Lines
-    function bossSpeakAttack(text) {
-        const bubble = document.getElementById('bossBubble');
-        bubble.innerText = text;
-        bubble.style.color = "var(--red)";
-        bubble.classList.add('bubble-show');
-        setTimeout(() => {
-            bubble.classList.remove('bubble-show');
-            bubble.style.color = "black"; // Reset color
-        }, 2000);
+
+    // =========================================================================
+    // SECTION 7: STATE MANAGEMENT & CLEANUP
+    // =========================================================================
+
+    function finishBossAttack() {
+        console.log(">> ATTACK ENDED: Resuming Mana Generation & Cleaning Up");
+        isAbilityActive = false;
         
-        // Make boss sprite look angry momentarily
-        const boss = document.getElementById('bossEntity');
-        boss.classList.add('state-attack');
-        setTimeout(() => boss.classList.remove('state-attack'), 1000);
+        // Clean Words
+        const cursed = document.querySelectorAll('.cursed-word');
+        cursed.forEach(span => {
+            if(span.dataset.original) {
+                if(span.dataset.state === "open" && window.togglePeek) window.togglePeek(span); 
+                const text = document.createTextNode(span.dataset.original);
+                span.parentNode.replaceChild(text, span);
+            }
+        });
+
+        // Clean Buttons
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('opt-locked');
+            btn.style.pointerEvents = 'auto';
+        });
+
+        // Clean Glitch
+        const qText = document.querySelector('.q-text');
+        if(qText) qText.classList.remove('text-glitched');
+
+        try { playTone(600, 'sine', 0.5, 0.1); } catch(e){}
     }
 
-    // ==========================================
-    // BOSS ARTIFICIAL INTELLIGENCE (THE BRAIN)
-    // ==========================================
-    
-    // ==========================================
-    // BOSS TICK ENGINE (Passive Mana Gen)
-    // ==========================================
-    setInterval(() => {
-        // Only generate mana if game is active
-        const failScreen = document.getElementById('failScreen');
-        const isFailVisible = window.getComputedStyle(failScreen).display === 'flex'; 
+    function resetBoardState() {
+        console.log(">> SYSTEM: Cleaning Board.");
+        isAbilityActive = false;
         
-        // Also don't generate if he is dead OR if we are currently peeking (don't punish twice)
-        const isPeeking = document.getElementById('panicOverlay').classList.contains('panic-active');
+        // 1. DISABLE SNIPER MODE
+        isSniperActive = false;
+        document.body.classList.remove('sniper-active');
+        
+        // 2. DISABLE LOGIC VISUALIZER (The new update)
+        const panel = document.getElementById('textPanel');
+        if(panel) panel.classList.remove('logic-mode');
 
-        if (currentHP > 0 && !isFailVisible && !isPeeking && !isAbilityActive) {
-            addMana(MANA_PASSIVE_RATE);
-        }
-    }, 100); // Run 10 times a second
+        // 3. KILL BOSS TIMERS
+        if (activeBossTimer) { clearTimeout(activeBossTimer); activeBossTimer = null; }
 
-    // ==========================================
-    // TOGGLE PEEK MECHANIC (GLOBAL)
-    // ==========================================
-    let peekInterval;
+        // 4. RESET BUTTONS
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('opt-locked');
+            btn.style.pointerEvents = 'auto';
+            btn.style.visibility = 'visible';
+            btn.style.transform = 'none';
+        });
 
-    // Attach to window to ensure HTML can see it
+        // 5. RESET GLITCH & CURSES
+        const qText = document.querySelector('.q-text');
+        if(qText) qText.classList.remove('text-glitched');
+
+        const cursed = document.querySelectorAll('.cursed-word');
+        cursed.forEach(span => {
+            if(span.dataset.original) {
+                const text = document.createTextNode(span.dataset.original);
+                span.parentNode.replaceChild(text, span);
+            }
+        });
+
+        // 6. RESET VISUAL OVERLAYS
+        const panic = document.getElementById('panicOverlay');
+        if(panic) panic.classList.remove('panic-active');
+        document.body.classList.remove('shake-screen');
+        if(typeof peekInterval !== 'undefined') clearInterval(peekInterval);
+        
+        const timerEl = document.getElementById('timer');
+        if(timerEl) timerEl.style.color = "#EF4444";
+    }
+    
+    // Toggle for the Cursed Words (Global)
     window.togglePeek = function(span) {
-        console.log("Clicked word:", span.dataset.original); // Debug log
-
         if (span.dataset.state === "closed") {
-            // --- OPEN ---
             span.dataset.state = "open";
             span.innerText = span.dataset.original; 
             span.style.color = "#FFFFFF"; 
-            span.style.backgroundColor = "#DC2626"; // Add background color to make it obvious
-            span.style.padding = "0 4px"; // Add padding for the background
+            span.style.backgroundColor = "#DC2626";
+            span.style.padding = "0 4px";
             span.style.borderRadius = "4px";
-            
-            // Visuals
             const panic = document.getElementById('panicOverlay');
             if(panic) panic.classList.add('panic-active');
             
-            // Drain Time
             if(peekInterval) clearInterval(peekInterval);
             peekInterval = setInterval(() => {
                 if(typeof timeLeft !== 'undefined') {
                     timeLeft--; 
                     try { playTone(800, 'square', 0.05, 0.05); } catch(e){}
-                    
-                    // Update timer UI immediately for feedback
                     let m = Math.floor(timeLeft / 60);
                     let s = timeLeft % 60;
-                    const timerEl = document.getElementById('timer');
-                    if(timerEl) {
-                        timerEl.innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                        timerEl.style.color = "red";
-                    }
-
-                    if(timeLeft <= 0) {
-                        clearInterval(peekInterval);
-                        if(typeof failGame === 'function') failGame();
-                    }
+                    document.getElementById('timer').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                    if(timeLeft <= 0) { clearInterval(peekInterval); failGame(); }
                 }
             }, 200); 
-            
         } else {
-            // --- CLOSE ---
             span.dataset.state = "closed";
             span.innerText = span.dataset.cursed; 
             span.style.color = "#C084FC"; 
-            span.style.backgroundColor = "transparent"; // Remove background
+            span.style.backgroundColor = "transparent";
             span.style.padding = "0";
-            
-            // Stop Visuals
             const panic = document.getElementById('panicOverlay');
             if(panic) panic.classList.remove('panic-active');
             if(peekInterval) clearInterval(peekInterval);
-            
-            const timerEl = document.getElementById('timer');
-            if(timerEl) timerEl.style.color = "#EF4444"; // Reset timer color
-        }
-    }// ==========================================
-    // BOSS RAGE MECHANIC (The Casting Bar)
-    // ==========================================
-    let bossMana = 0;
-    const MANA_PASSIVE_RATE = 0.4; // Fills 0.4% every 100ms (Full in ~25 sec)
-    const MANA_PENALTY = 25;       // +25% charge instantly on wrong answer
-
-    function addMana(amount) {
-        if(currentHP <= 0) return;
-
-        // 1. If we are currently in "Ability Mode", do not add charge.
-        if(isAbilityActive) return; 
-
-        bossMana += amount;
-        if(bossMana > 100) bossMana = 100;
-        
-        // Update UI
-        const bar = document.getElementById('bossManaBar');
-        const text = document.getElementById('manaText');
-        if(bar) bar.style.width = bossMana + "%";
-        if(text) text.innerText = Math.floor(bossMana) + "%";
-
-        // 2. TRIGGER AT 100%
-        if(bossMana >= 100) {
-            console.log(">> BOSS CHARGE FULL! Initiating Attack...");
-            
-            // A. LOCK THE BAR IMMEDIATELY
-            isAbilityActive = true; 
-            
-            // B. RESET VALUES IMMEDIATELY (Safety First)
-            bossMana = 0;
-            if(bar) bar.style.width = "0%";
-            if(text) text.innerText = "0%";
-
-            // C. CAST SPELL (Wrapped in Try/Catch)
-            // If this crashes, the bar is already reset, so the game won't freeze.
-            try {
-                triggerBossSkill();
-            } catch(e) {
-                console.error(e);
-                finishBossAttack();
         }
     }
 
-}
+    function toggleTool(btn, modeClass) {
+        // 1. Play Sound based on the tool
+        if (modeClass === 'mode-suffix') playSound('tool_cut');
+        if (modeClass === 'mode-xray') playSound('tool_scan');
+        if (modeClass === 'mode-logic') playSound('tool_logic');
 
-// ==========================================
-    // HERO FOCUS SYSTEM
-    // ==========================================
-    let playerFocus = 0;
-    const MAX_FOCUS = 3;
-
-    function addFocus(amount) {
-        playerFocus += amount;
-        if(playerFocus > MAX_FOCUS) playerFocus = MAX_FOCUS;
-        if(playerFocus < 0) playerFocus = 0;
-        updateFocusUI();
+        // 2. Visual Toggle
+        btn.classList.toggle('tool-active');
+        document.getElementById('textPanel').classList.toggle(modeClass);
     }
 
-    function updateFocusUI() {
-        // Update Pips
-        for(let i=1; i<=3; i++) {
-            const pip = document.getElementById(`focus${i}`);
-            if(pip) {
-                if(i <= playerFocus) pip.classList.add('active');
-                else pip.classList.remove('active');
-            }
-        }
-        // Unlock Buttons
-        const btn1 = document.getElementById('skillBtn1');
-        const btn2 = document.getElementById('skillBtn2');
-        const btn3 = document.getElementById('skillBtn3');
-
-        if(btn1 && btn2 && btn3) {
-            [btn1, btn2, btn3].forEach(b => {
-                 b.classList.remove('ready', 'disabled');
-                 b.classList.add('disabled');
-            });
-
-            if(playerFocus >= 1) { btn1.classList.remove('disabled'); btn1.classList.add('ready'); }
-            if(playerFocus >= 2) { btn2.classList.remove('disabled'); btn2.classList.add('ready'); }
-            if(playerFocus >= 3) { btn3.classList.remove('disabled'); btn3.classList.add('ready'); }
-        }
+    function winGame() {
+        clearInterval(timerInterval);
+        try{ confetti({ particleCount: 300, spread: 120 }); } catch(e){}
+        document.getElementById('winScreen').style.display = 'flex';
+        playSound('win');
     }
 
-    // ==========================================
-    // SKILL EFFECTS
-    // ==========================================
-
-    // SKILL 1: DOUBLE SLASH (Remove 2 Wrong Answers)
-    function castDoubleSlash() {
-        if(playerFocus < 1) return;
-        if(isAbilityActive) return; // Optional: Cannot use during boss attack
-
-        addFocus(-1);
-        try { playSound('slash'); } catch(e){}
-
-        const allBtns = Array.from(document.querySelectorAll('.opt-btn'));
-        const correctBtn = allBtns.find(b => b.getAttribute('onclick').includes('true'));
-        // Filter out buttons that are already hidden or correct
-        const wrongBtns = allBtns.filter(b => b !== correctBtn && b.style.visibility !== 'hidden');
-
-        // Randomly hide 2
-        wrongBtns.sort(() => Math.random() - 0.5);
-        let count = 0;
-        wrongBtns.forEach(btn => {
-            if(count < 2) {
-                btn.style.transition = "0.2s";
-                btn.style.transform = "scaleX(0)";
-                setTimeout(() => btn.style.visibility = "hidden", 200);
-                count++;
-            }
-        });
+    function failGame() {
+        clearInterval(timerInterval);
+        document.getElementById('failScreen').style.display = 'flex';
+        playSound('lose');
     }
 
-    // SKILL 2: CHRONO BREAK (Freeze Time)
-    function castChronoBreak() {
-        if(playerFocus < 2) return;
-        
-        addFocus(-2);
-        try { playSound('time_stop'); } catch(e){}
-
-        // Visuals
-        document.body.style.filter = "grayscale(100%) contrast(1.2)";
-        document.body.style.transition = "filter 0.5s";
-        const timerEl = document.getElementById('timer');
-        if(timerEl) {
-            timerEl.style.color = "#38BDF8";
-            timerEl.style.textShadow = "0 0 10px #38BDF8";
-        }
-
-        // Logic
-        window.isTimeFrozen = true; 
-
-        // Revert after 15s
-        setTimeout(() => {
-            window.isTimeFrozen = false;
-            document.body.style.filter = "none";
-            if(timerEl) {
-                timerEl.style.color = "#EF4444";
-                timerEl.style.textShadow = "none";
-            }
-            try { playSound('time_resume'); } catch(e){}
-        }, 15000);
-    }
-
-    // SKILL 3: TRUTH VISION (Reveal Answer)
-    function castTruthVision() {
-        if(playerFocus < 3) return;
-
-        addFocus(-3);
-        try { playSound('divine'); } catch(e){}
-
-        const allBtns = document.querySelectorAll('.opt-btn');
-        allBtns.forEach(btn => {
-            if(btn.getAttribute('onclick').includes('true')) {
-                // Gold Glow
-                btn.style.boxShadow = "0 0 30px #F59E0B";
-                btn.style.border = "2px solid #FCD34D";
-                btn.style.background = "linear-gradient(45deg, #78350F, #F59E0B)";
-                btn.style.color = "white";
-                btn.style.fontWeight = "bold";
-                btn.innerText = "👁️ " + btn.innerText;
-            } else {
-                btn.style.opacity = "0.3";
-            }
-        });
-    }
 </script>
 
 </body>
