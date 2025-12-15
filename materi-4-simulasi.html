@@ -909,7 +909,49 @@
     background-color: #E2E8F0 !important;
     color: #0F172A !important; 
 }
-*/
+/* ================= SMART TOOL INTERACTIONS ================= */
+
+/* 1. ADJECTIVE REMOVER (Default Behavior) */
+/* When active, cross out ALL adjectives */
+.mode-adj .adj-word {
+    text-decoration: line-through; 
+    color: #94A3B8; 
+    opacity: 0.5;   
+    transition: all 0.3s ease;
+}
+
+/* 2. X-RAY SCANNER (Default Behavior) */
+/* When active, highlight important words */
+.mode-xray .core {
+    color: #fa8209 !important; /* Bright Green */
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(241, 44, 26, 0.5);
+    opacity: 1 !important; /* Force visibility */
+}
+
+.mode-xray .junk {
+    color: #F87171 !important; /* Red */
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    opacity: 1 !important; /* Force visibility */
+}
+
+/* ================= THE INTERACTION FIX ================= */
+/* RULE: If BOTH tools are ON, "Protect" the Core/Junk words */
+
+/* If X-Ray is ON, do NOT cross out .core words */
+.mode-adj.mode-xray .adj-word.core {
+    text-decoration: none !important; /* Remove strikethrough */
+    opacity: 1 !important;            /* Make it fully visible */
+}
+
+/* If X-Ray is ON, do NOT cross out .junk words */
+/* (We keep the wavy underline from X-Ray, but remove the strikethrough) */
+.mode-adj.mode-xray .adj-word.junk {
+    text-decoration: underline !important; 
+    text-decoration-style: wavy !important;
+    opacity: 1 !important;
+}
     </style>
 </head>
 <body>
@@ -1032,7 +1074,51 @@
     <button class="start-btn" style="background:var(--red); color:white; border:1px solid white;" onclick="location.reload()">RETRY SIMULATION</button>
 </div>
 
+<div style="position: fixed; bottom: 10px; right: 10px; z-index: 10000; display: flex; gap: 10px;">
+    
+    <button onclick="devSkip()" style="
+        background: #DC2626; 
+        color: white; 
+        border: 2px solid white; 
+        padding: 10px 20px; 
+        font-weight: bold; 
+        cursor: pointer;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    ">
+        SKIP ⏭️
+    </button>
+
+    <button onclick="loadRound(1)" style="
+        background: #2563EB; 
+        color: white; 
+        border: 2px solid white; 
+        padding: 10px 20px; 
+        font-weight: bold; 
+        cursor: pointer;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    ">
+        JUMP TO C1 🚀
+    </button>
+
+</div>
+
 <script>
+    // THE CHEAT FUNCTION
+    function devSkip() {
+        // 1. Check if there are more questions in this round
+        if (currentQIndex + 1 < questions.length) {
+            currentQIndex++;
+            loadQuestion(currentQIndex);
+            console.log("Skipped to Question: " + (currentQIndex + 1));
+        } 
+        // 2. If round is finished, load the next round
+        else {
+            console.log("Round Complete. Loading Next Round...");
+            loadRound(currentRoundIndex + 1);
+        }
+    }
     // =========================================================================
     // SECTION 1: GLOBAL VARIABLES & CONFIGURATION
     // =========================================================================
@@ -1158,286 +1244,266 @@
 
 
     // =========================================================================
-    // SECTION 3: DATA STORE (C1 LEVEL - UTBK SIMULATION)
+    // SECTION 3: GAUNTLET DATA STORE
     // =========================================================================
 
-    const passages = [
+    // --- ROUND 1: INTERMEDIATE (B2 LEVEL) ---
+   const round1Data = {
+    passages: [
         { 
             id: 1, 
-            title: "PHASE 1: ENVIRONMENTAL SCIENCE", 
-            content: `<div class="academic-text"><p>Ocean acidification, often termed the "evil twin" of global warming, represents a <span class="core">formidable threat</span> to marine biodiversity. As the ocean absorbs approximately 30% of anthropogenic <span class="core">CO2 emissions</span>, a chemical reaction occurs that reduces seawater pH. This shift creates a <span class="junk">corrosive environment</span> for calcifying organisms such as corals, oysters, and some plankton.</p><p><span class="connector">Consequently</span>, these organisms struggle to build their calcium carbonate shells, leading to slower growth rates and increased mortality. <span class="connector">Furthermore</span>, the structural integrity of coral reefs is compromised. Since reefs provide <span class="core">critical habitats</span> for nearly a quarter of all marine species, their degradation could trigger a <span class="core">trophic cascade</span>, ultimately impacting global fisheries and food security.</p><p><span class="connector">Unless</span> carbon emissions are drastically curtailed, scientists predict that ocean pH could reach levels unseen for millions of years, potentially rendering the damage <span class="junk">irreversible</span>.</p></div>` 
+            title: "TEXT 1: THE COFFEE REVOLUTION", 
+            content: `<div class="news-wrapper"><div class="news-body"><p>The <span class="adj-word">global</span> transformation of coffee culture began in the <span class="adj-word">Arabian</span> Peninsula. While legends speak of <span class="adj-word">energetic</span> goats, the <span class="adj-word">historical</span> reality is one of <span class="adj-word">systematic</span> cultivation. By the 15th century, coffee was not merely a beverage but a <span class="adj-word">social</span> catalyst.</p><p><span class="connector">Consequently</span>, the emergence of the coffee house created a <span class="adj-word">unique</span> space for <span class="adj-word core">intellectual</span> exchange. These establishments were <span class="adj-word junk">unprecedented</span> in their ability to mix <span class="adj-word">social</span> classes. <span class="connector">However</span>, this openness led to <span class="adj-word">political</span> paranoia.</p><p><span class="connector">Ultimately</span>, despite attempts to ban it, the <span class="adj-word">immense</span> popularity of coffee proved <span class="adj-word core">irrepressible</span>.</p></div></div>` 
         },
         { 
             id: 2, 
-            title: "PHASE 2: SOCIOLOGICAL STUDY", 
-            content: `<div class="transcript-box"><div class="speech-bubble host"><span class="speaker">NARRATOR</span>The "Gig Economy" is often marketed as the pinnacle of <span class="core">entrepreneurial freedom</span>. Be your own boss. Work when you want.</div><div class="speech-bubble guest"><span class="speaker">PROF. AL-SAYED</span>That is the <span class="junk">veneer</span>. The reality is quite different. These platforms utilize <span class="core">algorithmic management</span> to control behavior without human supervisors.</div><div class="speech-bubble host"><span class="speaker">NARRATOR</span>How so?</div><div class="speech-bubble guest"><span class="speaker">PROF. AL-SAYED</span>By using "nudges"—bonuses for working unsociable hours or penalties for declining too many tasks. <span class="connector">Thus</span>, the worker feels <span class="core">autonomous</span> but is strictly surveilled. <span class="connector">However</span>, unlike traditional employment, this system shifts all <span class="core">financial risk</span> onto the worker. If the car breaks down or demand drops, the algorithm offers no safety net. It creates a class of <span class="core">precarious labor</span>.</div></div>` 
+            title: "TEXT 2: THE DIGITAL NOMAD", 
+            content: `<div class="academic-text"><p>Digital nomadism represents a <span class="adj-word">radical</span> decentralization of the <span class="adj-word">traditional</span> workforce. Facilitated by <span class="adj-word core">technological</span> advancements, workers are no longer tethered to a <span class="adj-word">physical</span> office. <span class="connector">However</span>, this lifestyle is often romanticized.</p><p>The reality involves <span class="adj-word junk">significant</span> psychological challenges. The disconnection from a <span class="adj-word">stable</span> community can lead to <span class="adj-word">profound</span> loneliness. <span class="connector">Furthermore</span>, without structure, the boundary between work and leisure becomes <span class="adj-word junk">indistinguishable</span>.</p><p><span class="connector">Therefore</span>, while the freedom is <span class="adj-word">appealing</span>, the sustainability depends on <span class="adj-word">individual</span> adaptability.</p></div>` 
         },
         { 
             id: 3, 
-            title: "PHASE 3: PHILOSOPHICAL ESSAY", 
-            content: `<div class="news-wrapper"><div class="news-header"><h1 class="news-headline">THE SHIP OF THESEUS</h1></div><div class="news-body"><p>The <span class="core">Ship of Theseus</span> is a thought experiment that challenges our understanding of <span class="core">identity</span> over time. Imagine a ship where, over the course of decades, every single wooden plank is replaced due to rot.</p><p><span class="connector">Ultimately</span>, a moment arrives when not one original component remains. Is it still the <span class="junk">same ship</span>? <span class="connector">Conversely</span>, if a collector gathered all the discarded rotten planks and reassembled them, which vessel holds the true identity of the Ship of Theseus?</p><p>This paradox applies to the human condition. Our cells regenerate; our memories fade and reconstruct. <span class="connector">Therefore</span>, if our physical substance is in constant flux, what <span class="core">constitutes</span> the "self"? Is it the material, or is it the <span class="core">continuity</span> of the pattern?</p></div></div>` 
+            title: "TEXT 3: APICULTURE (BEES)", 
+            content: `<div class="log-wrapper"><div class="log-header">// ECOLOGY REPORT</div><div class="log-body"><div class="log-entry">Honey bees demonstrate a <span class="adj-word">complex</span> level of interdependence. The colony operates as a "superorganism," where <span class="adj-word">individual</span> survival is <span class="adj-word junk">impossible</span> without the group.</div><br><div class="log-entry">The specialization is <span class="adj-word">strict</span>: The Queen focuses on reproduction, while Workers manage resources. <span class="connector">Crucially</span>, their role as pollinators makes them <span class="adj-word core">irreplaceable</span>.</p><br><div class="log-entry"><span class="connector">Conversely</span>, "Colony Collapse Disorder" highlights their vulnerability. The <span class="adj-word junk">rapid</span> disappearance of worker bees leads to <span class="adj-word">catastrophic</span> failure.</div></div></div>` 
         },
         { 
             id: 4, 
-            title: "PHASE 4: TECH REPORT", 
-            content: `<div class="log-wrapper"><div class="log-header">// ENCRYPTION STATUS: CRITICAL</div><div class="log-body"><div class="log-entry">Classical computers process data in <span class="core">bits</span> (0 or 1). <span class="connector">However</span>, quantum computers utilize <span class="core">qubits</span>, which can exist in a state of <span class="junk">superposition</span>. This allows them to perform complex calculations exponentially faster than binary systems.</div><br><div class="log-entry">IMPLICATION: The RSA encryption protocols that secure the global banking system rely on the difficulty of factoring large numbers. A sufficiently powerful quantum computer could break this <span class="junk">obsolete</span> encryption in minutes.</div><br><div class="log-entry"><span class="connector">Therefore</span>, the race for "Post-Quantum Cryptography" is not merely academic; it is a matter of <span class="core">national security</span>. We must transition to new standards before the "Q-Day" arrives.</div></div></div>` 
+            title: "TEXT 4: URBAN DEVELOPMENT", 
+            content: `<div class="transcript-box"><div class="speech-bubble guest"><span class="speaker">RESIDENT SARA</span><p>The proposal to construct a mall is <span class="adj-word junk">unacceptable</span>. This project prioritizes <span class="adj-word">commercial</span> development over <span class="adj-word core">environmental</span> preservation.</p><p><span class="connector">Moreover</span>, the traffic assessment is <span class="adj-word junk">insufficient</span>. It fails to account for <span class="adj-word">current</span> congestion. <span class="connector">Although</span> the council promises jobs, they are <span class="adj-word">temporary</span>.</p><p><span class="connector">Instead</span>, we should focus on the revitalization of <span class="adj-word">local</span> businesses. Destroying our <span class="adj-word">only</span> green space is an <span class="adj-word junk">irreversible</span> mistake.</p></div></div>` 
         }
-    ];
+        ],
+        questions: [
+            // --- TEXT 1 ---
+            { tId: 1, q: "1. According to the text, why were coffee houses called 'Schools of the Wise'?", opts: ["A. Because they were located inside universities.", "B. Because people went there to read books in silence.", "C. Because they were hubs for news, discussion, and information exchange.", "D. Because only wise old men were allowed to enter.", "E. Because they served a drink that improved memory."], ans: 2 },
+            { tId: 1, q: "2. Which of the following statements about the origins of coffee is TRUE?", opts: ["A. Coffee was first cultivated in Ethiopia.", "B. The trade of coffee began in the Arabian Peninsula.", "C. Persians invented the method of roasting coffee.", "D. Coffee was originally used as a medicine for goats.", "E. Turkey was the first country to ban coffee."], ans: 1 },
+            { tId: 1, q: "3. The word 'energetic' in paragraph 1 can best be replaced by:", opts: ["A. Sleepy.", "B. Aggressive.", "C. Intelligent.", "D. Active/Lively.", "E. Hungry."], ans: 3 },
+            { tId: 1, q: "4. Which activities happened in a 'qahveh khaneh'?", opts: ["A. Playing chess and sleeping.", "B. Watching performers and listening to news.", "C. Praying and trading goats.", "D. Farming and cooking.", "E. Studying math and writing poetry."], ans: 1 },
+            { tId: 1, q: "5. What role did pilgrims play in the spread of coffee?", opts: ["A. They planted coffee trees along the roads.", "B. They brought news of the drink back to their homelands after visiting Mecca.", "C. They sold coffee to pay for their travel expenses.", "D. They refused to drink it, causing a controversy.", "E. They invented the first coffee pot."], ans: 1 },
 
-    const questions = [
-        // --- PASSAGE 1: ENVIRONMENT (Ocean Acidification) ---
-        { 
-            tId: 1, 
-            q: "1. What is the primary purpose of the text?", 
-            opts: [
-                "A. To dispute the prevailing scientific consensus regarding global warming theories.", 
-                "B. To provide a detailed chemical analysis of underwater photosynthesis.", 
-                "C. To highlight the primary causes and severe consequences of ocean acidification.", 
-                "D. To propose a new, cost-effective method for large-scale coral reef restoration.", 
-                "E. To compare the varying biodiversity levels between the Atlantic and Pacific oceans."
-            ], 
-            ans: 2 
-        }, // C
-        { 
-            tId: 1, 
-            q: "2. According to the text, the term 'evil twin' refers to:", 
-            opts: [
-                "A. Ocean acidification, a parallel threat to global warming.", 
-                "B. Global warming, which causes the ocean to heat up.", 
-                "C. Carbon emissions that are released by factories.", 
-                "D. Trophic cascades that destroy marine food webs.", 
-                "E. Marine biodiversity loss due to overfishing."
-            ], 
-            ans: 0 
-        }, // A
-        { 
-            tId: 1, 
-            q: "3. The word 'compromised' in paragraph 2 is closest in meaning to:", 
-            opts: [
-                "A. Successfully negotiated via diplomacy.", 
-                "B. Strengthened against external threats.", 
-                "C. Balanced between two opposing forces.", 
-                "D. Weakened and exposed to danger.", 
-                "E. Mutually agreed upon by all parties."
-            ], 
-            ans: 3 
-        }, // D
-        { 
-            tId: 1, 
-            q: "4. What is the logical result of the 'trophic cascade' mentioned in the text?", 
-            opts: [
-                "A. A significant increase in carbon absorption by the ocean.", 
-                "B. A widespread disruption in global food security and fisheries.", 
-                "C. The rapid and uncontrolled growth of plankton populations.", 
-                "D. A gradual decrease in the overall pH level of seawater.", 
-                "E. The stabilization and recovery of coral reef ecosystems."
-            ], 
-            ans: 1 
-        }, // B
-        { 
-            tId: 1, 
-            q: "5. Which of the following best describes the function of the final paragraph?", 
-            opts: [
-                "A. It offers a scientific counter-argument to the previous claims.", 
-                "B. It provides specific statistical data on fish mortality rates.", 
-                "C. It defines the chemical composition of calcium carbonate.", 
-                "D. It outlines the historical timeline of carbon emissions.", 
-                "E. It issues a warning about the potential permanence of the damage."
-            ], 
-            ans: 4 
-        }, // E
+            // --- TEXT 2 ---
+            { tId: 2, q: "6. What is the main idea of paragraph 2?", opts: ["A. To explain how to get a Digital Nomad Visa.", "B. To list the countries that accept digital nomads.", "C. To discuss both the reasons for the trend's growth and its downsides.", "D. To prove that working from home is better than working in an office.", "E. To describe the technology used by nomads."], ans: 2 },
+            { tId: 2, q: "7. All of the following are mentioned as workplaces for nomads EXCEPT:", opts: ["A. Coffee shops.", "B. Public libraries.", "C. Co-working spaces.", "D. Corporate headquarters.", "E. Foreign countries."], ans: 3 },
+            { tId: 2, q: "8. Why is 'maintaining a consistent routine' considered difficult for digital nomads?", opts: ["A. Because they do not have alarm clocks.", "B. Because they frequently change time zones.", "C. Because the internet is often slow.", "D. Because they work too many hours.", "E. Because they are lazy."], ans: 1 },
+            { tId: 2, q: "9. The word 'attract' in the final sentence is closest in meaning to:", opts: ["A. Repel.", "B. Draw in / Lure.", "C. Confuse.", "D. Attack.", "E. Tax."], ans: 1 },
+            { tId: 2, q: "10. What can be inferred about 'Digital Nomad Visas'?", opts: ["A. They are illegal in most countries.", "B. They are designed to benefit the host country's economy.", "C. They are only for people who work in IT.", "D. They are free of charge.", "E. They require the nomad to buy a house."], ans: 1 },
 
-        // --- PASSAGE 2: SOCIOLOGY (Gig Economy) ---
-        { 
-            tId: 2, 
-            q: "6. Prof. Al-Sayed's attitude toward the 'freedom' of the gig economy can best be described as:", 
-            opts: [
-                "A. Enthusiastic and supportive of the innovation.", 
-                "B. Skeptical and critical of the underlying reality.", 
-                "C. Indifferent and unconcerned with the outcome.", 
-                "D. Confused by the technological complexity.", 
-                "E. Optimistic about the future of labor rights."
-            ], 
-            ans: 1 
-        }, // B
-        { 
-            tId: 2, 
-            q: "7. The phrase 'precarious labor' implies that gig workers:", 
-            opts: [
-                "A. Earn significantly more than traditional employees.", 
-                "B. Are protected by strong unions and labor laws.", 
-                "C. Have full control over the algorithm's decisions.", 
-                "D. Lack financial security and face instability.", 
-                "E. Are frequently fired for working too hard."
-            ], 
-            ans: 3 
-        }, // D
-        { 
-            tId: 2, 
-            q: "8. What does the term 'veneer' suggest about the marketing of the gig economy?", 
-            opts: [
-                "A. It is a superficial appearance hiding a different reality.", 
-                "B. It is a solid, trustworthy foundation for economic growth.", 
-                "C. It is a legally binding contract between employer and employee.", 
-                "D. It is a transparent and honest description of the job.", 
-                "E. It is an outdated concept that no longer applies."
-            ], 
-            ans: 0 
-        }, // A
-        { 
-            tId: 2, 
-            q: "9. How does 'algorithmic management' differ from human supervision?", 
-            opts: [
-                "A. It is more lenient and forgiving of mistakes.", 
-                "B. It creates a stronger sense of community among workers.", 
-                "C. It offers better safety nets for emergencies.", 
-                "D. It pays workers for downtime and breaks.", 
-                "E. It uses digital 'nudges' rather than direct orders."
-            ], 
-            ans: 4 
-        }, // E
-        { 
-            tId: 2, 
-            q: "10. The professor mentions 'financial risk' to highlight that:", 
-            opts: [
-                "A. Algorithms are extremely expensive to build and maintain.", 
-                "B. Workers must bear the cost of downtime and maintenance.", 
-                "C. Companies are losing money on these platforms.", 
-                "D. Customers are charged too much for the services.", 
-                "E. Banks generally refuse to lend money to gig workers."
-            ], 
-            ans: 1 
-        }, // B
+            // --- TEXT 3 ---
+            { tId: 3, q: "11. The text states that the Queen bee's primary function is to:", opts: ["A. Defend the hive.", "B. Collect nectar.", "C. Produce wax.", "D. Lay eggs.", "E. Rule the other bees."], ans: 3 },
+            { tId: 3, q: "12. In paragraph 3, the word 'they' refers to:", opts: ["A. The Queen bees.", "B. The flowers.", "C. The bees (specifically workers/foragers).", "D. Humans.", "E. The pollen grains."], ans: 2 },
+            { tId: 3, q: "13. Which statements are TRUE about Worker bees?", opts: ["A. They are male and fertile.", "B. They are female and sterile.", "C. They lay eggs and defend the hive.", "D. They do nothing but eat honey.", "E. They are the largest bees in the colony."], ans: 1 },
+            { tId: 3, q: "14. Why is pollination important for humans?", opts: ["A. It makes flowers look pretty.", "B. It prevents bees from stinging.", "C. A significant portion of the human food supply depends on it.", "D. It helps create beeswax for candles.", "E. It kills harmful insects."], ans: 2 },
+            { tId: 3, q: "15. The organization of the bee colony into Queen, Workers, and Drones is an example of:", opts: ["A. A democracy.", "B. A caste system.", "C. A trophic cascade.", "D. A predator-prey relationship.", "E. A symbiotic relationship."], ans: 1 },
 
-        // --- PASSAGE 3: PHILOSOPHY (Identity) ---
-        { 
-            tId: 3, 
-            q: "11. The central paradox of the 'Ship of Theseus' concerns:", 
-            opts: [
-                "A. The structural durability of wood versus metal parts.", 
-                "B. The speed at which a ship can be constructed.", 
-                "C. The persistence of identity amidst physical change.", 
-                "D. The fluctuating economic value of antique ships.", 
-                "E. The navigational skills required by Theseus."
-            ], 
-            ans: 2 
-        }, // C
-        { 
-            tId: 3, 
-            q: "12. In the analogy provided, the 'discarded rotten planks' represent:", 
-            opts: [
-                "A. The old physical components of an object.", 
-                "B. Bad memories that should be entirely forgotten.", 
-                "C. The future potential of the ship's voyage.", 
-                "D. The logical errors in human reasoning.", 
-                "E. The crew members who operate the ship."
-            ], 
-            ans: 0 
-        }, // A
-        { 
-            tId: 3, 
-            q: "13. The author implies that human identity is likely defined by:", 
-            opts: [
-                "A. The unique DNA found in our cells.", 
-                "B. The physical matter that makes up our bodies.", 
-                "C. The memories we successfully repress.", 
-                "D. A simple, static concept that never changes.", 
-                "E. The continuity of patterns rather than material substance."
-            ], 
-            ans: 4 
-        }, // E
-        { 
-            tId: 3, 
-            q: "14. The word 'constitutes' in the final paragraph could best be replaced by:", 
-            opts: [
-                "A. Destroys or eliminates.", 
-                "B. Composes or forms.", 
-                "C. Hides or obscures.", 
-                "D. Questions or doubts.", 
-                "E. Rejects or denies."
-            ], 
-            ans: 1 
-        }, // B
-        { 
-            tId: 3, 
-            q: "15. Why does the author transition from discussing a ship to discussing human cells?", 
-            opts: [
-                "A. To argue that ships are actually living organisms.", 
-                "B. To confuse the reader with unrelated topics.", 
-                "C. To demonstrate the philosophical concept's application to human existence.", 
-                "D. To prove that biology is more important than carpentry.", 
-                "E. To argue that humans live significantly longer than ships."
-            ], 
-            ans: 2 
-        }, // C
+            // --- TEXT 4 ---
+            { tId: 4, q: "16. What is the primary purpose of Sara's letter?", opts: ["A. To apply for a job at the new mall.", "B. To complain about the quality of food in Green Park.", "C. To oppose the construction of a mall in Green Park.", "D. To support the city council's development plan.", "E. To ask for a donation."], ans: 2 },
+            { tId: 4, q: "17. Which of the following is NOT a reason Sara opposes the mall?", opts: ["A. Loss of green space.", "B. Increased traffic congestion.", "C. The mall will be too expensive.", "D. Reduced quality of life.", "E. Overcrowding in the area."], ans: 2 },
+            { tId: 4, q: "18. What alternative solution does Sara propose?", opts: ["A. Building the mall in a different city.", "B. Renovating the existing market street.", "C. Creating a new park next to the mall.", "D. Banning cars from the district.", "E. Closing down all local businesses."], ans: 1 },
+            { tId: 4, q: "19. The phrase 'at what cost' implies that:", opts: ["A. The mall will be very expensive to build.", "B. The negative consequences outweigh the benefits.", "C. Sara is worried about inflation.", "D. The city council has no money.", "E. The jobs created will be low-paying."], ans: 1 },
+            { tId: 4, q: "20. Sara's tone in this letter can best be described as:", opts: ["A. Happy and excited.", "B. Neutral and objective.", "C. Concerned and critical.", "D. Humorous and joking.", "E. Violent and threatening."], ans: 2 }
+        ]
+    };
 
-        // --- PASSAGE 4: TECHNOLOGY (Quantum Computing) ---
+    // --- PLACEHOLDERS FOR FUTURE ROUNDS (WE WILL FILL THESE LATER) ---
+    // --- ROUND 2: ADVANCED (C1 LEVEL) ---
+    // --- ROUND 2: ADVANCED (C1) - EXPANDED & TOOL-READY ---
+const round2Data = {
+    passages: [
         { 
-            tId: 4, 
-            q: "16. What is the fundamental difference between a bit and a qubit?", 
-            opts: [
-                "A. Bits process data faster than qubits.", 
-                "B. Bits are used for encryption; qubits are not.", 
-                "C. Bits represent text; qubits represent images.", 
-                "D. Bits are physically smaller than qubits.", 
-                "E. Bits are binary (0/1), while qubits can exist in superposition."
-            ], 
-            ans: 4 
-        }, // E
+            id: 1, 
+            title: "TEXT 1: THE PARADOX OF CHOICE", 
+            content: `<div class="academic-text">
+                <p>In <span class="adj-word">modern</span> industrial societies, the <span class="adj-word">official</span> dogma suggests that maximizing choice maximizes freedom. <span class="connector">However</span>, this assumption overlooks the <span class="adj-word junk">psychological</span> cost of decision-making. Barry Schwartz identifies a <span class="adj-word">pervasive</span> phenomenon known as "Choice Paralysis." When options are <span class="adj-word junk">overwhelming</span>—whether in a supermarket aisle or a retirement plan—the <span class="adj-word">cognitive</span> load increases drastically.</p>
+                <p><span class="connector">Consequently</span>, even if a choice is made, the <span class="adj-word junk">nagging</span> anticipation of regret diminishes satisfaction. This is the "Opportunity Cost" of the unchosen paths. The chooser is haunted by the <span class="adj-word">imagined</span> benefits of the rejected alternatives.</p>
+                <p><span class="connector">Thus</span>, the <span class="adj-word">perpetual</span> search for the <span class="adj-word">perfect</span> option leads to misery. The "Satisficer," who accepts what is 'good enough', is often <span class="adj-word core">happier</span> than the "Maximizer" who seeks <span class="adj-word">absolute</span> perfection.</p>
+            </div>` 
+        },
         { 
-            tId: 4, 
-            q: "17. The text implies that the arrival of 'Q-Day' will cause:", 
-            opts: [
-                "A. A significant decrease in global internet speeds.", 
-                "B. A worldwide shortage of personal computers.", 
-                "C. A major security crisis for current banking systems.", 
-                "D. The immediate end of all artificial intelligence.", 
-                "E. A drastic reduction in global energy consumption."
-            ], 
-            ans: 2 
-        }, // C
+            id: 2, 
+            title: "TEXT 2: FAST FASHION'S TOLL", 
+            content: `<div class="news-wrapper"><div class="news-body">
+                <p>Fast fashion is characterized by the <span class="adj-word junk">accelerated</span> production of <span class="adj-word">low-cost</span> garments to mirror <span class="adj-word">current</span> trends. While this <span class="adj-word core">democratization</span> of style allows <span class="adj-word">frequent</span> consumption, it relies on a <span class="adj-word">predatory</span> model of <span class="adj-word core">planned</span> obsolescence. The clothes are designed to be <span class="adj-word">disposable</span>.</p>
+                <p><span class="connector">Furthermore</span>, the <span class="adj-word">environmental</span> implications are <span class="adj-word junk">devastating</span>. The industry creates <span class="adj-word junk">non-biodegradable</span> waste and consumes <span class="adj-word">vast</span> quantities of water. <span class="connector">Despite</span> <span class="adj-word">flashy</span> sustainability marketing campaigns, the <span class="adj-word">core</span> business model remains <span class="adj-word junk">unsustainable</span>.</p>
+                <p><span class="connector">Unless</span> consumer behavior shifts from <span class="adj-word junk">impulsive</span> buying to <span class="adj-word">mindful</span> consumption, the <span class="adj-word">ecological</span> damage will be <span class="adj-word junk">irreversible</span>.</p>
+            </div></div>` 
+        },
         { 
-            tId: 4, 
-            q: "18. The word 'obsolete' suggests that current RSA encryption will become:", 
-            opts: [
-                "A. Outdated and ineffective against new threats.", 
-                "B. Significantly more expensive to maintain.", 
-                "C. Legally required by all governments.", 
-                "D. Faster to process but less secure.", 
-                "E. Physically larger and harder to store."
-            ], 
-            ans: 0 
-        }, // A
+            id: 3, 
+            title: "TEXT 3: THE KESSLER SYNDROME", 
+            content: `<div class="log-wrapper"><div class="log-header">// ORBITAL ANALYSIS</div><div class="log-body">
+                <div class="log-entry">The <span class="adj-word">rapid</span> proliferation of satellites in Low Earth Orbit has created a <span class="adj-word junk">hazardous</span> density of debris. The "Kessler Syndrome" posits a <span class="adj-word junk">catastrophic</span> scenario of <span class="adj-word">cascading</span> collisions.</div>
+                <br>
+                <div class="log-entry">In this scenario, a <span class="adj-word">single</span> hypervelocity impact generates a cloud of shrapnel, which <span class="connector">subsequently</span> increases the probability of <span class="adj-word">further</span> impacts. <span class="connector">Ultimately</span>, this chain reaction could form an <span class="adj-word junk">impenetrable</span> barrier of <span class="adj-word">metallic</span> waste around the planet.</div>
+                <br>
+                <div class="log-entry">This would result in the <span class="adj-word">complete</span> inaccessibility of space for <span class="adj-word">future</span> generations, essentially trapping humanity on Earth due to our own <span class="adj-word">collective</span> negligence.</div>
+            </div></div>` 
+        },
         { 
-            tId: 4, 
-            q: "19. The author's tone regarding Post-Quantum Cryptography is best described as:", 
-            opts: [
-                "A. Nostalgic for the past.", 
-                "B. Lighthearted and humorous.", 
-                "C. Indifferent and detached.", 
-                "D. Urgent and serious.", 
-                "E. Sarcastic and mocking."
-            ], 
-            ans: 3 
-        }, // D
+            id: 4, 
+            title: "TEXT 4: ALGORITHMIC BIAS", 
+            content: `<div class="transcript-box"><div class="speech-bubble guest"><span class="speaker">DR. VANCE</span>
+                <p>The notion of algorithmic neutrality is a <span class="adj-word junk">dangerous</span> misconception. We assume computers are <span class="adj-word">objective</span>, but since AI is trained on <span class="adj-word">historical</span> data, it <span class="adj-word">inadvertently</span> absorbs <span class="adj-word">deep-seated</span> human prejudices.</p>
+                <p><span class="connector">For example</span>, a hiring algorithm might penalize women simply because the <span class="adj-word">past</span> data reflects a <span class="adj-word">male-dominated</span> industry. The machine is not 'thinking'; it is performing <span class="adj-word core">statistical</span> replication of <span class="adj-word">past</span> errors. <span class="connector">Therefore</span>, without <span class="adj-word">active</span> correction, AI serves to automate and amplify <span class="adj-word">existing</span> discrimination rather than eliminate it.</p>
+                <p><span class="connector">In conclusion</span>, true fairness requires <span class="adj-word core">human</span> intervention, not <span class="adj-word junk">blind</span> trust in the code.</p>
+            </div></div>` 
+        }
+    ],
+    questions: [ 
+        // --- TEXT 1: PSYCHOLOGY ---
+        { tId: 1, q: "1. What is the central thesis of Barry Schwartz's argument?", opts: ["A. Freedom is the most important value in modern society.", "B. Having too many choices can lead to negative psychological outcomes.", "C. People should always strive to find the absolute best option.", "D. Marketing strategies effectively manipulate consumer choices.", "E. The opportunity cost of a decision is usually negligible."], ans: 1 },
+        { tId: 1, q: "2. The word 'prevailing' in the first paragraph is closest in meaning to:", opts: ["A. Incorrect or flawed.", "B. Widespread or dominant.", "C. Scientific or proven.", "D. Ancient or outdated.", "E. Controversial or debated."], ans: 1 },
+        { tId: 1, q: "3. How does a 'maximizer' differ from a 'satisficer'?", opts: ["A. A maximizer decides quickly; a satisficer takes time.", "B. A maximizer seeks the best possible outcome; a satisficer accepts what is adequate.", "C. A maximizer buys more products than a satisficer.", "D. A maximizer suffers from anxiety; a satisficer does not care.", "E. A maximizer listens to advice; a satisficer ignores it."], ans: 1 },
+        { tId: 1, q: "4. Why does 'opportunity cost' lead to dissatisfaction?", opts: ["A. Because the rejected options cost more money.", "B. Because it forces the individual to return the item.", "C. Because the individual imagines the unchosen alternative was superior.", "D. Because it reduces future choices.", "E. Because it drains brain energy."], ans: 2 },
+        { tId: 1, q: "5. The author's tone regarding the 'prevailing logic' is:", opts: ["A. Supportive and admiring.", "B. Critical and analytical.", "C. Indifferent and detached.", "D. Angry and aggressive.", "E. Confused and hesitant."], ans: 1 },
+
+        // --- TEXT 2: ECONOMICS ---
+        { tId: 2, q: "6. The phrase 'democratizes style' implies that fast fashion:", opts: ["A. Allows people to vote on trends.", "B. Makes fashionable clothing affordable for the general public.", "C. Is controlled by political parties.", "D. Ensures high quality clothing.", "E. Promotes ethical standards."], ans: 1 },
+        { tId: 2, q: "7. All of the following are negative impacts EXCEPT:", opts: ["A. High water consumption.", "B. Release of microplastics.", "C. Increased carbon emissions.", "D. Exploitation of child labor.", "E. Creation of a culture of disposability."], ans: 3 },
+        { tId: 2, q: "8. The word 'ramifications' could best be replaced by:", opts: ["A. Benefits.", "B. Origins.", "C. Consequences.", "D. Requirements.", "E. Explanations."], ans: 2 },
+        { tId: 2, q: "9. What 'cycle' is referred to in the final paragraph?", opts: ["A. Recycling of polyester.", "B. Seasonal fashion trends.", "C. Repetitive buying caused by short-term psychological reward.", "D. The water cycle.", "E. Economic growth."], ans: 2 },
+        { tId: 2, q: "10. The primary obstacle to sustainability mentioned is:", opts: ["A. Lack of recycling technology.", "B. Government regulations.", "C. Consumer behavior driven by instant gratification.", "D. High cost of cotton.", "E. Scarcity of water."], ans: 2 },
+
+        // --- TEXT 3: SPACE SCIENCE ---
+        { tId: 3, q: "11. The 'Kessler Syndrome' describes:", opts: ["A. Alien invasion.", "B. Satellites failing due to solar flares.", "C. A chain reaction of collisions creating an impenetrable debris field.", "D. Earth's gravity increasing.", "E. Astronaut muscle atrophy."], ans: 2 },
+        { tId: 3, q: "12. What is the 'debris shield'?", opts: ["A. A protective barrier built by NASA.", "B. The ozone layer.", "C. A cloud of shrapnel preventing space travel.", "D. A new cleaning technology.", "E. A magnetic field."], ans: 2 },
+        { tId: 3, q: "13. The word 'posits' is synonymous with:", opts: ["A. Denies.", "B. Proves.", "C. Suggests / Hypothesizes.", "D. Calculates.", "E. Observes."], ans: 2 },
+        { tId: 3, q: "14. If the Kessler Syndrome occurs, a likely consequence is:", opts: ["A. Cheaper space travel.", "B. Humanity being trapped on Earth.", "C. Better weather forecasting.", "D. Faster discovery of planets.", "E. Expansion of the ISS."], ans: 1 },
+        { tId: 3, q: "15. The text implies the problem in LEO is:", opts: ["A. Solving itself.", "B. Caused by asteroids.", "C. Self-perpetuating once critical density is reached.", "D. Easily fixed with lasers.", "E. Not a threat yet."], ans: 2 },
+
+        // --- TEXT 4: TECH ETHICS ---
+        { tId: 4, q: "16. Why is algorithmic neutrality a 'misconception'?", opts: ["A. Computers make math errors.", "B. They are trained on data reflecting human prejudices.", "C. They are malicious.", "D. They don't understand language.", "E. They are too slow."], ans: 1 },
+        { tId: 4, q: "17. The hiring algorithm example illustrates how AI can:", opts: ["A. Improve diversity.", "B. Select candidates objectively.", "C. Automate and amplify existing discrimination.", "D. Replace HR managers.", "E. Predict market trends."], ans: 2 },
+        { tId: 4, q: "18. In the phrase 'eliminate it', 'it' refers to:", opts: ["A. The algorithm.", "B. The hiring process.", "C. Discrimination/Bias.", "D. The data.", "E. The industry."], ans: 2 },
+        { tId: 4, q: "19. The relationship between AI and historical data is:", opts: ["A. AI ignores history.", "B. AI corrects past mistakes.", "C. AI replicates patterns found in history.", "D. AI deletes data.", "E. AI creates new history."], ans: 2 },
+        { tId: 4, q: "20. The logical conclusion is that:", opts: ["A. We should stop using computers.", "B. Active human intervention is needed to correct bias.", "C. Algorithms are only for math.", "D. Men are better employees.", "E. Government should ban AI."], ans: 1 }
+    ]
+};
+    // --- ROUND 3: HIGH C1 (SCHOLASTIC / UTBK HARD) ---
+const round3Data = {
+    passages: [
         { 
-            tId: 4, 
-            q: "20. Why is quantum computing considered a matter of 'national security'?", 
-            opts: [
-                "A. Because it consumes too much electricity grid power.", 
-                "B. Because it could potentially decode sensitive state and financial data.", 
-                "C. Because it requires rare materials found only in one country.", 
-                "D. Because it will replace all human soldiers in the army.", 
-                "E. Because it is currently illegal to own a quantum computer."
-            ], 
-            ans: 1 
-        } // B
-    ];
+            id: 1, 
+            title: "TEXT 1: LINGUISTIC RELATIVITY", 
+            content: `<div class="academic-text">
+                <p>The Sapir-Whorf hypothesis, or linguistic relativity, posits that the <span class="adj-word">syntactic</span> structure of a language affects its speakers' world view. In its <span class="adj-word junk">strong</span> form, it claims language <em>determines</em> thought; in its <span class="adj-word core">weak</span> form, it merely <em>influences</em> it. Critics argue that while language frames perception—for example, the Guugu Yimithirr people use <span class="adj-word">cardinal</span> directions (North/South) instead of <span class="adj-word">egocentric</span> ones (Left/Right)—it does not constrain the <span class="adj-word">fundamental</span> capacity for thought.</p>
+                <p><span class="connector">Nevertheless</span>, the debate has seen a <span class="adj-word">recent</span> resurgence. Studies on "grammatical gender" suggest a <span class="adj-word">subtle</span> cognitive bias: objects like bridges are described as "<span class="adj-word">strong</span>" in German (where the word is masculine) but "<span class="adj-word">elegant</span>" in Spanish (where it is feminine). <span class="connector">Thus</span>, language may act as a <span class="adj-word">perceptual</span> filter rather than a prison.</p>
+            </div>` 
+        },
+        { 
+            id: 2, 
+            title: "TEXT 2: QUANTUM ENTANGLEMENT", 
+            content: `<div class="log-wrapper"><div class="log-header">// PHYSICS ARCHIVE</div><div class="log-body">
+                <div class="log-entry">Einstein derisively called it "spooky action at a distance." Quantum entanglement describes a <span class="adj-word">bizarre</span> phenomenon where particles remain connected so that the <span class="adj-word">physical</span> state of one is <span class="adj-word core">instantly</span> correlated with the other, regardless of <span class="adj-word">vast</span> distances.</div>
+                <br>
+                <div class="log-entry">This violates the <span class="adj-word">classical</span> principle of "locality," which dictates that objects are only influenced by their <span class="adj-word">immediate</span> surroundings. <span class="connector">However</span>, experiments with Bell's Theorem have <span class="adj-word">consistently</span> proven locality false. The implication is that the universe is <span class="adj-word core">fundamentally</span> non-local.</div>
+                <br>
+                <div class="log-entry">This challenges our <span class="adj-word">intuitive</span> understanding of information transfer, suggesting that at a <span class="adj-word">quantum</span> level, spatial separation is an <span class="adj-word junk">illusion</span>.</div>
+            </div></div>` 
+        },
+        { 
+            id: 3, 
+            title: "TEXT 3: GAME THEORY", 
+            content: `<div class="academic-text">
+                <p>In the "Tragedy of the Commons," individuals acting according to <span class="adj-word">rational</span> self-interest behave contrary to the <span class="adj-word">common</span> good by depleting a <span class="adj-word">shared</span> resource. <span class="connector">Conversely</span>, Elinor Ostrom's Nobel-winning work demonstrated that this <span class="adj-word junk">cynical</span> outcome is not <span class="adj-word">inevitable</span>.</p>
+                <p>Ostrom found that communities often develop <span class="adj-word core">polycentric</span> governance systems—<span class="adj-word">informal</span> rules and <span class="adj-word">social</span> norms—that manage resources <span class="adj-word">sustainably</span> without <span class="adj-word">top-down</span> government regulation. This refutes the view that only <span class="adj-word">external</span> force or privatization can prevent <span class="adj-word">resource</span> exhaustion. <span class="connector">Therefore</span>, human cooperation is more <span class="adj-word">robust</span> than classical economic models predict.</p>
+            </div>` 
+        },
+        { 
+            id: 4, 
+            title: "TEXT 4: THE DOCTRINE OF LACHES", 
+            content: `<div class="news-wrapper"><div class="news-body">
+                <p>In legal equity, the "Doctrine of Laches" asserts that a claim will not be enforced if a <span class="adj-word junk">long</span> delay in asserting the right has prejudiced the <span class="adj-word">adverse</span> party. It is often summarized as: "Equity aids the <span class="adj-word core">vigilant</span>, not those who slumber on their rights."</p>
+                <p><span class="connector">Unlike</span> a Statute of Limitations, which is a <span class="adj-word">fixed</span> time period set by law, Laches is <span class="adj-word">subjective</span>. It focuses on the <span class="adj-word">inherent</span> fairness of the delay. If a plaintiff waits ten years to sue for a <span class="adj-word">minor</span> property line dispute while the defendant builds a house, the court may rule that the plaintiff's inaction implies <span class="adj-word core">tacit</span> acquiescence.</p>
+            </div></div>` 
+        }
+    ],
+    questions: [
+        // LINGUISTICS
+        { tId: 1, q: "1. The 'strong form' of the Sapir-Whorf hypothesis implies that:", opts: ["A. Language and thought are unrelated.", "B. If a word does not exist in your language, you cannot think the concept.", "C. Language influences but does not trap the mind.", "D. Translation between languages is impossible.", "E. Grammar is biological."], ans: 1 }, // B
+        { tId: 1, q: "2. The example of the 'bridge' in German vs. Spanish illustrates:", opts: ["A. How grammatical gender influences conceptual association.", "B. The difficulty of engineering.", "C. The superiority of the German language.", "D. That translation errors are common.", "E. That bridges are seen as masculine in all cultures."], ans: 0 }, // A
+        { tId: 1, q: "3. What is the main contrast between 'cardinal' and 'egocentric' directions?", opts: ["A. One is scientific, the other is primitive.", "B. One uses absolute coordinates (N/S), the other uses relative body position (L/R).", "C. One is used for maps, the other for sailing.", "D. Cardinal directions are only found in English.", "E. Egocentric directions are more accurate."], ans: 1 }, // B
+        { tId: 1, q: "4. The word 'posits' in the first sentence is synonymous with:", opts: ["A. Denies.", "B. Proves.", "C. Suggests / Hypothesizes.", "D. Calculates.", "E. Observes."], ans: 2 }, // C
+        { tId: 1, q: "5. The author's conclusion is that language acts as:", opts: ["A. A prison wall.", "B. An irrelevant noise.", "C. A perceptual filter.", "D. A genetic mutation.", "E. A perfect mirror of reality."], ans: 2 }, // C
+        
+        // QUANTUM
+        { tId: 2, q: "6. Why did Einstein object to quantum entanglement?", opts: ["A. He didn't understand the math.", "B. It violated the principle of locality.", "C. It was too slow.", "D. It disproved gravity.", "E. It required too much energy."], ans: 1 }, // B
+        { tId: 2, q: "7. What does 'non-local' mean in this context?", opts: ["A. Existing outside the galaxy.", "B. Not originating from Earth.", "C. Capable of influencing events instantly across distance.", "D. Restricted to a single laboratory.", "E. Moving slower than light."], ans: 2 }, // C
+        { tId: 2, q: "8. The text implies that our 'classical' understanding of physics involves:", opts: ["A. Magic and superstition.", "B. Objects only affecting their immediate surroundings.", "C. Faster-than-light travel.", "D. Telepathy.", "E. Infinite energy."], ans: 1 }, // B
+        { tId: 2, q: "9. The word 'illusion' in the final sentence suggests that:", opts: ["A. Space does not exist.", "B. Distance may not be a fundamental barrier at the quantum level.", "C. Physics is a lie.", "D. We are living in a simulation.", "E. Scientists are tricking us."], ans: 1 }, // B
+        { tId: 2, q: "10. Bell's Theorem is mentioned to support the idea that:", opts: ["A. Einstein was right.", "B. Locality is false.", "C. Gravity is a wave.", "D. Time travel is possible.", "E. Atoms are solid."], ans: 1 }, // B
+        
+        // GAME THEORY
+        { tId: 3, q: "11. Elinor Ostrom's research challenged the 'Tragedy of the Commons' by showing that:", opts: ["A. Humans are naturally selfish.", "B. Resources are infinite.", "C. Privatization is the only solution.", "D. Communities can self-regulate without government.", "E. The tragedy is inevitable."], ans: 3 }, // D
+        { tId: 3, q: "12. What is 'polycentric governance'?", opts: ["A. A dictatorship.", "B. A system with many centers of decision-making (informal rules).", "C. A global government.", "D. A mathematical formula.", "E. A type of currency."], ans: 1 }, // B
+        { tId: 3, q: "13. The phrase 'top-down' refers to:", opts: ["A. Gravity.", "B. Centralized regulation imposed by a higher authority.", "C. Grassroots movements.", "D. Economic depression.", "E. Building construction."], ans: 1 }, // B
+        { tId: 3, q: "14. The standard 'Tragedy of the Commons' model assumes humans act based on:", opts: ["A. Altruism.", "B. Rational self-interest.", "C. Fear.", "D. Religious belief.", "E. Random chance."], ans: 1 }, // B
+        { tId: 3, q: "15. The word 'robust' in the final sentence means:", opts: ["A. Weak and fragile.", "B. Strong and resilient.", "C. Fat and heavy.", "D. Angry and loud.", "E. Expensive."], ans: 1 }, // B
+        
+        // LAW
+        { tId: 4, q: "16. The Doctrine of Laches differs from a Statute of Limitations because:", opts: ["A. Laches is a fixed number of years.", "B. Laches is based on fairness and prejudice caused by delay.", "C. Laches only applies to criminal cases.", "D. Statutes are subjective.", "E. Laches is a French law."], ans: 1 }, // B
+        { tId: 4, q: "17. In the example provided, the plaintiff loses the case because:", opts: ["A. The defendant paid them off.", "B. They 'slumbered' on their rights while the defendant acted.", "C. The house was illegal.", "D. The statute of limitations had passed.", "E. They lost the deed."], ans: 1 }, // B
+        { tId: 4, q: "18. What does 'prejudiced the adverse party' mean here?", opts: ["A. The defendant was racist.", "B. The delay caused unfair harm or disadvantage to the defendant.", "C. The judge was biased.", "D. The lawyer was late.", "E. The law was written incorrectly."], ans: 1 }, // B
+        { tId: 4, q: "19. The word 'tacit' implies:", opts: ["A. Loud and clear.", "B. Written down.", "C. Understood or implied without being stated.", "D. Illegal.", "E. Accidental."], ans: 2 }, // C
+        { tId: 4, q: "20. The saying 'Equity aids the vigilant' means the law favors:", opts: ["A. Those who stay awake all night.", "B. Those who act promptly to protect their rights.", "C. Those who hire expensive lawyers.", "D. Those who are wealthy.", "E. Those who are patient."], ans: 1 } // B
+    ]
+};
+
+    // --- MASTER CONFIG ---
+    const gameConfig = [round1Data, round2Data, round3Data];
+    let currentRoundIndex = 0;
+
+    // --- ACTIVE BUFFERS (The game reads these) ---
+    let passages = []; 
+    let questions = [];
 
 
     // =========================================================================
     // SECTION 4: MAIN GAME ENGINE (Start/Load/Check)
     // =========================================================================
+    // --- ROUND MANAGER ---
+
+    // --- TOOL: SUFFIX CUTTER SWAP LOGIC ---
+    function updateSuffixVisuals() {
+        const textPanel = document.getElementById('textPanel');
+        const isSuffixMode = textPanel.classList.contains('mode-suffix');
+        const morphs = document.querySelectorAll('.morph');
+
+        morphs.forEach(el => {
+            if (isSuffixMode) {
+                // TOOL ON: Inject HTML to strikethrough the suffix
+                // We use 'innerHTML' so the <span> tags work
+                el.innerHTML = el.getAttribute('data-cut'); 
+            } else {
+                // TOOL OFF: Show the clean word (the 'aria-label' or clean text)
+                // We can just grab the text content of the HTML to strip tags
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = el.getAttribute('data-cut');
+                el.innerText = tempDiv.innerText; // Removes the <span> tags
+            }
+        });
+    }
+
+    function loadRound(roundIdx) {
+        // 1. Victory Check (If we pass Round 3)
+        if (roundIdx >= gameConfig.length) {
+            winGame(); // Game Over - You Win!
+            return;
+        }
+
+        // 2. Load Data from the Config
+        currentRoundIndex = roundIdx;
+        
+        // CRITICAL: Copy the data into the active buffers
+        passages = [...gameConfig[roundIdx].passages];
+        questions = [...gameConfig[roundIdx].questions];
+        
+        // 3. Reset Counters for the new round
+        currentQIndex = 0;
+        
+        // 4. Debug / UI Update
+        console.log("Loading Round: " + (roundIdx + 1));
+        
+        // 5. Start the first question of this round
+        loadQuestion(0);
+    }
 
     function startBattle() {
         document.getElementById('introScreen').style.opacity = '0';
@@ -1445,7 +1511,7 @@
             document.getElementById('introScreen').style.display = 'none';
             document.getElementById('battleScreen').style.display = 'grid';
             document.getElementById('battleScreen').style.opacity = '1';
-            loadQuestion(0);
+            loadRound(0);
             startTimer();
             // Start the passive mana generation loop
             startBossLoop();
@@ -1490,6 +1556,7 @@
                     if(btn.innerText.includes("X-RAY")) textPanel.classList.add('mode-xray');
                     if(btn.innerText.includes("LOGIC")) textPanel.classList.add('mode-logic');
                 });
+                updateSuffixVisuals();
             }, 300);
         }
 
@@ -1535,6 +1602,8 @@
         // ============================================
         // 2. NORMAL GAMEPLAY LOGIC
         // ============================================
+        
+        // 1. LOCK ALL BUTTONS IMMEDIATELY
         const allBtns = document.querySelectorAll('.opt-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
         
@@ -1542,16 +1611,18 @@
         const comboDisplay = document.getElementById('comboDisplay');
 
         if(isCorrect) {
-            // --- WIN LOGIC ---
+            // --- WIN PATH ---
             comboStreak++; 
             
             // HERO: CHARGE ENERGY BAR
             processNeuralCharge(); 
             
+            // CALCULATE DAMAGE
             let totalDmg = baseDamage + (comboStreak * 1.5);
             currentHP -= totalDmg;
             document.getElementById('bossHP').style.width = Math.max(0, currentHP) + "%";
             
+            // VISUALS
             btn.classList.add('opt-correct');
             if(comboDisplay) {
                 comboDisplay.innerText = `CHAIN x${comboStreak}`;
@@ -1562,43 +1633,75 @@
             triggerVisualFX('win');
             try { playSound('win'); } catch(e){}
 
-            // Boss Visual Reaction
+            // BOSS REACTION
             if (currentHP < 30) bossEntity.classList.add('boss-critical');
             else {
                  bossEntity.classList.add('state-damaged');
                  setTimeout(() => bossEntity.classList.remove('state-damaged'), 1000);
             }
 
-            if(currentHP <= 0) setTimeout(winGame, 1000);
-            else setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 1500);
+            // NEXT STEP (Win Game or Next Question)
+            if(currentHP <= 0) {
+                setTimeout(winGame, 1000);
+            } else {
+                // ROUND TRANSITION LOGIC (WIN)
+                setTimeout(() => {
+                    if (currentQIndex + 1 < questions.length) {
+                        currentQIndex++;
+                        loadQuestion(currentQIndex);
+                    } else {
+                        // Round Finished -> Next Round
+                        alert("ROUND COMPLETE! PREPARE FOR NEXT PHASE...");
+                        loadRound(currentRoundIndex + 1);
+                    }
+                }, 1500);
+            }
 
         } else {
-            // --- LOSS LOGIC ---
+            // --- LOSS PATH (FIXED) ---
             comboStreak = 0;
+            
+            // VISUALS: Show Red button, show Green (correct) button
             btn.classList.add('opt-wrong');
             allBtns.forEach(b => { 
                 if(b.getAttribute('onclick').includes('true')) b.classList.add('opt-correct'); 
             });
             
-            // Move next after delay
-            setTimeout(() => { currentQIndex++; loadQuestion(currentQIndex); }, 2500);
-
-            // Penalties
+            // UI UPDATES
             if(comboDisplay) {
                 comboDisplay.innerText = "CHAIN BROKEN";
                 comboDisplay.classList.remove('combo-active');
             }
-            addMana(25); // Boss charges up
+            
+            // PENALTY: BOSS CHARGES MANA
+            addMana(25); 
             showFeedback(false, "WRONG! CHARGE +25%");
             
+            // BOSS ATTACK ANIMATION
             bossSpeak("attack");
             bossEntity.classList.add('state-attack');
             setTimeout(() => { bossEntity.classList.remove('state-attack'); }, 1500);
             
+            // SCREEN SHAKE & SOUND
             triggerVisualFX('lose');
             try { playSound('lose'); } catch(e){}
             document.body.classList.add('shake-screen');
             setTimeout(() => document.body.classList.remove('shake-screen'), 500);
+
+            // NEXT STEP (Loss Game or Next Question)
+            // ROUND TRANSITION LOGIC (LOSS)
+            setTimeout(() => {
+                // Check if we died from the penalty? (Optional, usually checked elsewhere)
+                
+                if (currentQIndex + 1 < questions.length) {
+                    currentQIndex++;
+                    loadQuestion(currentQIndex);
+                } else {
+                    // Even if you missed the last question, you move to the next round
+                    alert("ROUND COMPLETE! PREPARE FOR NEXT PHASE...");
+                    loadRound(currentRoundIndex + 1);
+                }
+            }, 2500); // Longer delay for wrong answers so you can see the correct one
         }
     }
 
@@ -1686,57 +1789,71 @@
     }
 
     
-    // --- SKILL 2: LOGIC VISUALIZER (Cost: 3) ---
+    
+    // --- SKILL 2: LOGIC VISUALIZER (UPDATED FOR NEW TEXTS) ---
     function castKeywordExtractor() {
         if(playerFocus < 3) return;
 
-        // 1. DEFINE LOGIC MAPS FOR THE NEW TEXTS
+        // MAPS MUST MATCH THE NEW TEXTS EXACTLY
         const logicSummaries = {
-            1: [ // Phase 1: Ocean Acidification
-                { type: "core", text: "CO2 Emissions" },
-                { type: "arrow", text: "ABSORBED BY" },
-                { type: "node", text: "Oceans (Lowers pH)" },
-                { type: "arrow", text: "CAUSES" },
-                { type: "core", text: "Calcification Decline" },
-                { type: "arrow", text: "RESULT" },
-                { type: "result", text: "ECOSYSTEM COLLAPSE" }
+            // --- ROUND 1 (B2) ---
+            1: [ // Coffee
+                { type: "node", text: "Coffee Houses" },
+                { type: "arrow", text: "CONSEQUENTLY" },
+                { type: "core", text: "Social Mixing" },
+                { type: "arrow", text: "HOWEVER" },
+                { type: "result", text: "Political Paranoia" }
             ],
-            2: [ // Phase 2: The Gig Economy
-                { type: "node", text: "Promise of Freedom" },
-                { type: "arrow", text: "VS" },
-                { type: "core", text: "Algorithmic Control" },
-                { type: "arrow", text: "MECHANISM" },
-                { type: "node", text: "Surveillance & Nudges" },
-                { type: "arrow", text: "REALITY" },
-                { type: "result", text: "PRECARIOUS LABOR" }
+            2: [ // Digital Nomads
+                { type: "node", text: "Tech Advances" },
+                { type: "arrow", text: "ENABLE" },
+                { type: "core", text: "Remote Work" },
+                { type: "arrow", text: "HOWEVER" },
+                { type: "result", text: "Isolation & Loneliness" }
             ],
-            3: [ // Phase 3: Ship of Theseus
-                { type: "node", text: "Object X (Original)" },
-                { type: "arrow", text: "PROCESS" },
-                { type: "core", text: "Gradual Replacement" },
-                { type: "arrow", text: "LEADS TO" },
-                { type: "node", text: "Object Y (New Parts)" },
-                { type: "arrow", text: "PARADOX" },
-                { type: "result", text: "IS X EQUAL TO Y?" }
+            3: [ // Bees
+                { type: "core", text: "Pollination Role" },
+                { type: "arrow", text: "MAKES THEM" },
+                { type: "node", text: "Irreplaceable" },
+                { type: "arrow", text: "CONVERSELY" },
+                { type: "result", text: "Collapse = Disaster" }
             ],
-            4: [ // Phase 4: Quantum Computing
-                { type: "core", text: "Classical Bits (0 or 1)" },
-                { type: "arrow", text: "REPLACED BY" },
-                { type: "core", text: "Qubits (Superposition)" },
-                { type: "arrow", text: "IMPLICATION" },
-                { type: "node", text: "Breaks RSA Encryption" },
-                { type: "arrow", text: "URGENCY" },
-                { type: "result", text: "POST-QUANTUM SECURITY" }
+            4: [ // Sara's Letter
+                { type: "node", text: "Mall Project" },
+                { type: "arrow", text: "IGNORES" },
+                { type: "core", text: "Traffic & Environment" },
+                { type: "arrow", text: "INSTEAD" },
+                { type: "result", text: "Revitalize Local Biz" }
+            ],
+
+            // --- ROUND 2 (C1) ---
+            5: [ // Paradox of Choice (Re-indexes to 5, 6, 7, 8 if continuing game)
+                 // NOTE: Game might reset Q index. Let's assume ID 1-4 for Round 2 as well.
+                 // BETTER LOGIC: Check currentRoundIndex in the function below.
             ]
         };
-
-        // 2. CALCULATE PHASE & EXECUTE
-        let currentPhase = 1;
-        if(currentQIndex >= 5) currentPhase = 2;
-        if(currentQIndex >= 10) currentPhase = 3;
-        if(currentQIndex >= 15) currentPhase = 4;
-
-        const chainData = logicSummaries[currentPhase];
+        
+        // DYNAMICALLY SELECT BASED ON ROUND
+        // If we are in Round 2, we need a different set of logic maps.
+        let chainData = [];
+        
+        // This simple switch handles the IDs based on the active Round
+        if (currentRoundIndex === 0) { // ROUND 1
+             // Map Q1-4 to the Logic 1-4
+             // We use (currentQIndex + 1) to match the ID
+             chainData = logicSummaries[currentQIndex + 1];
+        } 
+        else if (currentRoundIndex === 1) { // ROUND 2
+             // Define Round 2 Logic Here
+             const r2Logic = {
+                1: [{type:"core", text:"Too Many Choices"}, {type:"arrow", text:"CAUSES"}, {type:"node", text:"Paralysis"}, {type:"arrow", text:"THUS"}, {type:"result", text:"Unhappiness"}],
+                2: [{type:"node", text:"Fast Fashion"}, {type:"arrow", text:"LEADS TO"}, {type:"core", text:"Disposable Culture"}, {type:"arrow", text:"BUT"}, {type:"result", text:"Unsustainable"}],
+                3: [{type:"core", text:"Collisions"}, {type:"arrow", text:"CREATE"}, {type:"node", text:"More Debris"}, {type:"arrow", text:"ULTIMATELY"}, {type:"result", text:"Space Trap"}],
+                4: [{type:"node", text:"Historical Data"}, {type:"arrow", text:"CONTAINS"}, {type:"core", text:"Bias"}, {type:"arrow", text:"THEREFORE"}, {type:"result", text:"AI Discriminates"}]
+             };
+             let textRef
+             chainData = r2Logic[currentQIndex + 1];
+        }
 
         addFocus(-3);
         try { playSound('scan_activate'); } catch(e) {}
@@ -1752,6 +1869,8 @@
                     html += `<div class="chain-node ${item.type}">${item.text}</div>`;
                 }
             });
+        } else {
+             html += '<div class="chain-node">LOGIC DATA UNAVAILABLE</div>';
         }
         
         html += '</div>';
@@ -2108,14 +2227,36 @@
     }
 
     function toggleTool(btn, modeClass) {
-        // 1. Play Sound based on the tool
-        if (modeClass === 'mode-suffix') playSound('tool_cut');
-        if (modeClass === 'mode-xray') playSound('tool_scan');
-        if (modeClass === 'mode-logic') playSound('tool_logic');
+        const panel = document.getElementById('textPanel');
 
-        // 2. Visual Toggle
-        btn.classList.toggle('tool-active');
-        document.getElementById('textPanel').classList.toggle(modeClass);
+        if(btn.innerText.includes("ADJECTIVE") || modeClass === 'mode-suffix') {
+            modeClass = 'mode-adj'; 
+        }
+        
+        // 1. Toggle the class (Turn it on or off)
+        // This line adds/removes 'mode-suffix', 'mode-xray', etc.
+        const isActive = panel.classList.toggle(modeClass);
+        
+        // 2. Visual Feedback on the Button itself
+        if (isActive) {
+            btn.classList.add('tool-active');
+        } else {
+            btn.classList.remove('tool-active');
+        }
+
+        // 3. Play Sound based on the tool
+        if (isActive) {
+            if (modeClass === 'mode-suffix') try { playSound('tool_cut'); } catch(e){}
+            if (modeClass === 'mode-xray') try { playSound('tool_scan'); } catch(e){}
+            if (modeClass === 'mode-logic') { 
+                try { playSound('tool_logic'); } catch(e){}
+                // Special case for Logic: it needs to run its own extractor
+                castKeywordExtractor(); 
+            }
+        }
+
+        // 4. CRITICAL UPDATE: Refresh the text to show/hide hyphens
+        updateSuffixVisuals();
     }
 
     function winGame() {
