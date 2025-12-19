@@ -13,18 +13,19 @@
 
     <style>
         :root {
-            --bg: #FAFAF9;
+            --bg: #e6f5fb;
             --text-main: #1C1917;
             --text-muted: #57534E;
-            --gradient-blue: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-            --shadow-card: 0 10px 30px -5px rgba(0,0,0,0.06);
-            --shadow-hover: 0 20px 40px -5px rgba(37, 99, 235, 0.15);
+            --border-color: #000000;
+            --accent: #000000;
+            --highlight: #fef08a;
+            --font-main: 'JetBrains Mono', monospace;
         }
 
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: var(--font-main);
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
@@ -82,15 +83,29 @@
         
         /* HERO */
         header { text-align: center; margin-bottom: 60px; }
-        .super-title {
-            font-family: 'Lora', serif; font-size: 3rem; font-weight: 800; margin: 0; line-height: 1.1;
-            background: var(--gradient-blue); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        h1, h2, h3, .super-title, .trap-title {
+    font-family: var(--font-main);
+    text-transform: uppercase; /* Feels more like a manual/warning */
+    letter-spacing: -1px;
+    font-weight: 800;
+}
+
+.super-title {
+    background: none;
+    -webkit-text-fill-color: initial; /* Remove gradient text */
+    color: black;
+    text-decoration: underline; /* Simple emphasis */
+}
         .subtitle { font-size: 1.2rem; color: var(--text-muted); margin-top: 15px; font-weight: 500; }
 
         /* CONCEPT CARD */
         .concept-card {
-            background: white; border-radius: 24px; padding: 40px; margin-bottom: 40px; box-shadow: var(--shadow-card);
+            background: transparent; 
+            border: 2px solid var(--border-color);
+            border-radius: 0; 
+            padding: 20px; 
+            margin-bottom: 40px; 
+            box-shadow: none
         }
         h2 { font-family: 'Lora', serif; font-size: 1.8rem; margin-top: 0; }
 
@@ -110,7 +125,7 @@
         }
         .trap-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: #2563EB; }
         .trap-header { padding: 20px 25px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #F3F4F6; }
-        .t-red .trap-header { background: #FEF2F2; }
+        .t-red .trap-header { background: #FEF2F2; border-bottom: 2px solid black; color: red; }
         .t-yellow .trap-header { background: #FFFBEB; }
         .trap-icon { font-size: 1.5rem; }
         .trap-title { font-family: 'Lora', serif; font-weight: 700; font-size: 1.2rem; margin: 0; color: #111827; }
@@ -125,17 +140,28 @@
         .quiz-q { font-weight: 700; margin-bottom: 10px; display: block; }
 
         /* BUTTONS */
-        .option-btn {
-            display: block; width: 100%; text-align: left; padding: 12px 15px; 
-            margin-bottom: 8px; border: 2px solid #E5E5E5; border-radius: 10px; 
-            background: white; cursor: pointer; font-size: 0.95rem; transition: 0.2s;
-            color: #4B5563; font-weight: 500; position: relative; overflow: hidden;
-        }
-        .option-btn:hover { border-color: #2563EB; background: #EFF6FF; color: #1E40AF; }
+        .option-btn, .next-btn {
+    background: white;
+    border: 2px solid black;
+    color: black;
+    border-radius: 0; /* Sharp corners */
+    font-weight: bold;
+    box-shadow: 4px 4px 0px #000000; /* Hard offset shadow */
+    transition: 0.1s; /* Fast snap */
+    cursor: pointer;
+}
+
+.option-btn:hover, .next-btn:hover {
+    background: black;
+    color: white;
+    transform: translate(2px, 2px); /* Button creates a "click" effect */
+    box-shadow: 2px 2px 0px #000000;
+    border-color: black;
+}
         
         /* Feedback States */
-        .correct { background: #DCFCE7 !important; border-color: #16A34A !important; color: #14532D !important; pointer-events: none; }
-        .wrong { background: #FEE2E2 !important; border-color: #DC2626 !important; color: #7F1D1D !important; opacity: 0.6; pointer-events: none; }
+        .correct { background: black !important; border-color: white !important; color: white !important; pointer-events: none; }
+        .wrong { background: #FEE2E2 !important; border-color: black !important; color: black !important; opacity: 0.6; pointer-events: none; text-decoration: line-through;}
 
         .feedback-msg { 
             display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-size: 0.9rem; line-height: 1.6;
@@ -284,8 +310,9 @@
                 <div class="text-snippet">"The new carbon tax <strong>precipitated a significant shift</strong> in industrial behavior."</div>
                 <span class="quiz-q">Question: What was the result of the tax?</span>
                 
-                <button class="option-btn" onclick="checkTrap(this, 'fb1', false)">A. It precipitated a significant shift.</button>
-                <button class="option-btn" onclick="checkTrap(this, 'fb1', true)">B. It caused a major change in industries.</button>
+                <button class="option-btn" onclick="checkTrap(this, 'fb1', true)">A. It caused a major change in industries.</button>
+                
+                <button class="option-btn" onclick="checkTrap(this, 'fb1', false)">B. It precipitated a significant shift.</button>
                 
                 <div id="fb1" class="feedback-msg"></div>
             </div>
@@ -302,6 +329,7 @@
                 <span class="quiz-q">Question: What caused the collapse?</span>
                 
                 <button class="option-btn" onclick="checkTrap(this, 'fb2', false)">A. Drought was the <strong>sole</strong> cause.</button>
+                
                 <button class="option-btn" onclick="checkTrap(this, 'fb2', true)">B. Drought was a <strong>probable</strong> factor.</button>
                 
                 <div id="fb2" class="feedback-msg"></div>
@@ -318,8 +346,9 @@
                 <div class="text-snippet">"Inflation reduces purchasing power. Consequently, people buy fewer goods."</div>
                 <span class="quiz-q">Question: What is the <strong>cause</strong> of reduced power?</span>
                 
-                <button class="option-btn" onclick="checkTrap(this, 'fb3', false)">A. People buy fewer goods.</button>
-                <button class="option-btn" onclick="checkTrap(this, 'fb3', true)">B. High inflation rates.</button>
+                <button class="option-btn" onclick="checkTrap(this, 'fb3', true)">A. High inflation rates.</button>
+                
+                <button class="option-btn" onclick="checkTrap(this, 'fb3', false)">B. People buy fewer goods.</button>
                 
                 <div id="fb3" class="feedback-msg"></div>
             </div>
@@ -336,6 +365,7 @@
                 <span class="quiz-q">Question: What happens during REM sleep?</span>
                 
                 <button class="option-btn" onclick="checkTrap(this, 'fb4', false)">A. Eyes move fast and muscles become <strong>active</strong>.</button>
+                
                 <button class="option-btn" onclick="checkTrap(this, 'fb4', true)">B. Eyes move fast and body is immobile.</button>
                 
                 <div id="fb4" class="feedback-msg"></div>

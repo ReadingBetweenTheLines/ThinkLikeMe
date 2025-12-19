@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.H.I.E.L.D. LOGIN</title>
+
+    <style>
+    /* 1. GLOBAL VARIABLES (Must be defined for colors to work) */
+    :root {
+        --neon-blue: #38BDF8;
+        --dark-bg: #0F172A;
+        --gold: #FFD700;
+        --glass: rgba(30, 41, 59, 0.7);
+    }
+
+    * { box-sizing: border-box; }
+
+    /* 2. BODY LAYOUT */
+    body {
+        background-color: var(--dark-bg); 
+        color: white;
+        font-family: 'Courier New', monospace;
+        min-height: 100vh; 
+        margin: 0;
+        padding: 40px 20px;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center;
+        gap: 40px; 
+        background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+    }
+
+    /* 3. LOGIN CARD STYLES (The Top Box) */
+    .login-card {
+        background: var(--glass); 
+        border: 1px solid var(--neon-blue);
+        padding: 40px; 
+        border-radius: 12px; 
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 0 30px rgba(56, 189, 248, 0.2); 
+        backdrop-filter: blur(10px);
+    }
+    .login-card h1 { text-align: center; color: var(--neon-blue); margin: 0 0 5px 0; text-shadow: 0 0 10px var(--neon-blue); }
+    .login-card p { text-align: center; color: #94A3B8; font-size: 0.8rem; margin-bottom: 25px; }
+    
+    .input-group { margin-bottom: 15px; }
+    label { display: block; font-size: 0.7rem; color: #64748B; margin-bottom: 5px; }
+    
+    input, select {
+        width: 100%; padding: 12px; 
+        background: #020617; border: 1px solid #334155;
+        color: white; border-radius: 6px; 
+        font-family: inherit; font-size: 1rem;
+        transition: 0.3s;
+    }
+    input:focus, select:focus { border-color: var(--neon-blue); outline: none; }
+    
+    /* The big Access Button */
+    .login-btn {
+        width: 100%; padding: 15px; 
+        background: var(--neon-blue); color: white;
+        border: none; border-radius: 6px; 
+        font-weight: bold; cursor: pointer;
+        margin-top: 10px; font-size: 1rem; letter-spacing: 1px;
+        transition: 0.3s;
+    }
+    .login-btn:hover { background: #0284C7; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+
+    /* 4. LEADERBOARD CONTAINER (The Bottom Box) */
+    .lobby-leaderboard {
+        background: rgba(15, 23, 42, 0.6); 
+        backdrop-filter: blur(12px);       
+        border: 1px solid rgba(56, 189, 248, 0.3); 
+        border-top: 4px solid var(--neon-blue);    
+        border-radius: 12px;
+        padding: 30px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 0 40px rgba(56, 189, 248, 0.1); 
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Scanline Texture */
+    .lobby-leaderboard::before {
+        content: "";
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* 5. INTERACTIVE FILTER BUTTONS */
+    .filter-btn {
+        background: transparent;
+        border: 1px solid #334155;
+        color: #94A3B8;
+        padding: 8px 20px;
+        cursor: pointer;
+        font-family: inherit; font-weight: bold;
+        transition: 0.3s;
+        border-radius: 4px;
+        position: relative; z-index: 2;
+    }
+    .filter-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
+    .filter-btn.active {
+        background: var(--neon-blue);
+        color: white;
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+    }
+
+    /* 6. FUTURISTIC TABLE (Floating Rows) */
+    .lobby-table {
+        width: 100%;
+        border-collapse: separate; 
+        border-spacing: 0 8px; /* This creates the floating effect */
+        position: relative; z-index: 2;
+    }
+
+    .lobby-table th { 
+        color: #64748B; 
+        text-align: left; 
+        padding: 10px 15px; 
+        font-size: 0.75rem; 
+        letter-spacing: 1px;
+    }
+
+    .lobby-table tbody tr {
+        background: rgba(30, 41, 59, 0.5); /* Dark capsule background */
+        transition: 0.2s;
+    }
+    .lobby-table tbody tr:hover {
+        background: rgba(56, 189, 248, 0.15);
+        transform: scale(1.01);
+    }
+
+    .lobby-table td { 
+        padding: 12px 15px; 
+        border: none; 
+        color: #E2E8F0; 
+    }
+    
+    /* Rounded corners for rows */
+    .lobby-table td:first-child { border-radius: 6px 0 0 6px; }
+    .lobby-table td:last-child { border-radius: 0 6px 6px 0; font-weight:bold; }
+    
+    .top-score { color: var(--gold) !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+
+    .tab {
+        width: 100%; padding: 15px; 
+        background: var(--neon-blue); color: rgb(181, 169, 169);
+        border: none; border-radius: 6px; 
+        font-weight: bold; cursor: pointer;
+        margin-top: 10px; font-size: 1rem; letter-spacing: 1px;
+        transition: 0.3s;    
+    }
+
+    .tab:hover { 
+        background: #5caeed; 
+        box-shadow: 0 0 20px rgba(170, 222, 243, 0.5);
+        }
+</style>
+
+</head>
+<body>
+
+    <div class="login-card">
+        <h1>CADET LOGIN</h1>
+        <p>SECURE TERMINAL // AUTHORIZATION REQUIRED</p>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label>FULL NAME</label>
+                <input type="text" id="realName" placeholder="e.g. Budi Santoso" required>
+            </div>
+
+            <div class="input-group">
+                <label>CODENAME (Leaderboard Name)</label>
+                <input type="text" id="username" placeholder="e.g. MAVERICK_01" maxlength="12" required style="text-transform:uppercase;">
+            </div>
+
+            <div class="input-group">
+                <label>ORIGIN SCHOOL</label>
+                <input type="text" id="school" placeholder="e.g. SMA N 1 Medan" required>
+            </div>
+
+            <div class="input-group">
+                <label>ENGLISH PROFICIENCY (Self-Assessed)</label>
+                <select id="proficiency">
+                    <option value="A2">Beginner (A2)</option>
+                    <option value="B1">Intermediate (B1)</option>
+                    <option value="B2">Upper Intermediate (B2)</option>
+                    <option value="C1">Advanced (C1)</option>
+                </select>
+            </div>
+
+            <button class="tab" type="submit" style= "background-color: #0f172a; color-scheme: var(--gold); color: #FFD700; font-style: oblique; font-style: var(--gold);">ACCESS SIMULATION &gt;</button>
+        </form>
+    </div>
+
+    <div class="lobby-leaderboard">
+    <h3 style="text-align:center; color:#FFD700; margin-top:0; text-shadow:0 0 10px rgba(255, 215, 0, 0.3);">
+        🏆 HALL OF FAME
+    </h3>
+    
+    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px;">
+        <button onclick="loadLobbyScores(1)" style="padding:5px 10px; font-size:0.7rem; width:auto;">LVL 1</button>
+        <button onclick="loadLobbyScores(2)" style="padding:5px 10px; font-size:0.7rem; width:auto;">LVL 2</button>
+        <button onclick="loadLobbyScores(3)" style="padding:5px 10px; font-size:0.7rem; width:auto;">BOSS</button>
+    </div>
+
+    <table class="lobby-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>CADET</th>
+                <th>SCORE</th>
+            </tr>
+        </thead>
+        <tbody id="lobbyScoreList">
+            <tr><td colspan="3" style="text-align:center;">Loading Data...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+    <script type="module">
+    // IMPORT FIREBASE
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyApN_x2Kh3S-iCFR7d1oOhq6sRuSL2TSoE",
+  authDomain: "english-raid-db.firebaseapp.com",
+  projectId: "english-raid-db",
+  storageBucket: "english-raid-db.firebasestorage.app",
+  messagingSenderId: "260238909700",
+  appId: "1:260238909700:web:e21f62684fbf2d1f33f051",
+  measurementId: "G-09T6NKG8HV"
+};
+
+    // 3. INITIALIZE
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 4. FETCH FUNCTION
+    window.loadLobbyScores = async function(level) {
+        const list = document.getElementById('lobbyScoreList');
+        list.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94A3B8;">Scanning Database...</td></tr>`;
+
+        try {
+            // Get all scores (simple query)
+            const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(50));
+            const querySnapshot = await getDocs(q);
+            
+            let scores = [];
+            querySnapshot.forEach((doc) => scores.push(doc.data()));
+
+            // Filter by Level & Sort
+            scores = scores.filter(s => s.level == level);
+            scores = scores.slice(0, 5); // Show Top 5 only to save space
+
+            // Render
+            list.innerHTML = "";
+            if(scores.length === 0) {
+                list.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748B;">No Records Found</td></tr>`;
+                return;
+            }
+
+            scores.forEach((s, index) => {
+                const rankClass = index === 0 ? "top-score" : "";
+                const medal = index === 0 ? "🥇 " : (index === 1 ? "🥈 " : (index === 2 ? "🥉 " : `#${index+1}`));
+                
+                list.innerHTML += `
+                <tr>
+                    <td class="${rankClass}">${medal}</td>
+                    <td class="${rankClass}">
+                        ${s.name} <br>
+                        <span style="font-size:0.6rem; color:#64748B; font-weight:normal;">${s.school}</span>
+                    </td>
+                    <td class="${rankClass}" style="font-family:monospace;">${s.score}</td>
+                </tr>`;
+            });
+
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#EF4444;">Connection Error</td></tr>`;
+        }
+    };
+
+    // Load Level 1 by default when page opens
+    loadLobbyScores(1);
+    </script>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault(); // Stop page reload
+
+            // 1. Collect Data
+            const profile = {
+                realName: document.getElementById('realName').value,
+                username: document.getElementById('username').value.toUpperCase(),
+                school: document.getElementById('school').value,
+                level: document.getElementById('proficiency').value,
+                loginTime: new Date().toISOString()
+            };
+
+            // 2. Save to Browser Memory
+            localStorage.setItem('cadetProfile', JSON.stringify(profile));
+
+            // 3. Redirect to Game
+            window.location.href = 'materi-4-simulasi.html';
+        }
+    </script>
+</body>
+</html>

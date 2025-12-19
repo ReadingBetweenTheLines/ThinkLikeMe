@@ -10,371 +10,205 @@
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --bg: #FDFBF7; 
-            --surface: #FFFFFF;
-            --text-main: #2D2A26;
-            --text-muted: #635F59;
-            --border: #E5E5E5;
-            
-            /* Theme: The Field Guide (Green/Emerald) */
-            --brand: #059669; /* Emerald 600 */
-            --brand-dark: #064E3B; /* Emerald 900 */
-            
-            /* Dark Mode Hover */
-            --dark-bg: #064E3B; 
-            
-            /* Accents */
-            --accent-red: #E11D48;
-            --accent-gold: #F59E0B;
-            --accent-blue: #3B82F6;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.7;
-        }
-
-        .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
-
-        /* NAV & HEADER */
-        .nav-header { 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; 
-            background: white; padding: 10px 20px; border-radius: 50px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border);
-        }
-        .back-link { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.9rem; }
+    :root {
+        --bg: #FDFBF7; 
+        --surface: #FFFFFF;
+        --text-main: #2D2A26;
+        --text-muted: #635F59;
+        --border: #E5E5E5;
         
-        header { text-align: center; margin-bottom: 50px; }
-        .super-title {
-            font-family: 'Lora', serif; font-size: 3rem; font-weight: 800; margin: 0; line-height: 1.1;
-            color: var(--brand-dark); letter-spacing: -0.02em;
-        }
-        .subtitle { font-size: 1.2rem; color: var(--text-muted); margin-top: 15px; font-weight: 500; }
-
-        /* WORKBENCH (Interactive Hero) */
-        .workbench {
-            background: #111827; color: white; border-radius: 20px; padding: 30px;
-            box-shadow: 0 20px 50px -10px rgba(6, 78, 59, 0.25); margin-bottom: 60px;
-            position: relative; overflow: hidden; border: 1px solid #374151;
-        }
-        .wb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #374151; padding-bottom: 15px; }
-        .wb-label { font-family: monospace; color: #34D399; font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; }
-        .refresh-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        /* Theme: The Field Guide (Green/Emerald) */
+        --brand: #059669; /* Emerald 600 */
+        --brand-dark: #064E3B; /* Emerald 900 */
+        --brand-soft: #D1FAE5; /* Emerald 100 */
         
-        .wb-text { font-family: 'Lora', serif; font-size: 1.35rem; line-height: 1.8; margin: 20px 0 30px 0; color: #E5E7EB; min-height: 120px; }
-
-        /* Dynamic Classes */
-        .tail { transition: 0.3s; border-bottom: 2px dashed rgba(239, 68, 68, 0.5); }
-        .hide-tails .tail { opacity: 0.1; text-decoration: line-through; border: none; }
-        .comma-trap { transition: 0.3s; color: #9CA3AF; }
-        .hide-commas .comma-trap { opacity: 0; display: none; } 
-        .show-light .lighthouse { color: #FCD34D; font-weight: 800; }
-        .show-light .verb { background: #FCD34D; color: #111827; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
-
-        .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .ctrl-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #D1D5DB; 
-            padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.2s;
-        }
-        .ctrl-btn.active { background: var(--brand); color: white; border-color: var(--brand); }
-
-        /* TOOL CARDS */
-        .toolkit-grid { display: grid; gap: 20px; margin-bottom: 60px; }
-        .tool-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 30px;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        .tool-card:hover { background: var(--dark-bg); border-color: var(--dark-bg); transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(6, 78, 59, 0.3); }
-        .tool-card h3 { font-family: 'Lora', serif; font-size: 1.4rem; margin: 0 0 10px 0; color: var(--text-main); transition: 0.3s; }
-        .tool-card:hover h3, .tool-card:hover p { color: white; }
+        /* Dark Mode Hover */
+        --dark-bg: #064E3B; 
         
-        .icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px; transition: 0.3s; }
-        .i-red { background: #FFF1F2; color: var(--accent-red); } .i-gold { background: #FFFBEB; color: var(--accent-gold); } .i-blue { background: #EFF6FF; color: var(--accent-blue); }
-        .tool-card:hover .icon-box { background: rgba(255,255,255,0.1); color: white; }
+        /* Accents */
+        --accent-red: #E11D48;
+        --accent-gold: #F59E0B;
+        --accent-blue: #3B82F6;
+    }
 
-        .chip { font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; background: #F3F4F6; color: #374151; margin-right: 5px; display:inline-block; margin-bottom:5px; }
+    * { box-sizing: border-box; }
 
-        /* PROTOCOL FLOWCHART (New) */
-        .protocol-section { background: white; padding: 30px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 60px; }
-        .step { display: flex; gap: 20px; margin-bottom: 25px; position: relative; }
-        .step:not(:last-child)::after {
-            content: ''; position: absolute; left: 20px; top: 45px; bottom: -20px; width: 2px; background: #E5E5E5; z-index: 0;
-        }
-        .step-num { 
-            width: 42px; height: 42px; background: #111827; color: white; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; z-index: 1;
-        }
-        .step-content h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
-        .step-content p { margin: 0; font-size: 0.95rem; color: var(--text-muted); }
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--bg);
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+        line-height: 1.7;
+    }
 
-        /* REFLEX QUIZ (New) */
-        .reflex-quiz { margin-top: 20px; }
-        .quiz-item { background: #F8FAFC; padding: 20px; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 15px; }
-        .quiz-q { font-family: 'Georgia', serif; font-style: italic; font-size: 1.1rem; margin-bottom: 15px; display: block; color: #334155; }
-        .quiz-opts { display: flex; gap: 10px; }
-        .q-btn { 
-            flex: 1; padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; background: white; cursor: pointer; font-weight: 700; transition: 0.2s;
-        }
-        .q-btn:hover { background: #EFF6FF; border-color: var(--brand); }
-        .q-correct { background: #10B981 !important; color: white !important; border-color: #10B981 !important; }
-        .q-wrong { background: #EF4444 !important; color: white !important; border-color: #EF4444 !important; opacity: 0.5; }
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
 
-        /* NEXT BTN */
-        .next-container { margin-top: 60px; text-align: center; }
-        .next-btn {
-            background: #1C1917; color: white; text-decoration: none; padding: 18px 40px; border-radius: 50px; font-weight: 700; 
-            display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
-        }
-        .next-btn:hover { background: var(--brand); transform: scale(1.05); }
+    /* NAV & HEADER */
+    .nav-header { 
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; 
+        background: white; padding: 10px 20px; border-radius: 50px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border);
+    }
+    .back-link { text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.9rem; }
+    
+    header { text-align: center; margin-bottom: 50px; }
+    .super-title {
+        font-family: 'Lora', serif; font-size: 3rem; font-weight: 800; margin: 0; line-height: 1.1;
+        color: var(--brand-dark); letter-spacing: -0.02em;
+    }
+    .subtitle { font-size: 1.2rem; color: var(--text-muted); margin-top: 15px; font-weight: 500; }
 
-        /* ================= DECODER CARD STYLES ================= */
-        .decoder-card {
-            background: #064E3B; /* Deep Emerald */
-            border-radius: 20px;
-            padding: 30px;
-            color: white;
-            box-shadow: 0 20px 40px -10px rgba(6, 78, 59, 0.5);
-            border: 1px solid #059669;
-            position: relative;
-            overflow: hidden;
-        }
+    /* WORKBENCH (Interactive Hero) */
+    .workbench {
+        background: #111827; color: white; border-radius: 20px; padding: 30px;
+        box-shadow: 0 20px 50px -10px rgba(6, 78, 59, 0.25); margin-bottom: 60px;
+        position: relative; overflow: hidden; border: 1px solid #374151;
+    }
+    .wb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #374151; padding-bottom: 15px; }
+    .wb-label { font-family: monospace; color: #34D399; font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; }
+    .refresh-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    
+    .wb-text { font-family: 'Lora', serif; font-size: 1.35rem; line-height: 1.8; margin: 20px 0 30px 0; color: #E5E7EB; min-height: 120px; }
 
-        /* Tech Background Pattern */
-        .decoder-card::before {
-            content: "010101010101";
-            position: absolute; top: -10px; right: 0;
-            font-family: monospace; font-size: 4rem; color: rgba(255,255,255,0.03);
-            transform: rotate(-10deg);
-        }
+    /* Dynamic Classes */
+    .tail { transition: 0.3s; border-bottom: 2px dashed rgba(239, 68, 68, 0.5); }
+    .hide-tails .tail { opacity: 0.1; text-decoration: line-through; border: none; }
+    .comma-trap { transition: 0.3s; color: #9CA3AF; }
+    .hide-commas .comma-trap { opacity: 0; display: none; } 
+    .show-light .lighthouse { color: #FCD34D; font-weight: 800; }
+    .show-light .verb { background: #FCD34D; color: #111827; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
 
-        .decoder-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
-        
-        .decoder-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-        }
-        @media(max-width: 600px) { .decoder-grid { grid-template-columns: 1fr; } }
+    .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .ctrl-btn {
+        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #D1D5DB; 
+        padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.2s;
+    }
+    .ctrl-btn.active { background: var(--brand); color: white; border-color: var(--brand); }
 
-        .decoder-col {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px dashed rgba(255,255,255,0.1);
-        }
+    /* TOOL CARDS */
+    .toolkit-grid { display: grid; gap: 20px; margin-bottom: 60px; }
+    .tool-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 30px;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .tool-card:hover { background: var(--dark-bg); border-color: var(--dark-bg); transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(6, 78, 59, 0.3); }
+    .tool-card h3 { font-family: 'Lora', serif; font-size: 1.4rem; margin: 0 0 10px 0; color: var(--text-main); transition: 0.3s; }
+    .tool-card:hover h3, .tool-card:hover p { color: white; }
+    
+    .icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px; transition: 0.3s; }
+    .i-red { background: #FFF1F2; color: var(--accent-red); } .i-gold { background: #FFFBEB; color: var(--accent-gold); } .i-blue { background: #EFF6FF; color: var(--accent-blue); }
+    .tool-card:hover .icon-box { background: rgba(255,255,255,0.1); color: white; }
 
-        .d-label { display: block; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; }
-        .text-red { color: #FCA5A5; }
-        .text-green { color: #6EE7B7; }
+    .chip { font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; background: #F3F4F6; color: #374151; margin-right: 5px; display:inline-block; margin-bottom:5px; }
 
-        .d-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; }
-        .d-list li { margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
-        .d-list strong { color: white; font-family: monospace; font-size: 1rem; }
-        .d-list em { color: #9CA3AF; font-size: 0.8rem; margin-left: 5px; }
+    /* PROTOCOL FLOWCHART */
+    .protocol-section { background: white; padding: 30px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 60px; }
+    .step { display: flex; gap: 20px; margin-bottom: 25px; position: relative; }
+    .step:not(:last-child)::after {
+        content: ''; position: absolute; left: 20px; top: 45px; bottom: -20px; width: 2px; background: #E5E5E5; z-index: 0;
+    }
+    .step-num { 
+        width: 42px; height: 42px; background: #111827; color: white; border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; z-index: 1;
+    }
+    .step-content h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
+    .step-content p { margin: 0; font-size: 0.95rem; color: var(--text-muted); }
 
-        /* ================= X-RAY GALLERY STYLES (Interactive) ================= */
-        .xray-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
+    /* REFLEX QUIZ */
+    .reflex-quiz { margin-top: 20px; }
+    .quiz-item { background: #F8FAFC; padding: 20px; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 15px; }
+    .quiz-q { font-family: 'Georgia', serif; font-style: italic; font-size: 1.1rem; margin-bottom: 15px; display: block; color: #334155; }
+    .quiz-opts { display: flex; gap: 10px; }
+    .q-btn { 
+        flex: 1; padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; background: white; cursor: pointer; font-weight: 700; transition: 0.2s;
+    }
+    .q-btn:hover { background: #EFF6FF; border-color: var(--brand); }
+    .q-correct { background: #10B981 !important; color: white !important; border-color: #10B981 !important; }
+    .q-wrong { background: #EF4444 !important; color: white !important; border-color: #EF4444 !important; opacity: 0.5; }
 
-        .xray-card {
-            background: white;
-            border: 1px solid #E5E5E5;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); /* Smooth Physics */
-            position: relative;
-            cursor: default;
-        }
+    /* NEXT BTN */
+    .next-container { margin-top: 60px; text-align: center; }
+    .next-btn {
+        background: #1C1917; color: white; text-decoration: none; padding: 18px 40px; border-radius: 50px; font-weight: 700; 
+        display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+    }
+    .next-btn:hover { background: var(--brand); transform: scale(1.05); }
 
-        /* HEADER */
-        .xray-header {
-            background: #F8FAFC;
-            padding: 15px 20px;
-            border-bottom: 1px solid #E5E5E5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
-        }
-        .xray-tag {
-            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--brand-dark); background: var(--brand-soft);
-            padding: 4px 10px; border-radius: 4px;
-        }
-        /* Hover Hint */
-        .hover-hint { font-size: 1.2rem; opacity: 0.5; transition: 0.3s; }
+    /* DECODER CARD */
+    .decoder-card {
+        background: #064E3B; /* Deep Emerald */
+        border-radius: 20px;
+        padding: 30px;
+        color: white;
+        box-shadow: 0 20px 40px -10px rgba(6, 78, 59, 0.5);
+        border: 1px solid #059669;
+        position: relative;
+        overflow: hidden;
+    }
+    .decoder-card::before {
+        content: "010101010101";
+        position: absolute; top: -10px; right: 0;
+        font-family: monospace; font-size: 4rem; color: rgba(255,255,255,0.03);
+        transform: rotate(-10deg);
+    }
+    .decoder-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+    
+    .decoder-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    @media(max-width: 600px) { .decoder-grid { grid-template-columns: 1fr; } }
+    
+    .decoder-col {
+        background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);
+    }
+    .d-label { display: block; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; }
+    .text-red { color: #FCA5A5; } .text-green { color: #6EE7B7; }
+    .d-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; }
+    .d-list li { margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
 
-        /* CONTENT AREA */
-        .xray-content { padding: 25px; transition: 0.3s; }
+    /* SCANNER / XRAY STYLES */
+    .scanner-card {
+        background: white; border: 1px solid #E5E5E5; border-radius: 16px;
+        box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); overflow: hidden; transition: 0.4s ease; position: relative;
+    }
+    .scanner-header { background: #F1F5F9; padding: 15px; border-bottom: 1px solid #E5E5E5; display: flex; align-items: center; }
+    .scanner-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .red { background: #EF4444; } .yellow { background: #F59E0B; } .green { background: #10B981; }
 
-        .full-text {
-            font-family: 'Georgia', serif; font-size: 1.15rem; line-height: 1.8; 
-            color: #334155; margin-bottom: 20px; transition: 0.3s;
-        }
+    .scanner-content { padding: 30px; font-family: 'Georgia', serif; font-size: 1.2rem; line-height: 1.8; color: #334155; transition: 0.4s; }
+    .scanner-footer { padding: 15px; border-top: 1px solid #E5E5E5; text-align: center; background: white; transition: 0.4s; }
+    .scan-btn { background: #1C1917; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .scan-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-        /* === THE MAGIC TRANSITIONS === */
-        
-        /* 1. JUNK WORDS (Normal -> Red Crossed Out) */
-        .junk {
-            transition: all 0.4s ease;
-            color: inherit; /* Blends in normally */
-            text-decoration: none;
-        }
+    /* Active State Logic */
+    .scan-active { background: #111827; border-color: #1F293B; }
+    .scan-active .scanner-header, .scan-active .scanner-footer { background: #1F293B; border-color: #374151; }
+    .scan-active .scanner-content { color: #E5E7EB; }
+    .scan-active .noise { color: #4B5563; opacity: 0.3; filter: blur(0.5px); }
+    .scan-active strong { font-weight: 800; color: #34D399; background: rgba(16, 185, 129, 0.15); padding: 0 4px; border-radius: 4px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+    .scan-active .scan-btn { background: #34D399; color: #064E3B; }
 
-        /* 2. CORE WORDS (Normal -> Gold Highlight) */
-        .core {
-            transition: all 0.4s ease;
-            background: transparent;
-            padding: 0 2px;
-            border-radius: 4px;
-        }
+    /* XRAY CARDS (from X-Ray Grid) */
+    .xray-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .xray-card { background: white; border: 1px solid #E5E5E5; border-radius: 16px; overflow: hidden; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: default; }
+    .xray-header { background: #F8FAFC; padding: 15px 20px; border-bottom: 1px solid #E5E5E5; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+    .xray-tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--brand-dark); background: var(--brand-soft); padding: 4px 10px; border-radius: 4px; }
+    .xray-content { padding: 25px; transition: 0.3s; }
+    .full-text { font-family: 'Georgia', serif; font-size: 1.15rem; line-height: 1.8; color: #334155; margin-bottom: 20px; transition: 0.3s; }
+    
+    /* Junk & Core */
+    .junk { transition: all 0.4s ease; color: inherit; text-decoration: none; }
+    .core { transition: all 0.4s ease; background: transparent; padding: 0 2px; border-radius: 4px; }
+    .skeleton-view { background: #F1F5F9; color: #94A3B8; padding: 15px; border-radius: 8px; margin-top: 15px; transition: 0.4s; border: 1px dashed #CBD5E1; }
+    .clean-text { font-family: monospace; font-size: 1rem; font-weight: bold; margin: 0; }
 
-        /* 3. RESULT BOX (Dim -> Bright) */
-        .skeleton-view {
-            background: #F1F5F9; /* Light Grey initially */
-            color: #94A3B8; /* Dim text */
-            padding: 15px; border-radius: 8px; margin-top: 15px;
-            transition: 0.4s; border: 1px dashed #CBD5E1;
-        }
-        .clean-text { font-family: monospace; font-size: 1rem; font-weight: bold; margin: 0; }
-
-        /* ================= HOVER STATE (X-RAY ON) ================= */
-        
-        .xray-card:hover {
-            background: #111827; /* Dark Mode Background */
-            border-color: #111827;
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4);
-        }
-
-        .xray-card:hover .xray-header {
-            background: #1F293B; /* Slightly lighter dark */
-            border-color: #374151;
-        }
-        .xray-card:hover .hover-hint { opacity: 1; transform: scale(1.2); }
-
-        .xray-card:hover .full-text { color: #E5E7EB; } /* Text turns white */
-
-       /* Reveal The Junk (Updated for Readability) */
-        .xray-card:hover .junk {
-            color: #f4f5f3; /* Muted Slate Grey (Readable on dark) */
-            text-decoration: line-through;
-            text-decoration-color: #F43F5E; /* Bright Rose/Pink Line */
-            text-decoration-thickness: 2px;
-            opacity: 0.6; /* Dim enough to be ignored, bright enough to read */
-        }
-        
-
-        /* Reveal The Core */
-        .xray-card:hover .core {
-            background: #FCD34D; /* Gold Background */
-            color: #111827; /* Dark Text */
-            box-shadow: 0 0 15px rgba(252, 211, 77, 0.5); /* Glow effect */
-        }
-
-        /* Reveal The Result */
-        .xray-card:hover .skeleton-view {
-            background: #064E3B; /* Dark Green */
-            color: #34D399; /* Terminal Green */
-            border-color: #059669;
-        }
-
-        /* ================= PARAGRAPH SCANNER STYLES ================= */
-        .scanner-card {
-            background: white;
-            border: 1px solid #E5E5E5;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05);
-            overflow: hidden;
-            transition: 0.4s ease;
-            position: relative;
-        }
-
-        .scanner-header {
-            background: #F1F5F9;
-            padding: 15px;
-            border-bottom: 1px solid #E5E5E5;
-            display: flex; align-items: center;
-        }
-        .scanner-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .red { background: #EF4444; } .yellow { background: #F59E0B; } .green { background: #10B981; }
-
-        .scanner-content {
-            padding: 30px;
-            font-family: 'Georgia', serif;
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: #334155;
-            transition: 0.4s;
-        }
-
-        .scanner-footer {
-            padding: 15px;
-            border-top: 1px solid #E5E5E5;
-            text-align: center;
-            background: white;
-            transition: 0.4s;
-        }
-
-        .scan-btn {
-            background: #1C1917; color: white; border: none; padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.2s;
-        }
-        .scan-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-
-        /* ================= PARAGRAPH SCANNER LOGIC ================= */
-        
-        /* 1. DEFAULT STATE (Hidden Answers) */
-        .scanner-content strong {
-            font-weight: 400; /* Normal weight (Hidden) */
-            color: inherit;
-            background: transparent;
-            transition: all 0.4s ease;
-        }
-        
-        .scanner-content .noise {
-            transition: all 0.4s ease;
-        }
-
-        /* 2. ACTIVE STATE (The Reveal) */
-        .scan-active {
-            background: #111827; /* Dark Mode */
-            border-color: #1F293B;
-        }
-        .scan-active .scanner-header { background: #1F293B; border-color: #374151; }
-        .scan-active .scanner-footer { background: #1F293B; border-color: #374151; }
-        
-        .scan-active .scanner-content { color: #E5E7EB; }
-        
-        /* Fade out the noise */
-        .scan-active .noise {
-            color: #4B5563; /* Very Dim Grey */
-            opacity: 0.3;
-            filter: blur(0.5px);
-        }
-        
-        /* Highlight the Core */
-        .scan-active strong {
-            font-weight: 800; /* BOOM: Bold */
-            color: #34D399; /* Terminal Green */
-            background: rgba(16, 185, 129, 0.15);
-            padding: 0 4px;
-            border-radius: 4px;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); /* Glow */
-        }
-        
-        .scan-active .scan-btn { background: #34D399; color: #064E3B; }
-
-    </style>
+    /* Hover State (X-Ray On) */
+    .xray-card:hover { background: #111827; border-color: #111827; transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); }
+    .xray-card:hover .xray-header { background: #1F293B; border-color: #374151; }
+    .xray-card:hover .full-text { color: #E5E7EB; }
+    .xray-card:hover .junk { color: #f4f5f3; text-decoration: line-through; text-decoration-color: #F43F5E; opacity: 0.6; }
+    .xray-card:hover .core { background: #FCD34D; color: #111827; box-shadow: 0 0 15px rgba(252, 211, 77, 0.5); }
+    .xray-card:hover .skeleton-view { background: #064E3B; color: #34D399; border-color: #059669; }
+</style>
 </head>
 <body>
 
